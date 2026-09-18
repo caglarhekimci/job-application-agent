@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/sandbox/">
+    <Project Path="sandbox/JobAgent.FakeCareerSite/JobAgent.FakeCareerSite.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/JobAgent.Core/JobAgent.Core.csproj" />
+    <Project Path="src/JobAgent.Infrastructure/JobAgent.Infrastructure.csproj" />
+    <Project Path="src/JobAgent.Web/JobAgent.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/JobAgent.E2E.Tests/JobAgent.E2E.Tests.csproj" />
+  </Folder>
+</Solution>
