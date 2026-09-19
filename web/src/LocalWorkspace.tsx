@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
+import { Applications, type ImportedJobProposal } from './Applications';
 
 type Experience = { sourceSpan: string; start: string; end: string | null; role: string; kind: string; skills: string[] };
 type Requirement = { id: string; requirementText: string; type: string; importance: string; skill: string; minimumYears: number | null };
@@ -25,10 +26,11 @@ export function LocalWorkspace({ csrf }: { csrf: string }) {
   const [employer, setEmployer] = useState(''); const [title, setTitle] = useState('');
   const [jobText, setJobText] = useState(''); const [sourceUrl, setSourceUrl] = useState('');
   const [requirements, setRequirements] = useState<Requirement[]>([]);
+  const [jobProposalRef, setJobProposalRef] = useState<string | null>(null);
   const [question, setQuestion] = useState('contact.name'); const [answer, setAnswer] = useState<Answer | null>(null);
   const [deleteConfirmed, setDeleteConfirmed] = useState(false);
   const [memoryQuestion, setMemoryQuestion] = useState(''); const [memoryType, setMemoryType] = useState('motivation'); const [memoryAnswer, setMemoryAnswer] = useState('');
-  const [memoryScope, setMemoryScope] = useState('Application'); const [memoryLanguage, setMemoryLanguage] = useState('tr');
+  const [memoryScope, setMemoryScope] = useState('Company'); const [memoryLanguage, setMemoryLanguage] = useState('tr');
   const [memoryExpiry, setMemoryExpiry] = useState(''); const [memoryConfirmedRevision, setMemoryConfirmedRevision] = useState<number | null>(null);
   const memoryConfirmed = state !== null && memoryConfirmedRevision === state.revision;
   const setMemoryConfirmed = (value: boolean) => setMemoryConfirmedRevision(value ? state?.revision ?? null : null);
@@ -59,6 +61,7 @@ export function LocalWorkspace({ csrf }: { csrf: string }) {
       else if (r.status !== 204) setState(await r.json());
       else { setState(await (await fetch('/api/workspace')).json()); setName(''); setEmail(''); setSalary(''); setMinimum(''); setExperience([]); setEmployer(''); setTitle(''); setJobText(''); setSourceUrl(''); setRequirements([]); setDeleteConfirmed(false); }
       if (path === 'answer-memory') { setMemoryAnswer(''); setMemoryConfirmed(false); }
+      if (path.startsWith('job-proposals/')) setJobProposalRef(null);
     } catch (e) { setError((e as Error).message); }
     finally { setBusy(false); }
   }
@@ -68,6 +71,17 @@ export function LocalWorkspace({ csrf }: { csrf: string }) {
   }
   const setPeriod = (index: number, patch: Partial<Experience>) => setExperience(items => items.map((p, i) => i === index ? { ...p, ...patch } : p));
   const setRequirement = (index: number, patch: Partial<Requirement>) => setRequirements(items => items.map((r, i) => i === index ? { ...r, ...patch } : r));
+  async function reviewJobProposal(proposal: ImportedJobProposal) {
+    try {
+      const response = await fetch('/api/workspace');
+      if (!response.ok) throw new Error('Güncel çalışma alanı alınamadı.');
+      setState(await response.json());
+      setJobProposalRef(proposal.posting.id); setEmployer(proposal.posting.employer); setTitle(proposal.posting.title);
+      setJobText(proposal.posting.text); setSourceUrl(proposal.posting.sourceUrl);
+      setRequirements(proposal.suggestedRequirements.map(r => ({ ...r, skill: r.skill || '' })));
+      setMemoryConfirmed(false);
+    } catch (e) { setError((e as Error).message); }
+  }
   return <div className="local-workspace">
     <section className="panel"><p className="eyebrow">KENDİ ÇALIŞMA ALANINIZ</p><h3>CV’nizden kontrollü cevaplara</h3>
       <p>Dosyanız ve profiliniz bu Windows hesabında korumalı olarak saklanır. Bu ekranda dış sitelere bağlantı kurulmaz; ilan metnini siz eklersiniz.</p>
@@ -102,7 +116,9 @@ export function LocalWorkspace({ csrf }: { csrf: string }) {
         {state.profile.verifiedAt && <p className="pill green" role="status">Profil kaydedildi · sürüm {state.profile.version}</p>}
       </form>
     </section>}
-    {state?.profile.verifiedAt && <section className="panel"><p className="eyebrow">02 / İLANI İNCELE</p><h3>İlan metni ve koşulları</h3><form onSubmit={e => { e.preventDefault(); void action('job', { expectedRevision: state.revision, employer, title, text: jobText, sourceUrl, requirements }); }}>
+    {state?.profile.verifiedAt && <section className="panel"><p className="eyebrow">02 / İLANI İNCELE</p><h3>İlan metni ve koşulları</h3>
+      {jobProposalRef && <p role="status">Modelin ilan önerisi inceleme alanına alındı. Metni ve koşulları kontrol edip aşağıdan doğrulayın.</p>}
+      <form onSubmit={e => { e.preventDefault(); void action(jobProposalRef ? 'job-proposals/' + jobProposalRef + '/review' : 'job', { expectedRevision: state.revision, employer, title, text: jobText, sourceUrl, requirements }); }}>
       <div className="form-grid"><label className="field">İşveren<input required value={employer} onChange={e => setEmployer(e.target.value)} /></label>
         <label className="field">İlan başlığı<input required value={title} onChange={e => setTitle(e.target.value)} /></label></div>
       <label className="field">Kaynak bağlantısı · yalnız kayıt için, açılmaz<input type="url" value={sourceUrl} onChange={e => setSourceUrl(e.target.value)} /></label>
@@ -125,6 +141,7 @@ export function LocalWorkspace({ csrf }: { csrf: string }) {
     </section>}
     {state?.profile.verifiedAt && <section className="panel"><p className="eyebrow">04 / CEVAP HAFIZASI</p><h3>Yeni bir cevabı nerede hatırlayalım?</h3>
       <p>Soru türünü seçin ve kendi incelediğiniz cevabı yazın. Kapsam, bu cevabın hangi ilanda yeniden kullanılacağını sınırlar. Buraya hassas kimlik veya sağlık bilgisi eklemeyin.</p>
+      <p>Yalnız bir başvuruya ait cevapları aşağıdaki başvuru taslağında kaydedin. Bu bölüm şirket veya genel kapsam içindir.</p>
       <form onSubmit={e => { e.preventDefault(); if (memoryConfirmed) void action('answer-memory', {
         expectedRevision: memoryConfirmedRevision, semanticKey: memoryType === 'custom' ? 'custom:' + memoryQuestion.trim() : memoryType, answer: memoryAnswer, scope: memoryScope,
         language: memoryLanguage, expiresAt: memoryExpiry ? new Date(memoryExpiry + 'T23:59:59').toISOString() : null
@@ -134,7 +151,6 @@ export function LocalWorkspace({ csrf }: { csrf: string }) {
         {memoryType === 'custom' && <label className="field">Özel sorunun tam metni<input required maxLength={193} value={memoryQuestion} onChange={e => { setMemoryQuestion(e.target.value); setMemoryConfirmed(false); }} /></label>}
         <label className="field">İncelediğiniz cevap<textarea required maxLength={4000} rows={3} value={memoryAnswer} onChange={e => { setMemoryAnswer(e.target.value); setMemoryConfirmed(false); }} /></label>
         <div className="form-grid"><label className="field">Cevabın kapsamı<select aria-label="Cevabın kapsamı" value={memoryScope} onChange={e => { setMemoryScope(e.target.value); setMemoryConfirmed(false); }}>
-          <option value="Application" disabled={!state.job}>Yalnız bu ilan</option>
           <option value="Company" disabled={!state.job}>Yalnız bu şirket</option>
           <option value="Default">Genel · diğer ilanlarda da kullanılabilir</option></select></label>
           <label className="field">Cevabın dili<select aria-label="Cevabın dili" value={memoryLanguage} onChange={e => { setMemoryLanguage(e.target.value); setMemoryConfirmed(false); }}><option value="tr">Türkçe</option><option value="en">English</option></select></label>
@@ -144,12 +160,15 @@ export function LocalWorkspace({ csrf }: { csrf: string }) {
         <button type="submit" disabled={busy || !memoryConfirmed || (!state.job && memoryScope !== 'Default')}>Cevabı bu kapsamda hatırla</button>
       </form>
       <div data-testid="answer-memory">{state.profile.answers.length === 0 ? <p>Henüz hatırlanan cevap yok.</p> : state.profile.answers.map(a => <article key={[a.semanticKey, a.scope, a.scopeId, a.language].join('|')}>
-        <h4>{memoryQuestionNames[a.semanticKey] || a.semanticKey.replace(/^custom:/, '')}</h4><p>{a.answer}</p><p className="quiet">{a.scope === 'Default' ? 'Genel' : a.scope === 'Company' ? 'Şirket: ' + a.scopeId : 'Yalnız kayıtlı ilan'} · {a.language}{a.expiresAt ? ' · ' + new Date(a.expiresAt).toLocaleDateString('tr-TR') + ' tarihine kadar' : ''}</p>
-        <button className="secondary" disabled={busy} onClick={() => void action('answer', { key: a.semanticKey, language: a.language })}>Bu ilan için kontrol et</button>
+        <h4>{memoryQuestionNames[a.semanticKey] || a.semanticKey.replace(/^custom:/, '')}</h4><p>{a.answer}</p><p className="quiet">{a.scope === 'Default' ? 'Genel' : a.scope === 'Company' ? 'Şirket: ' + a.scopeId : a.scope === 'RoleGroup' ? 'Seçilen rol grubu' : 'Başvuruya özel · ilgili taslakta inceleyin'} · {a.language}{a.expiresAt ? ' · ' + new Date(a.expiresAt).toLocaleDateString('tr-TR') + ' tarihine kadar' : ''}</p>
+        <button className="secondary" disabled={busy || a.scope === 'Application'} onClick={() => void action('answer', { key: a.semanticKey, language: a.language })}>Bu ilan için kontrol et</button>
         <button className="secondary" disabled={busy} onClick={() => void action('answer-memory/revoke', { expectedRevision: state.revision, key: { semanticKey: a.semanticKey, language: a.language, scope: a.scope, scopeId: a.scopeId } })}>Bu cevabın kullanımını kaldır</button>
       </article>)}</div>
       <p className="quiet">Kullanımı kaldırmak önceki sürüm geçmişini silmez. Tüm geçmişi temizlemek için alttaki yerel veri silme işlemini kullanın. Yeni CV veya profil incelemesi bu cevapları yeniden doğrulamanızı gerektirir.</p>
     </section>}
+    {state && <Applications csrf={csrf} workspaceRevision={state.revision} profileConfirmed={!!state.profile.verifiedAt}
+      onChanged={async () => { const response = await fetch('/api/workspace'); if (!response.ok) throw new Error('Çalışma alanı yenilenemedi.'); setState(await response.json()); }}
+      onJobProposal={reviewJobProposal} />}
     {state?.document && <section className="panel"><h3>Verilerinizin kontrolü</h3><p>Dışa aktarım CV’nizi, profilinizi ve sürüm geçmişinizi içerir. İndirdiğiniz dosya şifrelenmez; güvenli bir yerde saklayın.</p>
       <a className="download-link" href="/api/workspace/export" download>Yerel verilerimi indir</a>
       <label className="delete-check"><input type="checkbox" checked={deleteConfirmed} onChange={e => setDeleteConfirmed(e.target.checked)} /> CV, profil, ilan ve önceki sürümlerin bu çalışma alanından silinmesini istiyorum.</label>

@@ -45,8 +45,12 @@ public sealed class ProfileRepository
         var directory = Path.GetDirectoryName(Path.GetFullPath(Options.DatabasePath));
         if (!string.IsNullOrEmpty(directory))
             Directory.CreateDirectory(directory);
-        await ProfileSchema.InitializeAsync(_factory.DatabasePath, cancellationToken);
+        await ProfileSchema.InitializeAsync(_factory.DatabasePath, Protector, cancellationToken);
     }
+
+    public Task RestoreLatestBackupAsync(CancellationToken cancellationToken = default) =>
+        ProtectedDatabaseRecovery.RestoreLatestAsync(_factory.DatabasePath, "profile", [0, 1],
+            Protector, cancellationToken);
 
     public async Task SaveInitialAsync(CandidateProfile profile, CancellationToken cancellationToken = default)
     {
@@ -153,6 +157,7 @@ public sealed class ProfileRepository
 
     public async Task DeleteAsync(Guid profileId, CancellationToken cancellationToken = default)
     {
+        ProtectedDatabaseRecovery.InvalidateBackups(_factory.DatabasePath, [0, 1]);
         await using var context = _factory.CreateDbContext();
         await using var transaction = await context.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
         await context.ProfileRevisions.Where(item => item.ProfileId == profileId).ExecuteDeleteAsync(cancellationToken);

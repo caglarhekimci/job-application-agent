@@ -8,15 +8,22 @@ public sealed record WorkflowRecord(ApplicationDraft Draft, ApprovalReceipt? Sha
     ApprovalReceipt? Submission = null, SubmissionEvidence? Evidence = null, string? Error = null,
     DateTimeOffset? HostReviewRequestedAt = null);
 
-public sealed class ApplicationJournal(string databasePath)
+public sealed class ApplicationJournal
 {
-    public string DatabasePath { get; } = databasePath;
+    private readonly TimeProvider timeProvider;
+
+    public ApplicationJournal(string databasePath, TimeProvider? timeProvider = null)
+    {
+        DatabasePath = databasePath;
+        this.timeProvider = timeProvider ?? TimeProvider.System;
+    }
+
+    public string DatabasePath { get; }
     private JournalContext Open() => new(DatabasePath);
     public async Task InitializeAsync()
     {
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(DatabasePath))!);
-        await using var db = Open();
-        await db.Database.EnsureCreatedAsync();
+        await ApplicationJournalSchema.InitializeAsync(DatabasePath, CancellationToken.None);
     }
     public async Task CreateAsync(WorkflowRecord record)
     {
@@ -31,6 +38,8 @@ public sealed class ApplicationJournal(string databasePath)
             Body = JsonSerializer.Serialize(record),
             Revision = 1
         });
+        db.ApplicationAuditEntries.Add(Audit(record.Draft.Id, 0, 1, null,
+            record.Draft.Status, "ApplicationCreated"));
         try { await db.SaveChangesAsync(); }
         catch (DbUpdateException e) when (e.InnerException is Microsoft.Data.Sqlite.SqliteException { SqliteErrorCode: 19 })
         { throw new PolicyException("DuplicateApplication"); }
@@ -49,6 +58,7 @@ public sealed class ApplicationJournal(string databasePath)
     internal async Task UpdateAsync(Guid id, ApplicationStatus expected, Func<WorkflowRecord, WorkflowRecord> update)
     {
         await using var db = Open();
+        await using var transaction = await db.Database.BeginTransactionAsync();
         var row = await db.Applications.AsNoTracking().SingleOrDefaultAsync(x => x.Id == id)
             ?? throw new PolicyException("ApplicationNotFound");
         if (row.State != expected) throw new PolicyException("InvalidStateTransition");
@@ -59,6 +69,10 @@ public sealed class ApplicationJournal(string databasePath)
             .ExecuteUpdateAsync(set => set.SetProperty(x => x.Body, json)
                 .SetProperty(x => x.State, next.Draft.Status).SetProperty(x => x.Revision, row.Revision + 1));
         if (changed != 1) throw new PolicyException("ConcurrentChange");
+        db.ApplicationAuditEntries.Add(Audit(id, row.Revision, row.Revision + 1,
+            row.State, next.Draft.Status, "StateTransition"));
+        await db.SaveChangesAsync();
+        await transaction.CommitAsync();
     }
     public async Task<bool> ClaimSubmissionAsync(Guid id, DateTimeOffset now)
     {
@@ -97,6 +111,19 @@ public sealed class ApplicationJournal(string databasePath)
     }
     private static WorkflowRecord Decode(JournalRow row) => JsonSerializer.Deserialize<WorkflowRecord>(row.Body)
         ?? throw new InvalidDataException("Invalid application journal.");
+
+    private ApplicationAuditRow Audit(Guid id, int previousRevision, int newRevision,
+        ApplicationStatus? fromState, ApplicationStatus toState, string operation) => new()
+        {
+            ApplicationId = id,
+            PreviousRevision = previousRevision,
+            NewRevision = newRevision,
+            FromState = fromState,
+            ToState = toState,
+            Operation = operation,
+            Actor = "ApplicationRuntime",
+            OccurredAt = timeProvider.GetUtcNow()
+        };
 }
 
 internal sealed class JournalRow
@@ -108,14 +135,40 @@ internal sealed class JournalRow
     public int Revision { get; set; }
 }
 
+internal sealed class ApplicationAuditRow
+{
+    public long Id { get; set; }
+    public Guid ApplicationId { get; set; }
+    public int PreviousRevision { get; set; }
+    public int NewRevision { get; set; }
+    public ApplicationStatus? FromState { get; set; }
+    public ApplicationStatus ToState { get; set; }
+    public string Operation { get; set; } = string.Empty;
+    public string Actor { get; set; } = string.Empty;
+    public string? CorrelationId { get; set; }
+    public DateTimeOffset OccurredAt { get; set; }
+}
+
 internal sealed class JournalContext(string path) : DbContext
 {
     public DbSet<JournalRow> Applications => Set<JournalRow>();
+    public DbSet<ApplicationAuditRow> ApplicationAuditEntries => Set<ApplicationAuditRow>();
     protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseSqlite(
-        new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder { DataSource = path }.ToString());
+        new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder
+        {
+            DataSource = path,
+            Pooling = false
+        }.ToString());
     protected override void OnModelCreating(ModelBuilder model)
     {
         model.Entity<JournalRow>().HasKey(x => x.Id);
         model.Entity<JournalRow>().HasIndex(x => x.JobIdentity).IsUnique();
+        model.Entity<ApplicationAuditRow>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => new { x.ApplicationId, x.NewRevision });
+            entity.Property(x => x.Operation).IsRequired();
+            entity.Property(x => x.Actor).IsRequired();
+        });
     }
 }

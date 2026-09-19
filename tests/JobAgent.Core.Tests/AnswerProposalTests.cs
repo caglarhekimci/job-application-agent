@@ -46,6 +46,29 @@ public sealed class AnswerProposalTests
     }
 
     [Fact]
+    public void EvidenceAtExactValidityEnd_Abstains()
+    {
+        var profile = TestProfiles.Synthetic() with
+        {
+            Facts = [TestProfiles.Synthetic().Facts[0] with { ValidUntil = TestProfiles.Now }]
+        };
+
+        var result = ModelAnswerProposalValidator.ValidateJson(ValidJson(),
+            new() { Key = "skill.primary", Label = "Primary skill", Language = "en" },
+            profile, ["fact-csharp-professional"], TestProfiles.Now);
+
+        Assert.Equal(AnswerProposalDisposition.Abstained, result.Disposition);
+        Assert.Null(result.Proposal);
+        var resolution = AnswerResolver.Resolve(new() { Key = "availability", Label = "Availability", Language = "en" },
+            profile with
+            {
+                Answers = [new() { SemanticKey = "availability", Language = "en", Answer = "Two weeks",
+                    EvidenceIds = ["fact-csharp-professional"] }]
+            }, new(), TestProfiles.Now);
+        Assert.Equal(AnswerStatus.RequiresReview, resolution.Status);
+    }
+
+    [Fact]
     public void EvidenceOutsideSuppliedModelContext_Abstains()
     {
         var result = ModelAnswerProposalValidator.ValidateJson(ValidJson(),

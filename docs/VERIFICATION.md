@@ -1,5 +1,35 @@
 # Verification ledger
 
+## Shared application service and recovery integration — 2026-09-20 Istanbul
+
+`scripts/verify.ps1` exited **0**. Reports:
+`artifacts/verification/20260919T230618Z/`.
+**255 passed, 0 failed, 0 skipped**: Core64, Document15, E2E84,
+Infrastructure41, MCP22, Workspace29. Release build: 0 warnings/errors.
+Frontend build, locked restore, formatting, launcher, initial11/expanded300
+fixture evaluation, offline replay12 assertions, scanner regressions4/4,
+source/history scan335 files/7 commits and whitespace checks passed.
+The immediately preceding integration attempt stopped at the whitespace-format
+gate before tests. Applying the repository formatter fixed that mechanical issue;
+this result is the subsequent complete run.
+
+New coverage includes typed form controls and conditional steps; persisted
+unanswered questions and hash-bound user review; personal application drafts using
+the same service as the local12 MCP mode; role-group/application answer scopes;
+future-schema rejection, protected pre-upgrade backup/restore and metadata audits;
+expired evidence, stale proposals, duplicate imports and cancellation revisions.
+See [common service review](evidence/common-service-review.md),
+[personal applications](evidence/w08-personal-applications.md),
+[synthetic resume](evidence/w08-synthetic-resume.md),
+[local12 contract](evidence/w09-local-service.md), and
+[store recovery](evidence/store-recovery.md).
+
+This full run used synthetic fixtures and actual local Chromium. The offline model
+replay is not a fresh model run. Actual-model local12 validation is recorded
+separately in [its host evidence](evidence/codex-local-service.md).
+No paid API call, personal CV upload to a host, or live employer submission occurred.
+Exact-commit clean-checkout/package/public-CI verification follows this source checkpoint.
+
 ## Exact-commit checkout and CI — 2026-09-19 UTC / 2026-09-20 Istanbul
 
 Commit `ac530725c7653f7980acc10e90c213092afc6418` passed

@@ -25,6 +25,7 @@ try {
     # The distributed Local Inspector always honors its read-only manifest.
     # Direct MCP workflow setup is a separate explicit opt-in path.
     $env:JOBAGENT_ENABLE_SYNTHETIC_COMMANDS = '0'
+    $env:JOBAGENT_ENABLE_LOCAL_COMMANDS = '0'
     # Inherit the STDIO handles; never mix launcher messages into MCP stdout.
     & $dotnetPath (Join-Path $runtimeRoot 'JobAgent.Mcp.dll')
     exit $LASTEXITCODE

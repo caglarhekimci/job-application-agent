@@ -57,6 +57,7 @@ try {
     $start.Environment['JOBAGENT_RUNTIME_DIR'] = $runtime
     # Ambient workflow opt-in must not widen this explicitly read-only package.
     $start.Environment['JOBAGENT_ENABLE_SYNTHETIC_COMMANDS'] = '1'
+    $start.Environment['JOBAGENT_ENABLE_LOCAL_COMMANDS'] = '1'
     # Exercise the installed-host fallback: no SDK under LOCALAPPDATA and more
     # than one dotnet executable on PATH. Only the first executable may run.
     $fallbackLocalData = Join-Path $temporaryRoot 'isolated-local-data'

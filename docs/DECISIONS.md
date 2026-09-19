@@ -1,5 +1,22 @@
 # Decisions
 
+## ADR-012 — Shared local service and resumable questions
+The protected personal workspace is the single source for its UI and optional
+12-tool MCP service. Do not mirror personal records into the synthetic plaintext
+journal. The synthetic browser adapter shares pure question/scope rules while
+retaining its fixed authorized loopback target. Personal execution stays blocked
+until a target adapter has verified platform permission and concrete user approval.
+Model proposals never verify profile facts, save reviewed memory, or mint consent.
+Default inspector, legacy synthetic workflow and general local host are explicit
+separate modes; command modes are mutually exclusive. The packaged inspector forces
+both command flags off. These modes introduce no paid provider or API requirement.
+
+An application stores discovered questions before resolving them. Application scope
+means the application GUID; role groups use stable explicit identifiers. Questions
+join the package hash so changed labels/limits invalidate earlier approval. UI edits
+are revision-bound; a changed CV requires explicit rebind. Independent review and
+test failures are kept as evidence, not replaced by final successful summaries.
+
 ## ADR-010 — Fixed synthetic host commands and empirical model boundary
 The default plugin keeps three read-only tools. Three additional MCP commands
 are explicitly opt-in in both companion and host processes. They use a separate,

@@ -17,6 +17,7 @@ public sealed class DemoWorkflow : IAsyncDisposable
     private readonly ProfileRepository profiles;
     private readonly string origin;
     private readonly ResumeDocument resume;
+    private readonly bool extendedControls;
     private CandidateProfile? profile;
     private CandidateProfile? pendingProfile;
     private string? resumeText;
@@ -26,8 +27,9 @@ public sealed class DemoWorkflow : IAsyncDisposable
     private CancellationTokenSource operation = new();
     private string? approvalSession;
 
-    public DemoWorkflow(string directory, string careerOrigin, string checkoutRoot)
+    public DemoWorkflow(string directory, string careerOrigin, string checkoutRoot, bool extendedControls = false)
     {
+        this.extendedControls = extendedControls;
         origin = careerOrigin.TrimEnd('/');
         if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri) || uri.Scheme != "http" || uri.Host != "127.0.0.1")
             throw new PolicyException("SyntheticOriginRequired");
@@ -49,19 +51,28 @@ public sealed class DemoWorkflow : IAsyncDisposable
         Id = "synthetic-dotnet",
         Employer = "Synthetic Labs",
         Title = ".NET Developer",
+        RoleGroupId = "dotnet-developer",
         SourceUrl = origin + "/jobs/synthetic-dotnet",
         Text = "Sentetik ilan: en az 2 yıl profesyonel C# deneyimi. Uzaktan çalışma.",
         Requirements = [new() { Id = "csharp", RequirementText = "En az 2 yıl profesyonel C#",
             Type = RequirementType.ProfessionalExperienceYears, Importance = RequirementImportance.Mandatory,
             Skill = "C#", MinimumYears = 2 }]
     };
-    private static readonly FormQuestion[] Questions =
+    private static readonly FormQuestion[] DefaultQuestions =
     [
         new() { Key = "contact.name", Label = "Full name", Language = "en" },
         new() { Key = "contact.email", Label = "Email", Language = "en" },
         new() { Key = "salary.expected.monthly.net.TRY", Label = "Expected monthly net salary (TRY)", Language = "en" },
         new() { Key = "experience.professional.csharp.years", Label = "Professional C# years", Language = "en" }
     ];
+    private static readonly FormQuestion[] PreferenceQuestions =
+    [
+        new() { Key = "preference.work.mode", Label = "Work arrangement", Language = "en", MaxLength = 6 },
+        new() { Key = "preference.travel", Label = "Open to occasional travel", Language = "en", MaxLength = 5 },
+        new() { Key = "preference.contact.method", Label = "Preferred contact method", Language = "en", MaxLength = 5 }
+    ];
+    private static readonly FormQuestion ContactWindowQuestion = new()
+    { Key = "preference.contact.window", Label = "Preferred call window", Language = "en", MaxLength = 80 };
 
     private async Task Initialize()
     {
@@ -70,6 +81,7 @@ public sealed class DemoWorkflow : IAsyncDisposable
         await journal.RecoverInterruptedAsync();
         profile = await profiles.GetLatestAsync(SyntheticData.Profile().Id);
         currentId = (await journal.ListAsync()).LastOrDefault()?.Draft.Id;
+        await RefreshQuestionPackageAfterRecoveryAsync();
         initialized = true;
     }
 
@@ -81,6 +93,8 @@ public sealed class DemoWorkflow : IAsyncDisposable
             await Initialize();
             var shown = profile ?? pendingProfile;
             var run = currentId is { } id ? await journal.GetAsync(id) : null;
+            if (run is not null && profile is not null)
+                run = await RefreshResolvedPackageIfChangedAsync(run, profile, DateTimeOffset.UtcNow);
             return new
             {
                 mode = "Fixture",
@@ -99,11 +113,13 @@ public sealed class DemoWorkflow : IAsyncDisposable
                 resumeHash = resume.Hash,
                 job = Job,
                 evaluation = profile is null ? null : JobEvaluator.Evaluate(Job, profile, DateTimeOffset.UtcNow),
-                answers = profile is null ? null : Questions.ToDictionary(q => q.Key,
+                answers = profile is null ? null : DefaultQuestions.ToDictionary(q => q.Key,
                     q => AnswerResolver.Resolve(q, profile, Job, DateTimeOffset.UtcNow)),
                 application = run is null ? null : new
                 {
                     draft = run.Draft,
+                    payloadHash = run.Draft.PayloadHash(),
+                    questionReview = profile is null ? null : ToQuestionReview(run, profile, DateTimeOffset.UtcNow),
                     evidence = run.Evidence,
                     error = run.Error,
                     hostReviewRequested = run.HostReviewRequestedAt is not null,
@@ -209,6 +225,60 @@ public sealed class DemoWorkflow : IAsyncDisposable
         finally { gate.Release(); }
     }
 
+    // Only the authenticated local UI may turn reviewed answers into scoped profile memory.
+    public async Task<SyntheticQuestionReview> ReviewAnswersFromUiAsync(Guid applicationRef,
+        string expectedPayloadHash, IReadOnlyList<ReviewedAnswerMemoryUpdate> reviewedAnswers)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await Initialize();
+            var run = await Current(applicationRef);
+            if (!string.Equals(run.Draft.PayloadHash(), expectedPayloadHash, StringComparison.Ordinal))
+                throw new PolicyException("PackageChanged");
+            if (reviewedAnswers is null || reviewedAnswers.Count is < 1 or > 8
+                || reviewedAnswers.Any(item => item is null || string.IsNullOrWhiteSpace(item.SemanticKey)
+                    || string.IsNullOrWhiteSpace(item.Language))
+                || reviewedAnswers.GroupBy(item => (item.SemanticKey.ToUpperInvariant(), item.Language.ToUpperInvariant()))
+                    .Any(group => group.Count() != 1))
+                throw new ArgumentException("Reviewed answers must be a non-empty unique set.", nameof(reviewedAnswers));
+
+            var currentProfile = profile ?? throw new PolicyException("ProfileReviewRequired");
+            var now = DateTimeOffset.UtcNow;
+            var proposed = currentProfile;
+            foreach (var update in reviewedAnswers)
+            {
+                ValidateSyntheticReviewedAnswer(update);
+                proposed = ApplicationQuestions.RememberReviewed(run.Draft, proposed, Job, update, now);
+            }
+
+            await ResetPreparedBrowserAsync();
+            var patch = new ProfilePatch
+            {
+                ProfileId = currentProfile.Id,
+                BaseVersion = currentProfile.Version,
+                ProposedProfile = proposed,
+                ProposedAt = now
+            };
+            var saved = await profiles.ApplyPatchAsync(patch, locallyApproved: true);
+            if (!saved.Applied || saved.Profile is null) throw new PolicyException("ProfileChanged");
+            profile = saved.Profile;
+
+            var resolved = ResolveQuestions(run.Draft, profile, now);
+            await journal.UpdateAsync(run.Draft.Id, run.Draft.Status, record => record with
+            {
+                Draft = resolved.Draft,
+                Sharing = null,
+                Submission = null,
+                Evidence = null,
+                Error = null,
+                HostReviewRequestedAt = null
+            });
+            return ToQuestionReview(await Current(applicationRef), profile, now);
+        }
+        finally { gate.Release(); }
+    }
+
     public async Task ShareAndFillFromUiAsync(string sessionId)
     {
         await gate.WaitAsync();
@@ -216,6 +286,9 @@ public sealed class DemoWorkflow : IAsyncDisposable
         {
             await Initialize();
             var run = await Current();
+            run = await RefreshResolvedPackageIfChangedAsync(run,
+                profile ?? throw new PolicyException("ProfileReviewRequired"), DateTimeOffset.UtcNow);
+            if (run.Draft.Status == ApplicationStatus.NeedsInput) throw new PolicyException("NeedsInput");
             if (run.Draft.Status != ApplicationStatus.ReadyForDataSharing) throw new PolicyException("InvalidStateTransition");
             var approval = ApprovalPolicy.GrantFromUserInterface(run.Draft, ApprovalPurpose.ShareData, sessionId, DateTimeOffset.UtcNow);
             await journal.UpdateAsync(run.Draft.Id, ApplicationStatus.ReadyForDataSharing,
@@ -323,13 +396,6 @@ public sealed class DemoWorkflow : IAsyncDisposable
     {
         if (currentId is { } existing) return await Current(existing);
         var verified = profile ?? throw new PolicyException("ProfileReviewRequired");
-        var answers = new SortedDictionary<string, string>(StringComparer.Ordinal);
-        foreach (var question in Questions)
-        {
-            var answer = AnswerResolver.Resolve(question, verified, Job, DateTimeOffset.UtcNow);
-            if (answer.Status != AnswerStatus.Resolved || answer.Value is null) throw new PolicyException("NeedsInput");
-            answers.Add(question.Key, answer.Value);
-        }
         var draft = new ApplicationDraft
         {
             ProfileId = verified.Id,
@@ -340,9 +406,10 @@ public sealed class DemoWorkflow : IAsyncDisposable
             Employer = Job.Employer,
             RecipientOrigin = origin,
             ResumeRef = resume.Reference,
-            ResumeHash = resume.Hash,
-            Answers = answers
+            ResumeHash = resume.Hash
         };
+        var review = ResolveQuestions(draft, verified, DateTimeOffset.UtcNow);
+        draft = review.Draft;
         await journal.CreateAsync(new(draft));
         currentId = draft.Id;
         return await Current(draft.Id);
@@ -350,6 +417,9 @@ public sealed class DemoWorkflow : IAsyncDisposable
 
     private async Task EnsureUiCanApproveAsync(WorkflowRecord run, string sessionId)
     {
+        run = await RefreshResolvedPackageIfChangedAsync(run,
+            profile ?? throw new PolicyException("ProfileReviewRequired"), DateTimeOffset.UtcNow);
+        if (run.Draft.Status == ApplicationStatus.NeedsInput) throw new PolicyException("NeedsInput");
         if (run.Draft.Status != ApplicationStatus.AwaitingSubmissionApproval || browser is null)
             throw new PolicyException("SubmissionNotReady");
         if (approvalSession != sessionId) throw new PolicyException("UserSessionChanged");
@@ -364,8 +434,11 @@ public sealed class DemoWorkflow : IAsyncDisposable
     private async Task<HostApplicationSummary> ExecuteStoredApprovalCoreAsync(Guid applicationRef)
     {
         var run = await Current(applicationRef);
+        run = await RefreshResolvedPackageIfChangedAsync(run,
+            profile ?? throw new PolicyException("ProfileReviewRequired"), DateTimeOffset.UtcNow);
         if (run.Draft.Status is ApplicationStatus.SubmittedVerified or ApplicationStatus.SubmittedUnverified)
             return ToHostSummary(run);
+        if (run.Draft.Status == ApplicationStatus.NeedsInput) throw new PolicyException("NeedsInput");
         if (run.Draft.Status != ApplicationStatus.AwaitingSubmissionApproval || browser is null)
             throw new PolicyException("SubmissionNotReady");
 
@@ -418,6 +491,93 @@ public sealed class DemoWorkflow : IAsyncDisposable
             });
         await browser!.DisposeAsync();
         browser = null;
+    }
+
+    private ApplicationQuestionReview ResolveQuestions(ApplicationDraft draft, CandidateProfile candidate,
+        DateTimeOffset now)
+    {
+        var questions = ActiveQuestions(draft, candidate, now);
+        return ApplicationQuestions.Resolve(draft, questions, candidate, Job, now);
+    }
+
+    private IReadOnlyList<FormQuestion> ActiveQuestions(ApplicationDraft draft, CandidateProfile candidate,
+        DateTimeOffset now)
+    {
+        if (!extendedControls) return DefaultQuestions;
+        var questions = DefaultQuestions.Concat(PreferenceQuestions).ToList();
+        var contactMethod = AnswerResolver.Resolve(PreferenceQuestions[2], candidate, Job, now,
+            new(draft.Id, Job.RoleGroupId));
+        if (contactMethod.Status == AnswerStatus.Resolved && contactMethod.Value == "phone")
+            questions.Add(ContactWindowQuestion);
+        return questions;
+    }
+
+    private async Task RefreshQuestionPackageAfterRecoveryAsync()
+    {
+        if (profile is null || currentId is not { } id) return;
+        var run = await journal.GetAsync(id);
+        if (run is null || run.Draft.Status is ApplicationStatus.Submitting or ApplicationStatus.SubmittedVerified
+            or ApplicationStatus.SubmittedUnverified or ApplicationStatus.Cancelled or ApplicationStatus.BlockedPermission)
+            return;
+        await RefreshResolvedPackageIfChangedAsync(run, profile, DateTimeOffset.UtcNow);
+    }
+
+    private async Task<WorkflowRecord> RefreshResolvedPackageIfChangedAsync(WorkflowRecord run,
+        CandidateProfile candidate, DateTimeOffset now)
+    {
+        if (run.Draft.Status is ApplicationStatus.Submitting or ApplicationStatus.SubmittedVerified
+            or ApplicationStatus.SubmittedUnverified or ApplicationStatus.Cancelled or ApplicationStatus.BlockedPermission)
+            return run;
+        var resolved = ResolveQuestions(run.Draft, candidate, now);
+        if (resolved.Draft.PayloadHash() == run.Draft.PayloadHash()) return run;
+        await ResetPreparedBrowserAsync();
+        await journal.UpdateAsync(run.Draft.Id, run.Draft.Status, record => record with
+        {
+            Draft = resolved.Draft,
+            Sharing = null,
+            Submission = null,
+            Evidence = null,
+            Error = null,
+            HostReviewRequestedAt = null
+        });
+        return await Current(run.Draft.Id);
+    }
+
+    private async Task ResetPreparedBrowserAsync()
+    {
+        await operation.CancelAsync();
+        if (browser is not null) await browser.DisposeAsync();
+        browser = null;
+        approvalSession = null;
+        operation.Dispose();
+        operation = new();
+    }
+
+    private static void ValidateSyntheticReviewedAnswer(ReviewedAnswerMemoryUpdate update)
+    {
+        var valid = update.SemanticKey switch
+        {
+            "preference.work.mode" => update.Answer is "remote" or "hybrid",
+            "preference.travel" => update.Answer is "true" or "false",
+            "preference.contact.method" => update.Answer is "email" or "phone",
+            "preference.contact.window" => !string.IsNullOrWhiteSpace(update.Answer) && update.Answer.Length <= 80,
+            _ => true
+        };
+        if (!valid) throw new PolicyException("InvalidAnswer");
+    }
+
+    private SyntheticQuestionReview ToQuestionReview(WorkflowRecord run, CandidateProfile candidate,
+        DateTimeOffset now)
+    {
+        var context = new AnswerScopeContext(run.Draft.Id, Job.RoleGroupId);
+        var questions = run.Draft.Questions.Select(question =>
+        {
+            var answer = AnswerResolver.Resolve(question, candidate, Job, now, context);
+            return new SyntheticQuestionResolution(question.Key, question.Label, question.Language,
+                question.MaxLength, question.Sensitive, question.RequiresCandidateAttestation,
+                answer.Status, answer.Value, answer.Reason);
+        }).ToList();
+        return new(run.Draft.Id, run.Draft.PayloadHash(), run.Draft.Status, questions);
     }
 
     private static HostApplicationSummary ToHostSummary(WorkflowRecord run) => new(

@@ -28,6 +28,7 @@ public sealed record JobPosting
     public string Id { get; init; } = string.Empty;
     public string Employer { get; init; } = string.Empty;
     public string Title { get; init; } = string.Empty;
+    public string RoleGroupId { get; init; } = string.Empty;
     public string Text { get; init; } = string.Empty;
     public string SourceUrl { get; init; } = string.Empty;
     public string CanonicalUrl { get; init; } = string.Empty;

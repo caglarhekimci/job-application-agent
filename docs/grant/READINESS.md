@@ -4,6 +4,22 @@ Status: 2026-09-19 UTC. **Submitted; confirmation observed.**
 Submission is authorized. No selection, credit, security access or
 Pro benefit is claimed yet. Public plugin listing and this program are separate.
 
+The table records evidence available at submission; later engineering results are
+in [project status](../PROJECT_STATE.md) and are not retroactive application claims.
+
+## How the decision arrives
+
+OpenAI reviews applications on a rolling basis and emails selected applicants at
+the address supplied in the form. There is no stated response deadline. Check that
+inbox and its spam/junk folder; the team may request identity or repository-control
+evidence before confirming a benefit. See the [official support clarification](https://community.openai.com/t/codex-open-source-program/1393454/3)
+and [application form](https://openai.com/form/codex-for-oss/) (checked 2026-09-20).
+The observed success page did not provide an individual tracking link. GitHub
+Actions and the project status file track this project's development, not OpenAI's
+selection process. Do not resubmit merely because the decision is still unknown.
+
+## Submission snapshot
+
 | Item | Verified state |
 |---|---|
 | Repository | Public [job-application-agent](https://github.com/caglarhekimci/job-application-agent), main da84c25 |

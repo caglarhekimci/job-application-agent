@@ -10,7 +10,8 @@ public static class AnswerResolver
         FormQuestion question,
         CandidateProfile profile,
         JobPosting job,
-        DateTimeOffset now)
+        DateTimeOffset now,
+        AnswerScopeContext? context = null)
     {
         ArgumentNullException.ThrowIfNull(question);
         ArgumentNullException.ThrowIfNull(profile);
@@ -28,8 +29,9 @@ public static class AnswerResolver
         var scoped = profile.Answers
             .Where(answer => string.Equals(answer.SemanticKey, question.Key, StringComparison.OrdinalIgnoreCase))
             .Where(answer => string.Equals(answer.Language, question.Language, StringComparison.OrdinalIgnoreCase))
-            .Where(answer => ScopeMatches(answer, job))
-            .OrderByDescending(answer => answer.Scope)
+            .Where(answer => ScopeMatches(answer, job, context))
+            .OrderByDescending(answer => answer.Scope switch
+            { AnswerScopeType.Application => 3, AnswerScopeType.Company => 2, AnswerScopeType.RoleGroup => 1, _ => 0 })
             .ThenByDescending(answer => answer.UpdatedAt)
             .FirstOrDefault();
 
@@ -132,11 +134,14 @@ public static class AnswerResolver
         };
     }
 
-    private static bool ScopeMatches(AnswerMemory answer, JobPosting job) => answer.Scope switch
+    private static bool ScopeMatches(AnswerMemory answer, JobPosting job, AnswerScopeContext? context) => answer.Scope switch
     {
         AnswerScopeType.Default => true,
         AnswerScopeType.Company => string.Equals(answer.ScopeId, job.Employer, StringComparison.OrdinalIgnoreCase),
-        AnswerScopeType.Application => string.Equals(answer.ScopeId, job.Id, StringComparison.OrdinalIgnoreCase),
+        AnswerScopeType.Application => string.Equals(answer.ScopeId,
+            context?.ApplicationId.ToString("D") ?? job.Id, StringComparison.OrdinalIgnoreCase),
+        AnswerScopeType.RoleGroup => !string.IsNullOrWhiteSpace(context?.RoleGroupId ?? job.RoleGroupId) &&
+            string.Equals(answer.ScopeId, context?.RoleGroupId ?? job.RoleGroupId, StringComparison.OrdinalIgnoreCase),
         _ => false
     };
 

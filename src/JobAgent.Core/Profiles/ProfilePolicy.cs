@@ -6,7 +6,7 @@ public static class ProfilePolicy
         profile.Facts
             .Where(fact => fact.VerificationStatus == VerificationStatus.Verified)
             .Where(fact => fact.ValidFrom is null || fact.ValidFrom <= now)
-            .Where(fact => fact.ValidUntil is null || fact.ValidUntil >= now)
+            .Where(fact => fact.ValidUntil is null || fact.ValidUntil > now)
             .ToList();
 
     public static bool IsLocallyConfirmed(CandidateProfile profile, ProfileField field) =>

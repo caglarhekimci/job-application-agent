@@ -34,8 +34,15 @@ if (!File.Exists(Path.Combine(AppContext.BaseDirectory, "wwwroot", "index.html")
 }
 var options = new DashboardOptions
 {
-    EnableSyntheticCommands = Environment.GetEnvironmentVariable("JOBAGENT_ENABLE_SYNTHETIC_COMMANDS") == "1"
+    EnableSyntheticCommands = Environment.GetEnvironmentVariable("JOBAGENT_ENABLE_SYNTHETIC_COMMANDS") == "1",
+    EnableLocalCommands = Environment.GetEnvironmentVariable("JOBAGENT_ENABLE_LOCAL_COMMANDS") == "1",
+    ExtendedControls = Environment.GetEnvironmentVariable("JOBAGENT_EXTENDED_FORM") == "1"
 };
+if (options.EnableSyntheticCommands && options.EnableLocalCommands)
+{
+    Console.Error.WriteLine("Choose either JOBAGENT_ENABLE_LOCAL_COMMANDS or JOBAGENT_ENABLE_SYNTHETIC_COMMANDS.");
+    return 2;
+}
 if (Environment.GetEnvironmentVariable("JOBAGENT_RUNTIME_DIR") is { Length: > 0 } runtimeDirectory)
     options = options with { DataDirectory = Path.GetFullPath(runtimeDirectory) };
 Directory.CreateDirectory(options.DataDirectory);
@@ -51,13 +58,13 @@ using (runtimeLock)
     // Owning the runtime lock allows removal of a crashed instance's registration,
     // including when this launch explicitly keeps model commands disabled.
     File.Delete(Path.Combine(options.DataDirectory, HostBridgeRegistrationStore.FileName));
-    await using var site = FakeCareerHost.Build("http://127.0.0.1:5179");
+    await using var site = FakeCareerHost.Build("http://127.0.0.1:5179", new(ExtendedControls: options.ExtendedControls));
     await using var dashboard = DashboardHost.Build([], options);
     try
     {
         await site.StartAsync();
         await dashboard.StartAsync();
-        if (options.EnableSyntheticCommands)
+        if (options.EnableSyntheticCommands || options.EnableLocalCommands)
             await HostBridgeRegistrationStore.WriteAsync(options.DataDirectory,
                 new(new Uri("http://127.0.0.1:5178/"), options.BridgeToken, options.BridgeInstanceId, options.BridgeExpiresAt));
         Console.WriteLine("SYNTHETIC LOCAL DEMO — no employer receives any application.");
@@ -73,7 +80,7 @@ using (runtimeLock)
     }
     finally
     {
-        if (options.EnableSyntheticCommands)
+        if (options.EnableSyntheticCommands || options.EnableLocalCommands)
             await HostBridgeRegistrationStore.RemoveIfOwnedAsync(options.DataDirectory, options.BridgeInstanceId);
     }
 }

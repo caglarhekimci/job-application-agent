@@ -1,5 +1,11 @@
 # Local acceptance audit: W00-W12
 
+**Follow-up (2026-09-20):** the three P0 findings below were implemented and the
+combined suite passed 255 tests at `artifacts/verification/20260919T230618Z/`.
+This audit is retained as the original finding record, not the current feature
+matrix. See the latest [verification ledger](../VERIFICATION.md). FR-15/FR-16
+remain the next bounded local feature work; publication/package checks are separate.
+
 **Date:** 2026-09-20
 **Reviewed checkpoint:** `ac53072`, plus the uncommitted W07 reusable-control work that was in progress during this read-only review.
 **Method:** source and evidence review only. No build, test, browser run, package, network call, or external action was performed.

@@ -17,7 +17,9 @@ public static class DashboardHost
     public static WebApplication Build(string[] args, DashboardOptions? options = null)
     {
         options ??= new();
-        if (options.EnableSyntheticCommands &&
+        if (options.EnableSyntheticCommands && options.EnableLocalCommands)
+            throw new ArgumentException("Choose either the local workspace or synthetic command mode.", nameof(options));
+        if ((options.EnableSyntheticCommands || options.EnableLocalCommands) &&
             (options.BootstrapToken.Length != 64 || !options.BootstrapToken.All(Uri.IsHexDigit) ||
              options.BridgeToken.Length != 64 || !options.BridgeToken.All(Uri.IsHexDigit) ||
              string.Equals(options.BridgeToken, options.BootstrapToken, StringComparison.Ordinal)))
@@ -30,9 +32,10 @@ public static class DashboardHost
         builder.WebHost.ConfigureKestrel(o => o.Limits.MaxRequestBodySize = 2_100_000);
         builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
         builder.Services.AddSingleton(options);
-        builder.Services.AddSingleton(_ => new DemoWorkflow(options.DataDirectory, options.CareerOrigin, root));
+        builder.Services.AddSingleton(_ => new DemoWorkflow(options.DataDirectory, options.CareerOrigin, root, options.ExtendedControls));
         builder.Services.AddSingleton(_ => new LocalWorkspace(Path.Combine(options.DataDirectory, "personal"), root,
             new WindowsDpapiPayloadProtector()));
+        builder.Services.AddSingleton<ILocalWorkspaceHost>(sp => sp.GetRequiredService<LocalWorkspace>());
         var sessions = new ConcurrentDictionary<string, UiSession>();
         var app = builder.Build();
         app.Use(async (context, next) =>
@@ -50,11 +53,26 @@ public static class DashboardHost
                     req.Headers.Origin.Count != 0)
                 { context.Response.StatusCode = 403; return; }
                 var supplied = req.Headers["X-JobAgent-Bridge"].ToString();
-                if (!options.EnableSyntheticCommands || options.BridgeExpiresAt <= DateTimeOffset.UtcNow ||
+                var local = req.Path.StartsWithSegments(LocalMcpEndpoints.Prefix);
+                var enabled = local ? options.EnableLocalCommands : options.EnableSyntheticCommands;
+                if (!enabled || options.BridgeExpiresAt <= DateTimeOffset.UtcNow ||
                     !CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(supplied), Encoding.UTF8.GetBytes(options.BridgeToken)))
                 { context.Response.StatusCode = 401; return; }
-                if (!HttpMethods.IsPost(req.Method) || req.QueryString.HasValue ||
-                    context.Features.Get<IHttpRequestBodyDetectionFeature>()?.CanHaveBody == true)
+                if (!HttpMethods.IsPost(req.Method) || req.QueryString.HasValue)
+                { context.Response.StatusCode = 400; return; }
+                var allowsBody = false;
+                if (local && !LocalMcpEndpoints.TryRoute(req.Path, out allowsBody))
+                { context.Response.StatusCode = 404; return; }
+                if (allowsBody)
+                {
+                    if (req.ContentLength > LocalMcpEndpoints.MaximumBytes)
+                    { context.Response.StatusCode = 413; return; }
+                    if (req.ContentLength is null or <= 0 || req.Headers.TransferEncoding.Count != 0 ||
+                        req.Headers.ContentEncoding.Count != 0 ||
+                        !string.Equals(req.ContentType?.Split(';')[0].Trim(), "application/json", StringComparison.OrdinalIgnoreCase))
+                    { context.Response.StatusCode = 400; return; }
+                }
+                else if (context.Features.Get<IHttpRequestBodyDetectionFeature>()?.CanHaveBody == true)
                 { context.Response.StatusCode = 400; return; }
             }
             if (req.Path.StartsWithSegments("/api"))
@@ -98,6 +116,8 @@ public static class DashboardHost
         app.MapPost("/api/demo/load", async (DemoWorkflow w) => { await w.LoadFixtureAsync(); return Results.NoContent(); });
         app.MapPost("/api/profile/confirm", async (DemoWorkflow w) => { await w.ConfirmProfileFromUiAsync(); return Results.NoContent(); });
         app.MapPost("/api/applications", async (DemoWorkflow w) => { await w.CreateDraftAsync(); return Results.NoContent(); });
+        app.MapPost("/api/applications/answers", async (DemoWorkflow w, ApplicationAnswerReviewRequest request) =>
+            await w.ReviewAnswersFromUiAsync(request.ApplicationRef, request.ExpectedPayloadHash, request.ReviewedAnswers));
         app.MapPost("/api/approve-share", async (DemoWorkflow w, HttpContext c) =>
         { await w.ShareAndFillFromUiAsync(((UiSession)c.Items["session"]!).Id); return Results.NoContent(); });
         app.MapPost("/api/approve-submit", async (DemoWorkflow w, HttpContext c) =>
@@ -126,6 +146,8 @@ public static class DashboardHost
             Encoding.UTF8.GetBytes(await w.ExportAsync()), "application/json", "job-agent-local-export.json"));
         app.MapPost("/api/workspace/delete", async (LocalWorkspace w, DeleteWorkspaceRequest request) =>
         { await w.DeleteAsync(request.ExpectedRevision); return Results.NoContent(); });
+        LocalWorkspaceEndpoints.Map(app);
+        LocalMcpEndpoints.Map(app);
         if (Directory.Exists(webRoot))
         {
             app.UseDefaultFiles(); app.UseStaticFiles();
@@ -141,5 +163,7 @@ public static class DashboardHost
     }
     private sealed record UiSession(string Id, string Csrf, DateTimeOffset Expires);
     private sealed record SessionRequest(string? Token);
+    private sealed record ApplicationAnswerReviewRequest(Guid ApplicationRef, string ExpectedPayloadHash,
+        List<ReviewedAnswerMemoryUpdate> ReviewedAnswers);
     private sealed record DeleteWorkspaceRequest(long ExpectedRevision);
 }

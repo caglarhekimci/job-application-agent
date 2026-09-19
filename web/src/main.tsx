@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 import { LocalWorkspace } from './LocalWorkspace';
+import { SyntheticQuestions } from './SyntheticQuestions';
+import type { SyntheticQuestionReview } from './SyntheticQuestions';
 
 type Answer = { status: string; value: string | null; reason: string; evidenceIds: string[] };
 type Profile = { fullName: string; email: string; version: number; facts: { id: string; value: string; sourceSpan: string; verificationStatus: string }[];
   salary: { amount: number; currency: string; period: string; taxBasis: string } };
 type Application = { draft: { id: string; status: string; employer: string; jobTitle: string; recipientOrigin: string; resumeHash: string; answers: Record<string, string> };
   evidence: { receiptId: string; verifiedAt: string; resumeHash: string } | null; error: string | null;
-  hostReviewRequested: boolean; submissionApproved: boolean };
+  payloadHash: string; questionReview: SyntheticQuestionReview; hostReviewRequested: boolean; submissionApproved: boolean };
 type State = { mode: string; profileConfirmed: boolean; profile: Profile | null; resumeText: string | null; resumeHash: string;
   job: { employer: string; title: string; text: string }; evaluation: { status: string; requirements: { requirementText: string; assessment: string }[] } | null;
   answers: Record<string, Answer> | null; application: Application | null };
@@ -74,10 +76,10 @@ function App() {
     timer = setTimeout(() => void poll(), 1000);
     return () => { controller.abort(); clearTimeout(timer); };
   }, [csrf, busy]);
-  async function act(path: string) {
+  async function act(path: string, body: unknown = {}) {
     setBusy(true); setError('');
     try {
-      const r = await fetch(path, { method: 'POST', headers: { 'X-JobAgent-Csrf': csrf, 'Content-Type': 'application/json' }, body: '{}' });
+      const r = await fetch(path, { method: 'POST', headers: { 'X-JobAgent-Csrf': csrf, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       if (!r.ok) { const e = await r.json().catch(() => ({ error: 'Oturum veya işlem yetkisi doğrulanamadı.' })); throw new Error(errorLabels[e.error] || e.error); }
       await refresh();
     } catch (e) { setError((e as Error).message); }
@@ -120,6 +122,8 @@ function App() {
           <p className="quiet">LinkedIn otomasyonu için platform izni doğrulanmadı. Bu demoda bağlantı kurulmaz.</p>
         </aside>
         {run && <section className="panel review"><div className="panel-heading"><div><p className="eyebrow">03 / GÖNDERİLECEK PAKET</p><h3>Cevaplar, CV ve alıcı</h3></div><span className={'pill ' + (confirmed ? 'green' : 'amber')} data-testid="application-status">{statuses[status!] || status}</span></div>
+          {tab === 'demo' && run.questionReview && <SyntheticQuestions key={run.payloadHash} review={run.questionReview} busy={busy}
+            onReview={body => act('/api/applications/answers', body)} />}
           <div className="answer-grid">{Object.entries(run.draft.answers).map(([key, value]) => <div key={key}><small>{labels[key] || key}</small><strong data-testid={key.startsWith('salary.') ? 'salary-answer' : undefined}>{value}</strong><span>Doğrulanmış profil · sürüm {state?.profile?.version}</span></div>)}</div>
           <div className="package"><div><small>ALICI</small><strong>{run.draft.employer} · {run.draft.jobTitle}</strong><code>{run.draft.recipientOrigin}</code></div><div><small>YÜKLENECEK CV</small><strong>synthetic-resume.txt</strong><code title={run.draft.resumeHash}>SHA-256: {run.draft.resumeHash.slice(0, 24)}…</code></div></div>
           {run.error && <p className="error" role="alert">{errorLabels[run.error] || run.error}</p>}

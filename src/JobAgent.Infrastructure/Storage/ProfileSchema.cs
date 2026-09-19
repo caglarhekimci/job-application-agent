@@ -7,7 +7,8 @@ public static class ProfileSchema
 {
     public const int CurrentVersion = 2;
 
-    internal static async Task InitializeAsync(string databasePath, CancellationToken cancellationToken)
+    internal static async Task InitializeAsync(string databasePath, IPayloadProtector protector,
+        CancellationToken cancellationToken)
     {
         var connectionString = new SqliteConnectionStringBuilder
         {
@@ -21,6 +22,11 @@ public static class ProfileSchema
         if (observedVersion > CurrentVersion)
             throw new InvalidDataException(
                 $"Profile schema version {observedVersion} is newer than supported version {CurrentVersion}.");
+
+        if (observedVersion < CurrentVersion &&
+            await UserTableCountAsync(connection, null, cancellationToken) != 0)
+            await ProtectedDatabaseRecovery.CreateIfMissingAsync(connection, databasePath,
+                "profile", observedVersion, protector, cancellationToken);
 
         await using var transaction = connection.BeginTransaction(IsolationLevel.Serializable, deferred: false);
         var version = await ReadVersionAsync(connection, transaction, cancellationToken);
@@ -129,7 +135,7 @@ public static class ProfileSchema
     }
 
     private static async Task<long> UserTableCountAsync(SqliteConnection connection,
-        SqliteTransaction transaction, CancellationToken cancellationToken)
+        SqliteTransaction? transaction, CancellationToken cancellationToken)
     {
         await using var command = connection.CreateCommand();
         command.Transaction = transaction;

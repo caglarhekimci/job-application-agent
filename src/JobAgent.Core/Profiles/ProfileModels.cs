@@ -4,7 +4,8 @@ public enum SalaryPeriod { Month, Year }
 public enum TaxBasis { Net, Gross }
 public enum VerificationStatus { Proposed, Verified, Rejected }
 public enum ExperienceKind { Professional, Internship, PartTime, PersonalProject }
-public enum AnswerScopeType { Default, Company, Application }
+// Preserve persisted numeric values; specificity is ordered explicitly by the resolver.
+public enum AnswerScopeType { Default, Company, Application, RoleGroup }
 public enum ProfileField { FullName, Email, Salary }
 public enum PatchReviewStatus { Pending, Applied, Rejected, Conflict }
 

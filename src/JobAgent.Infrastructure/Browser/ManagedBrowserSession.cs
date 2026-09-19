@@ -12,7 +12,7 @@ public sealed record ResumeDocument(string Reference, string FileName, byte[] By
     public string Hash => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(Bytes));
 }
 
-public sealed class ManagedBrowserSession(Uri allowedOrigin) : IAsyncDisposable
+public sealed class ManagedBrowserSession(Uri allowedOrigin) : IBrowserSession
 {
     private const string ManualTakeoverSelector = "iframe[title*='captcha' i], iframe[src*='captcha' i], [data-sitekey], input[autocomplete='one-time-code'], input[name*='otp' i], input[name*='mfa' i], input[name*='verificationcode' i], input[name*='verification-code' i]";
     public Uri AllowedOrigin { get; } = allowedOrigin;
@@ -26,6 +26,16 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IAsyncDisposable
     private int actionCount;
     private int submissionRequestAllowance;
     private TimeSpan activeTime;
+    private static readonly HashSet<string> BaseAnswerKeys =
+    [
+        "contact.name", "contact.email", "salary.expected.monthly.net.TRY",
+        "experience.professional.csharp.years"
+    ];
+    private static readonly HashSet<string> PreferenceAnswerKeys =
+    [
+        "preference.work.mode", "preference.travel", "preference.contact.method",
+        "preference.contact.window"
+    ];
 
     public async Task PrepareAsync(ApplicationDraft draft, ApprovalReceipt? sharing, ResumeDocument resume,
         CancellationToken ct = default)
@@ -39,6 +49,7 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IAsyncDisposable
         if (draft.Answers.GetValueOrDefault("contact.name") != "Synthetic Candidate"
             || draft.Answers.GetValueOrDefault("contact.email") != "candidate@example.invalid")
             throw new PolicyException("SyntheticDataRequired");
+        ValidateDraftAnswers(draft);
         playwright = await Playwright.CreateAsync();
         browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
         var context = await browser.NewContextAsync(new() { AcceptDownloads = false, ServiceWorkers = ServiceWorkerPolicy.Block });
@@ -81,15 +92,25 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IAsyncDisposable
         page.SetDefaultTimeout(10000);
         try
         {
-            await Act(() => page.GotoAsync(draft.RecipientOrigin + draft.TargetPath + "?applicationKey=" + draft.Id), ct);
-            await ValidateFormAsync(ct);
-            await Fill("Full name", draft.Answers["contact.name"], ct);
-            await Fill("Email", draft.Answers["contact.email"], ct);
-            await Act(() => page.GetByRole(AriaRole.Button, new() { Name = "Continue", Exact = true }).ClickAsync(), ct);
-            await Fill("Expected monthly net salary (TRY)", draft.Answers["salary.expected.monthly.net.TRY"], ct);
-            await Fill("Professional C# years", draft.Answers["experience.professional.csharp.years"], ct);
-            await Act(() => page.GetByLabel("Resume", new() { Exact = true }).SetInputFilesAsync(new FilePayload
-            { Name = resume.FileName, MimeType = "text/plain", Buffer = resume.Bytes.ToArray() }), ct);
+            await ExecuteAsync(new BrowserAction.Navigate(), draft, resume, ct);
+            await ExecuteAsync(new BrowserAction.ReadVisibleControls(BrowserStep.Contact), draft, resume, ct);
+            await ExecuteAsync(new BrowserAction.FillText(BrowserField.ContactName), draft, resume, ct);
+            await ExecuteAsync(new BrowserAction.FillText(BrowserField.ContactEmail), draft, resume, ct);
+            await ExecuteAsync(new BrowserAction.Advance(BrowserStep.Contact), draft, resume, ct);
+            await ExecuteAsync(new BrowserAction.ReadVisibleControls(BrowserStep.Questions), draft, resume, ct);
+            await ExecuteAsync(new BrowserAction.FillText(BrowserField.Salary), draft, resume, ct);
+            await ExecuteAsync(new BrowserAction.FillText(BrowserField.ProfessionalYears), draft, resume, ct);
+            if (HasPreferences(draft))
+            {
+                await ExecuteAsync(new BrowserAction.SelectOption(BrowserField.WorkMode), draft, resume, ct);
+                await ExecuteAsync(new BrowserAction.SetCheckbox(BrowserField.Travel), draft, resume, ct);
+                await ExecuteAsync(new BrowserAction.ChooseRadio(BrowserField.ContactMethod), draft, resume, ct);
+                await ExecuteAsync(new BrowserAction.Advance(BrowserStep.Questions), draft, resume, ct);
+                await ExecuteAsync(new BrowserAction.ReadVisibleControls(BrowserStep.Final), draft, resume, ct);
+                if (draft.Answers["preference.contact.method"] == "phone")
+                    await ExecuteAsync(new BrowserAction.FillText(BrowserField.ContactWindow), draft, resume, ct);
+            }
+            await ExecuteAsync(new BrowserAction.UploadApprovedResume(), draft, resume, ct);
             preparedHash = draft.PayloadHash();
         }
         catch (PlaywrightException) when (blockedRequest) { throw new PolicyException("RecipientChanged"); }
@@ -106,14 +127,7 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IAsyncDisposable
         if (submitted) throw new PolicyException("SubmissionAlreadyAttempted");
         await EnsureReadyForSubmissionAsync(draft, ct);
         var preparedPage = page ?? throw new PolicyException("PackageChanged");
-        var fields = new Dictionary<string, string>
-        {
-            ["name"] = draft.Answers["contact.name"],
-            ["email"] = draft.Answers["contact.email"],
-            ["salary"] = draft.Answers["salary.expected.monthly.net.TRY"],
-            ["years"] = draft.Answers["experience.professional.csharp.years"],
-            ["applicationKey"] = draft.Id.ToString()
-        };
+        var fields = ExpectedTextFields(draft);
         Guard(ct);
         await EnsureNoManualTakeoverAsync(ct);
         // Persisted submission claim is made by the workflow before this method. Never retry this click.
@@ -137,6 +151,12 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IAsyncDisposable
             if (ReceiptString(receipt, "salary") != fields["salary"]
                 || ReceiptString(receipt, "professionalYears") != fields["years"]
                 || ReceiptString(receipt, "fileName") != "synthetic-resume.txt") return null;
+            if (HasPreferences(draft) &&
+                (ReceiptString(receipt, "workMode") != draft.Answers["preference.work.mode"]
+                 || ReceiptBoolean(receipt, "travel") != (draft.Answers["preference.travel"] == "true")
+                 || ReceiptString(receipt, "contactMethod") != draft.Answers["preference.contact.method"]
+                 || ReceiptString(receipt, "contactWindow") != draft.Answers.GetValueOrDefault("preference.contact.window")))
+                return null;
             return new(id, key, hash, DateTimeOffset.UtcNow, draft.PayloadHash());
         }
         catch (Exception e) when (e is PlaywrightException or System.TimeoutException or JsonException or OperationCanceledException)
@@ -150,20 +170,23 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IAsyncDisposable
         ValidateTarget(draft);
         if (page is null || preparedHash != draft.PayloadHash()) throw new PolicyException("PackageChanged");
         await EnsureNoManualTakeoverAsync(ct);
-        await ValidateFormAsync(ct);
-        var fields = new Dictionary<string, string>
-        {
-            ["name"] = draft.Answers["contact.name"],
-            ["email"] = draft.Answers["contact.email"],
-            ["salary"] = draft.Answers["salary.expected.monthly.net.TRY"],
-            ["years"] = draft.Answers["experience.professional.csharp.years"],
-            ["applicationKey"] = draft.Id.ToString()
-        };
-        foreach (var field in fields)
+        await ValidateFormContractAsync(draft, ct);
+        var fields = ExpectedTextFields(draft);
+        foreach (var field in fields.Where(field => field.Key is
+                     "name" or "email" or "salary" or "years" or "applicationKey" or "contactWindow"))
         {
             Guard(ct);
             await EnsureNoManualTakeoverAsync(ct);
             if (await page.Locator($"input[name='{field.Key}']").InputValueAsync() != field.Value)
+                throw new PolicyException("FormChanged");
+        }
+        if (HasPreferences(draft))
+        {
+            var checkedRadio = page.Locator("input[name='contactMethod']:checked");
+            if (await page.Locator("select[name='workMode']").InputValueAsync() != draft.Answers["preference.work.mode"]
+                || await page.Locator("input[name='travel']").IsCheckedAsync() != (draft.Answers["preference.travel"] == "true")
+                || await checkedRadio.CountAsync() != 1
+                || await checkedRadio.InputValueAsync() != draft.Answers["preference.contact.method"])
                 throw new PolicyException("FormChanged");
         }
         // Keep this check adjacent to the caller's durable submission claim.
@@ -174,6 +197,10 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IAsyncDisposable
         receipt.ValueKind == JsonValueKind.Object && receipt.TryGetProperty(key, out var value)
         && value.ValueKind == JsonValueKind.String ? value.GetString() : null;
 
+    private static bool? ReceiptBoolean(JsonElement receipt, string key) =>
+        receipt.ValueKind == JsonValueKind.Object && receipt.TryGetProperty(key, out var value)
+        && value.ValueKind is JsonValueKind.True or JsonValueKind.False ? value.GetBoolean() : null;
+
     private static async Task<bool> MatchesApprovedBodyAsync(IRequest request, ApplicationDraft draft,
         ResumeDocument resume, CancellationToken ct)
     {
@@ -183,18 +210,11 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IAsyncDisposable
             || type.MediaType != "multipart/form-data") return false;
         var boundary = HeaderUtilities.RemoveQuotes(type.Boundary).Value;
         if (string.IsNullOrEmpty(boundary) || boundary.Length > 128) return false;
-        var expected = new Dictionary<string, string>(StringComparer.Ordinal)
-        {
-            ["synthetic"] = "true",
-            ["applicationKey"] = draft.Id.ToString(),
-            ["name"] = draft.Answers["contact.name"],
-            ["email"] = draft.Answers["contact.email"],
-            ["salary"] = draft.Answers["salary.expected.monthly.net.TRY"],
-            ["years"] = draft.Answers["experience.professional.csharp.years"]
-        };
+        var expected = ExpectedTextFields(draft);
+        expected["synthetic"] = "true";
         var seen = new HashSet<string>(StringComparer.Ordinal);
         using var input = new MemoryStream(bytes, false);
-        var reader = new MultipartReader(boundary, input) { BodyLengthLimit = 2_000_000, HeadersCountLimit = 8 };
+        var reader = new MultipartReader(boundary, input) { BodyLengthLimit = 2_000_000, HeadersCountLimit = 16 };
         try
         {
             while (await reader.ReadNextSectionAsync(ct) is { } section)
@@ -220,18 +240,247 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IAsyncDisposable
         { return false; }
     }
 
-    private async Task ValidateFormAsync(CancellationToken ct)
+    private static void ValidateDraftAnswers(ApplicationDraft draft)
+    {
+        if (draft.Answers.Keys.Any(key => !BaseAnswerKeys.Contains(key) && !PreferenceAnswerKeys.Contains(key)))
+            throw new PolicyException("UnsupportedAnswer");
+        if (BaseAnswerKeys.Any(key => !draft.Answers.TryGetValue(key, out var value) || string.IsNullOrWhiteSpace(value)))
+            throw new PolicyException("InvalidAnswer");
+        if (!draft.Answers.Keys.Any(PreferenceAnswerKeys.Contains)) return;
+        if (!draft.Answers.TryGetValue("preference.work.mode", out var workMode)
+            || workMode is not ("remote" or "hybrid")
+            || !draft.Answers.TryGetValue("preference.travel", out var travel)
+            || travel is not ("true" or "false")
+            || !draft.Answers.TryGetValue("preference.contact.method", out var contactMethod)
+            || contactMethod is not ("email" or "phone"))
+            throw new PolicyException("InvalidAnswer");
+        var hasWindow = draft.Answers.TryGetValue("preference.contact.window", out var window);
+        if (contactMethod == "phone")
+        {
+            if (!hasWindow || string.IsNullOrWhiteSpace(window)) throw new PolicyException("NeedsInput");
+            if (window.Length > 80) throw new PolicyException("InvalidAnswer");
+        }
+        else if (hasWindow) throw new PolicyException("InvalidAnswer");
+    }
+
+    private static bool HasPreferences(ApplicationDraft draft) =>
+        draft.Answers.ContainsKey("preference.work.mode");
+
+    private static Dictionary<string, string> ExpectedTextFields(ApplicationDraft draft)
+    {
+        var expected = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["applicationKey"] = draft.Id.ToString(),
+            ["name"] = draft.Answers["contact.name"],
+            ["email"] = draft.Answers["contact.email"],
+            ["salary"] = draft.Answers["salary.expected.monthly.net.TRY"],
+            ["years"] = draft.Answers["experience.professional.csharp.years"]
+        };
+        if (!HasPreferences(draft)) return expected;
+        expected["workMode"] = draft.Answers["preference.work.mode"];
+        expected["contactMethod"] = draft.Answers["preference.contact.method"];
+        if (draft.Answers["preference.travel"] == "true") expected["travel"] = "true";
+        if (draft.Answers["preference.contact.method"] == "phone")
+            expected["contactWindow"] = draft.Answers["preference.contact.window"];
+        return expected;
+    }
+
+    private async Task ExecuteAsync(BrowserAction action, ApplicationDraft draft, ResumeDocument resume,
+        CancellationToken ct)
+    {
+        switch (action)
+        {
+            case BrowserAction.Navigate:
+                await Act(() => page!.GotoAsync(draft.RecipientOrigin + draft.TargetPath + "?applicationKey=" + draft.Id), ct);
+                break;
+            case BrowserAction.ReadVisibleControls read:
+                await Act(() => ValidateVisibleControlsAsync(draft, read.Step, ct), ct);
+                break;
+            case BrowserAction.FillText fill:
+                var (label, key) = fill.Field switch
+                {
+                    BrowserField.ContactName => ("Full name", "contact.name"),
+                    BrowserField.ContactEmail => ("Email", "contact.email"),
+                    BrowserField.Salary => ("Expected monthly net salary (TRY)", "salary.expected.monthly.net.TRY"),
+                    BrowserField.ProfessionalYears => ("Professional C# years", "experience.professional.csharp.years"),
+                    BrowserField.ContactWindow => ("Preferred call window", "preference.contact.window"),
+                    _ => throw new PolicyException("InvalidBrowserAction")
+                };
+                var textControl = fill.Field == BrowserField.ContactEmail
+                    ? page!.GetByRole(AriaRole.Textbox, new() { Name = label, Exact = true })
+                    : page!.GetByLabel(label, new() { Exact = true });
+                await Act(() => textControl.FillAsync(draft.Answers[key]), ct);
+                break;
+            case BrowserAction.SelectOption { Field: BrowserField.WorkMode }:
+                await Act(() => page!.GetByRole(AriaRole.Combobox, new() { Name = "Work arrangement", Exact = true })
+                    .SelectOptionAsync(draft.Answers["preference.work.mode"]), ct);
+                break;
+            case BrowserAction.SetCheckbox { Field: BrowserField.Travel }:
+                await Act(() => page!.GetByRole(AriaRole.Checkbox, new() { Name = "Open to occasional travel", Exact = true })
+                    .SetCheckedAsync(draft.Answers["preference.travel"] == "true"), ct);
+                break;
+            case BrowserAction.ChooseRadio { Field: BrowserField.ContactMethod }:
+                var radioName = draft.Answers["preference.contact.method"] == "email" ? "Email" : "Phone";
+                await Act(() => page!.GetByRole(AriaRole.Radio, new() { Name = radioName, Exact = true }).CheckAsync(), ct);
+                break;
+            case BrowserAction.UploadApprovedResume:
+                await Act(() => page!.GetByLabel("Resume", new() { Exact = true }).SetInputFilesAsync(new FilePayload
+                { Name = resume.FileName, MimeType = "text/plain", Buffer = resume.Bytes.ToArray() }), ct);
+                break;
+            case BrowserAction.Advance { From: BrowserStep.Contact }:
+                await Act(() => page!.GetByRole(AriaRole.Button, new() { Name = "Continue", Exact = true }).ClickAsync(), ct);
+                break;
+            case BrowserAction.Advance { From: BrowserStep.Questions } when HasPreferences(draft):
+                await Act(() => page!.GetByRole(AriaRole.Button, new() { Name = "Continue to final step", Exact = true }).ClickAsync(), ct);
+                break;
+            default:
+                throw new PolicyException("InvalidBrowserAction");
+        }
+    }
+
+    private async Task ValidateVisibleControlsAsync(ApplicationDraft draft, BrowserStep step, CancellationToken ct)
+    {
+        await ValidateFormContractAsync(draft, ct);
+        var expectedVisible = step switch
+        {
+            BrowserStep.Contact => new HashSet<string>(["name", "email"], StringComparer.Ordinal),
+            BrowserStep.Questions when HasPreferences(draft) =>
+                new HashSet<string>(["salary", "years", "workMode", "travel", "contactMethod"], StringComparer.Ordinal),
+            BrowserStep.Questions => new HashSet<string>(["salary", "years", "resume"], StringComparer.Ordinal),
+            BrowserStep.Final when draft.Answers["preference.contact.method"] == "phone" =>
+                new HashSet<string>(["contactWindow", "resume"], StringComparer.Ordinal),
+            BrowserStep.Final => new HashSet<string>(["resume"], StringComparer.Ordinal),
+            _ => throw new PolicyException("InvalidBrowserAction")
+        };
+        foreach (var name in KnownControlCounts(draft).Keys.Where(name => name is not ("synthetic" or "applicationKey")))
+        {
+            var controls = page!.Locator($"#application [name='{name}']");
+            var visible = false;
+            for (var index = 0; index < await controls.CountAsync(); index++)
+                visible |= await controls.Nth(index).IsVisibleAsync();
+            if (visible != expectedVisible.Contains(name)) throw new PolicyException("FormChanged");
+        }
+    }
+
+    private async Task ValidateFormContractAsync(ApplicationDraft draft, CancellationToken ct)
     {
         Guard(ct);
         await EnsureNoManualTakeoverAsync(ct);
-        if (page is null || await page.Locator("input").CountAsync() != 7
-            || await page.Locator("input[name=synthetic]").InputValueAsync() != "true"
-            || await page.GetByRole(AriaRole.Heading, new() { Name = "SYNTHETIC TEST SITE", Exact = true }).CountAsync() != 1)
+        if (page is null || await page.GetByRole(AriaRole.Heading,
+                new() { Name = "SYNTHETIC TEST SITE", Exact = true }).CountAsync() != 1)
             throw new PolicyException("FormChanged");
+        var form = page.Locator("#application");
+        if (await form.CountAsync() != 1)
+            throw new PolicyException("FormChanged");
+        var disabledControls = form.Locator("input:disabled,select:disabled,textarea:disabled");
+        for (var index = 0; index < await disabledControls.CountAsync(); index++)
+            if (!HasPreferences(draft)
+                || await disabledControls.Nth(index).GetAttributeAsync("name") != "contactWindow"
+                || await disabledControls.Nth(index).IsVisibleAsync())
+                throw new PolicyException("FormChanged");
+
+        var expectedCounts = KnownControlCounts(draft);
+        var observed = expectedCounts.Keys.ToDictionary(key => key, _ => 0, StringComparer.Ordinal);
+        var controls = form.Locator("input[name],select[name],textarea[name]");
+        for (var index = 0; index < await controls.CountAsync(); index++)
+        {
+            ct.ThrowIfCancellationRequested();
+            var control = controls.Nth(index);
+            var name = await control.GetAttributeAsync("name");
+            if (name is null) throw new PolicyException("FormChanged");
+            if (!observed.ContainsKey(name))
+            {
+                var type = await control.GetAttributeAsync("type") ?? "text";
+                var required = await control.GetAttributeAsync("required") is not null;
+                if (type == "hidden") throw new PolicyException("FormChanged");
+                if (required && await control.IsVisibleAsync()) throw new PolicyException("NeedsInput");
+                if (required) continue;
+                throw new PolicyException("FormChanged");
+            }
+            observed[name]++;
+        }
+        if (observed.Any(pair => pair.Value != expectedCounts[pair.Key])) throw new PolicyException("FormChanged");
+
+        await RequireInputAsync("synthetic", "hidden", required: false);
+        await RequireInputAsync("applicationKey", "hidden", required: false);
+        if (await form.Locator("input[name='synthetic']").InputValueAsync() != "true"
+            || await form.Locator("input[name='applicationKey']").InputValueAsync() != draft.Id.ToString())
+            throw new PolicyException("FormChanged");
+        await RequireInputAsync("name", "text", required: true);
+        await RequireInputAsync("email", "email", required: true);
+        await RequireInputAsync("salary", "number", required: true);
+        await RequireInputAsync("years", "number", required: true);
+        await RequireInputAsync("resume", "file", required: true);
+
+        if (HasPreferences(draft))
+        {
+            var options = form.Locator("select[name='workMode'] option");
+            var optionValues = new List<string?>();
+            for (var index = 0; index < await options.CountAsync(); index++)
+                optionValues.Add(await options.Nth(index).GetAttributeAsync("value"));
+            if (!optionValues.SequenceEqual(new string?[] { "", "remote", "hybrid" }))
+                throw new PolicyException("FormChanged");
+            if (await form.Locator("select[name='workMode'][required]").CountAsync() != 1)
+                throw new PolicyException("FormChanged");
+            await RequireInputAsync("travel", "checkbox", required: false);
+            if (await form.Locator("input[name='travel']").GetAttributeAsync("value") != "true")
+                throw new PolicyException("FormChanged");
+            var radios = form.Locator("input[name='contactMethod']");
+            var radioValues = new List<string?>();
+            for (var index = 0; index < await radios.CountAsync(); index++)
+            {
+                if ((await radios.Nth(index).GetAttributeAsync("type") ?? "text") != "radio"
+                    || await radios.Nth(index).GetAttributeAsync("required") is null)
+                    throw new PolicyException("FormChanged");
+                radioValues.Add(await radios.Nth(index).GetAttributeAsync("value"));
+            }
+            if (!radioValues.SequenceEqual(new string?[] { "email", "phone" }))
+                throw new PolicyException("FormChanged");
+            var contactWindow = form.Locator("input[name='contactWindow']");
+            if (await contactWindow.CountAsync() != 1
+                || (await contactWindow.GetAttributeAsync("type") ?? "text") != "text"
+                || await contactWindow.GetAttributeAsync("maxlength") != "80")
+                throw new PolicyException("FormChanged");
+            var contactWindowVisible = await contactWindow.IsVisibleAsync();
+            var contactWindowRequired = await contactWindow.GetAttributeAsync("required") is not null;
+            var contactWindowDisabled = await contactWindow.IsDisabledAsync();
+            if (contactWindowVisible
+                ? draft.Answers["preference.contact.method"] != "phone" || !contactWindowRequired || contactWindowDisabled
+                : contactWindowRequired || !contactWindowDisabled)
+                throw new PolicyException("FormChanged");
+        }
+        return;
+
+        async Task RequireInputAsync(string name, string type, bool required)
+        {
+            var input = form.Locator($"input[name='{name}']");
+            if (await input.CountAsync() != 1 || (await input.GetAttributeAsync("type") ?? "text") != type
+                || (await input.GetAttributeAsync("required") is not null) != required)
+                throw new PolicyException("FormChanged");
+        }
     }
 
-    private Task Fill(string label, string value, CancellationToken ct) =>
-        Act(() => page!.GetByLabel(label, new() { Exact = true }).FillAsync(value), ct);
+    private static Dictionary<string, int> KnownControlCounts(ApplicationDraft draft)
+    {
+        var counts = new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            ["synthetic"] = 1,
+            ["applicationKey"] = 1,
+            ["name"] = 1,
+            ["email"] = 1,
+            ["salary"] = 1,
+            ["years"] = 1,
+            ["resume"] = 1
+        };
+        if (HasPreferences(draft))
+        {
+            counts["workMode"] = 1;
+            counts["travel"] = 1;
+            counts["contactMethod"] = 2;
+            counts["contactWindow"] = 1;
+        }
+        return counts;
+    }
     private async Task Act(Func<Task> action, CancellationToken ct)
     {
         Guard(ct);

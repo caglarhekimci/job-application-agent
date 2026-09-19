@@ -1,7 +1,9 @@
 namespace JobAgent.FakeCareerSite;
 
 public sealed record SyntheticReceipt(string Id, string ApplicationKey, string Salary,
-    string ProfessionalYears, string FileName, string ResumeHash);
+    string ProfessionalYears, string FileName, string ResumeHash,
+    string? WorkMode = null, bool? Travel = null, string? ContactMethod = null,
+    string? ContactWindow = null);
 
 public sealed class ReceiptStore
 {

@@ -1,5 +1,6 @@
 using System.Text;
 using JobAgent.Core.Answers;
+using JobAgent.Core.Applications;
 using JobAgent.Core.Profiles;
 using JobAgent.Infrastructure.Storage;
 using JobAgent.Infrastructure.Workspace;
@@ -179,7 +180,7 @@ public sealed class WorkspaceTests : IDisposable
     }
 
     [Fact]
-    public async Task SamePostingReviewPreservesApplicationMemoryButChangedEmployerDoesNot()
+    public async Task LegacyApplicationScopeIsRejectedInsteadOfUsingJobAsApplicationIdentity()
     {
         using var workspace = Open();
         var imported = await workspace.ImportAsync(Resume(), "candidate.txt");
@@ -193,19 +194,17 @@ public sealed class WorkspaceTests : IDisposable
             SourceUrl = "https://example.invalid/jobs/1"
         };
         var job = await workspace.ReviewJobAsync(request);
-        var memory = await workspace.ReviewAnswerAsync(new()
+        var error = await Assert.ThrowsAsync<PolicyException>(() => workspace.ReviewAnswerAsync(new()
         {
             ExpectedRevision = job.Revision,
             SemanticKey = "motivation",
             Answer = "A specific answer.",
             Scope = AnswerScopeType.Application
-        });
-        var reviewed = await workspace.ReviewJobAsync(request with { ExpectedRevision = memory.Revision });
-        Assert.Equal(job.Job!.Id, reviewed.Job!.Id);
-        Assert.Equal("A specific answer.", (await workspace.ResolveAsync(new() { Key = "motivation", Language = "tr" })).Value);
-        var other = await workspace.ReviewJobAsync(request with { ExpectedRevision = reviewed.Revision, Employer = "Other" });
-        Assert.NotEqual(job.Job.Id, other.Job!.Id);
-        Assert.Equal(AnswerStatus.NeedsInput, (await workspace.ResolveAsync(new() { Key = "motivation", Language = "tr" })).Status);
+        }));
+        Assert.Equal("ApplicationReviewRequired", error.Code);
+        Assert.Empty((await workspace.GetAsync()).Profile.Answers);
+        Assert.Equal(AnswerStatus.NeedsInput,
+            (await workspace.ResolveAsync(new() { Key = "motivation", Language = "tr" })).Status);
     }
 
     private static ProfileReview Review(long revision) => new()

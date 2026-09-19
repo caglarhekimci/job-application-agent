@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using JobAgent.Core.Answers;
 
 namespace JobAgent.Core.Applications;
 
@@ -24,6 +25,7 @@ public sealed record ApplicationDraft
     public string ResumeRef { get; init; } = "";
     public string ResumeHash { get; init; } = "";
     public SortedDictionary<string, string> Answers { get; init; } = new(StringComparer.Ordinal);
+    public List<FormQuestion> Questions { get; init; } = [];
     public ApplicationStatus Status { get; init; } = ApplicationStatus.ReadyForDataSharing;
     public bool Synthetic { get; init; }
 
@@ -41,6 +43,7 @@ public sealed record ApplicationDraft
             ResumeRef,
             ResumeHash,
             Answers = Answers.OrderBy(p => p.Key, StringComparer.Ordinal).ToArray(),
+            Questions,
             Synthetic
         }))));
 }

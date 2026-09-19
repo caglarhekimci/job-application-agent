@@ -16,12 +16,23 @@ public static class Program
         var store = RuntimeStore.FromProcessConfiguration();
         builder.Services.AddSingleton(store);
         builder.Services.AddSingleton<LocalHostBridgeClient>();
+        builder.Services.AddSingleton<WorkspaceHostBridgeClient>();
         var mcp = builder.Services.AddMcpServer()
             .WithStdioServerTransport()
             .WithRequestFilters(filters =>
             {
                 filters.AddCallToolFilter(next => async (context, cancellationToken) =>
                 {
+                    if (store.LocalCommandsEnabled)
+                    {
+                        if (!LocalToolInputValidator.IsValid(context.Params?.Name, context.Params?.Arguments))
+                            return new CallToolResult
+                            {
+                                IsError = true,
+                                Content = [new TextContentBlock { Text = "Invalid local tool arguments." }]
+                            };
+                        return await next(context, cancellationToken);
+                    }
                     var allowed = context.Params?.Name switch
                     {
                         "runtime_get_capabilities" => Array.Empty<string>(),
@@ -42,8 +53,9 @@ public static class Program
                     }
                     return await next(context, cancellationToken);
                 });
-            })
-            .WithTools<ReadOnlyTools>();
+            });
+        if (store.LocalCommandsEnabled) mcp.WithTools<LocalWorkspaceTools>();
+        else mcp.WithTools<ReadOnlyTools>();
         if (store.SyntheticCommandsEnabled) mcp.WithTools<SyntheticCommandTools>();
         await builder.Build().RunAsync();
     }

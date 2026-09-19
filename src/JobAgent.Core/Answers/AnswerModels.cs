@@ -2,6 +2,8 @@ namespace JobAgent.Core.Answers;
 
 public enum AnswerStatus { Resolved, NeedsInput, RequiresReview, ManualOnly, Blocked }
 
+public sealed record AnswerScopeContext(Guid ApplicationId, string RoleGroupId);
+
 public sealed record FormQuestion
 {
     public string Key { get; init; } = string.Empty;

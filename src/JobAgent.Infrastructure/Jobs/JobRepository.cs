@@ -51,9 +51,12 @@ public sealed class JobRepository
     {
         var directory = Path.GetDirectoryName(Path.GetFullPath(Options.DatabasePath));
         if (!string.IsNullOrEmpty(directory)) Directory.CreateDirectory(directory);
-        await using var context = _factory.CreateDbContext();
-        await context.Database.EnsureCreatedAsync(cancellationToken);
+        await JobSchema.InitializeAsync(_factory.DatabasePath, _protector, cancellationToken);
     }
+
+    public Task RestoreLatestBackupAsync(CancellationToken cancellationToken = default) =>
+        ProtectedDatabaseRecovery.RestoreLatestAsync(_factory.DatabasePath, "jobs", [0],
+            _protector, cancellationToken);
 
     public async Task SaveAsync(JobPosting job, CancellationToken cancellationToken = default)
     {
@@ -63,8 +66,11 @@ public sealed class JobRepository
         var payload = _protector.Protect(JsonSerializer.SerializeToUtf8Bytes(job, JsonOptions));
         var now = _timeProvider.GetUtcNow();
         await using var context = _factory.CreateDbContext();
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
         var existing = await context.Jobs.SingleOrDefaultAsync(item => item.IdentityHash == identityHash,
             cancellationToken);
+        var previousRevision = existing?.Revision ?? 0;
+        var newRevision = previousRevision + 1;
         if (existing is null)
         {
             context.Jobs.Add(new()
@@ -72,15 +78,27 @@ public sealed class JobRepository
                 IdentityHash = identityHash,
                 Payload = payload,
                 CreatedAt = now,
-                UpdatedAt = now
+                UpdatedAt = now,
+                Revision = newRevision
             });
         }
         else
         {
             existing.Payload = payload;
             existing.UpdatedAt = now;
+            existing.Revision = newRevision;
         }
+        context.JobAuditEntries.Add(new()
+        {
+            EntityRef = identityHash,
+            PreviousRevision = previousRevision,
+            NewRevision = newRevision,
+            Operation = existing is null ? "JobCreated" : "JobUpdated",
+            Actor = "LocalRepository",
+            OccurredAt = now
+        });
         await context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
     }
 
     public async Task<JobPosting?> GetAsync(string duplicateKey,
@@ -135,11 +153,25 @@ internal sealed class JobEntity
     public required byte[] Payload { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
+    public long Revision { get; set; }
+}
+
+internal sealed class JobAuditEntity
+{
+    public long Id { get; set; }
+    public string EntityRef { get; set; } = string.Empty;
+    public long PreviousRevision { get; set; }
+    public long NewRevision { get; set; }
+    public string Operation { get; set; } = string.Empty;
+    public string Actor { get; set; } = string.Empty;
+    public string? CorrelationId { get; set; }
+    public DateTimeOffset OccurredAt { get; set; }
 }
 
 internal sealed class JobDbContext(DbContextOptions<JobDbContext> options) : DbContext(options)
 {
     public DbSet<JobEntity> Jobs => Set<JobEntity>();
+    public DbSet<JobAuditEntity> JobAuditEntries => Set<JobAuditEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -150,6 +182,14 @@ internal sealed class JobDbContext(DbContextOptions<JobDbContext> options) : DbC
             entity.Property(item => item.IdentityHash).IsRequired();
             entity.Property(item => item.Payload).IsRequired();
         });
+        modelBuilder.Entity<JobAuditEntity>(entity =>
+        {
+            entity.HasKey(item => item.Id);
+            entity.HasIndex(item => new { item.EntityRef, item.NewRevision });
+            entity.Property(item => item.EntityRef).IsRequired();
+            entity.Property(item => item.Operation).IsRequired();
+            entity.Property(item => item.Actor).IsRequired();
+        });
     }
 }
 
@@ -159,6 +199,7 @@ internal sealed class JobDbContextFactory
 
     public JobDbContextFactory(string databasePath)
     {
+        DatabasePath = databasePath;
         var connectionString = new SqliteConnectionStringBuilder
         {
             DataSource = databasePath,
@@ -167,5 +208,6 @@ internal sealed class JobDbContextFactory
         _options = new DbContextOptionsBuilder<JobDbContext>().UseSqlite(connectionString).Options;
     }
 
+    public string DatabasePath { get; }
     public JobDbContext CreateDbContext() => new(_options);
 }

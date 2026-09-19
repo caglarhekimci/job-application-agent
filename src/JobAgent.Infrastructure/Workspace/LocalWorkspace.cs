@@ -1,6 +1,7 @@
 using System.Net.Mail;
 using System.Text.Json;
 using JobAgent.Core.Answers;
+using JobAgent.Core.Applications;
 using JobAgent.Core.Jobs;
 using JobAgent.Core.Profiles;
 using JobAgent.Infrastructure.Documents;
@@ -60,29 +61,32 @@ public sealed record WorkspaceAnswerRevocation
     public AnswerMemoryKey Key { get; init; } = new();
 }
 
-internal sealed record WorkspaceData
+internal sealed partial record WorkspaceData
 {
     public CandidateProfile Profile { get; init; } = new();
     public List<CandidateProfile> PreviousVersions { get; init; } = [];
     public ResumeImportResult? Document { get; init; }
     public string? FileName { get; init; }
     public byte[] ResumeBytes { get; init; } = [];
+    public Guid ResumeRef { get; init; }
     public JobPosting? Job { get; init; }
     public bool PrivateMinimumProvided { get; init; }
 }
 
 // This service is available only to the authenticated local UI. It has no network adapter.
 // One protected SQLite payload keeps the document, current profile and revision history atomic.
-public sealed class LocalWorkspace : IDisposable
+public sealed partial class LocalWorkspace : IDisposable
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
+    private readonly string databasePath;
     private readonly string connectionString;
     private readonly IPayloadProtector protector;
     private readonly ResumeImporter importer;
+    private readonly TimeProvider timeProvider;
     private readonly SemaphoreSlim gate = new(1, 1);
 
     public LocalWorkspace(string dataDirectory, string checkoutRoot, IPayloadProtector protector,
-        ResumeImporter? importer = null)
+        ResumeImporter? importer = null, TimeProvider? timeProvider = null)
     {
         var directory = Path.GetFullPath(dataDirectory);
         var checkout = Path.GetFullPath(checkoutRoot).TrimEnd(Path.DirectorySeparatorChar);
@@ -92,10 +96,12 @@ public sealed class LocalWorkspace : IDisposable
         if (protector.IsPlaintext) throw new InvalidOperationException("Personal workspace requires protected storage.");
         this.protector = protector;
         this.importer = importer ?? new();
+        this.timeProvider = timeProvider ?? TimeProvider.System;
         Directory.CreateDirectory(directory);
+        databasePath = Path.Combine(directory, "workspace.db");
         connectionString = new SqliteConnectionStringBuilder
         {
-            DataSource = Path.Combine(directory, "workspace.db"),
+            DataSource = databasePath,
             Pooling = false
         }.ToString();
     }
@@ -140,6 +146,7 @@ public sealed class LocalWorkspace : IDisposable
                 Document = document,
                 FileName = fileName,
                 ResumeBytes = bytes.ToArray(),
+                ResumeRef = Guid.NewGuid(),
                 PreviousVersions = [.. data.PreviousVersions, data.Profile]
             };
             await SaveAsync(revision, next);
@@ -262,13 +269,16 @@ public sealed class LocalWorkspace : IDisposable
 
     public async Task<AnswerResolution> ResolveAsync(FormQuestion question)
     {
+        ArgumentNullException.ThrowIfNull(question);
         if (question.Key.Length > 200 || question.Label.Length > 2000) throw new ArgumentException("Question is too long.");
         var state = await GetAsync();
-        return AnswerResolver.Resolve(question, state.Profile, state.Job ?? new(), DateTimeOffset.UtcNow);
+        return AnswerResolver.Resolve(question, state.Profile, state.Job ?? new(), DateTimeOffset.UtcNow,
+            new(Guid.Empty, state.Job?.RoleGroupId ?? string.Empty));
     }
 
     public async Task<WorkspaceView> ReviewAnswerAsync(WorkspaceAnswerReview review)
     {
+        ArgumentNullException.ThrowIfNull(review);
         await gate.WaitAsync();
         try
         {
@@ -277,6 +287,8 @@ public sealed class LocalWorkspace : IDisposable
             if (data.Profile.VerifiedAt is null) throw new InvalidOperationException("Review the profile first.");
             if (review.Scope != AnswerScopeType.Default && data.Job is null)
                 throw new InvalidOperationException("Scoped memory requires a reviewed job.");
+            if (review.Scope == AnswerScopeType.Application)
+                throw new PolicyException("ApplicationReviewRequired");
             if (data.Profile.Answers.Count >= 200)
                 throw new InvalidOperationException("Remove an answer before adding more than 200.");
             var profile = AnswerMemoryService.UpsertReviewed(data.Profile, new()
@@ -288,7 +300,6 @@ public sealed class LocalWorkspace : IDisposable
                 {
                     AnswerScopeType.Default => null,
                     AnswerScopeType.Company => data.Job!.Employer,
-                    AnswerScopeType.Application => data.Job!.Id,
                     _ => throw new ArgumentException("Invalid answer scope.")
                 },
                 Language = review.Language,
@@ -332,7 +343,19 @@ public sealed class LocalWorkspace : IDisposable
         {
             var (revision, _) = await ReadAsync();
             CheckRevision(expectedRevision, revision);
+            ProtectedDatabaseRecovery.InvalidateBackups(databasePath, [0]);
             await SaveAsync(revision, new());
+        }
+        finally { gate.Release(); }
+    }
+
+    public async Task RestoreLatestBackupAsync(CancellationToken cancellationToken = default)
+    {
+        await gate.WaitAsync(cancellationToken);
+        try
+        {
+            await ProtectedDatabaseRecovery.RestoreLatestAsync(databasePath, "workspace", [0],
+                protector, cancellationToken);
         }
         finally { gate.Release(); }
     }
@@ -346,11 +369,20 @@ public sealed class LocalWorkspace : IDisposable
     private async Task<SqliteConnection> ConnectAsync()
     {
         var connection = new SqliteConnection(connectionString);
-        await connection.OpenAsync();
-        await using var command = connection.CreateCommand();
-        command.CommandText = "PRAGMA secure_delete=ON; CREATE TABLE IF NOT EXISTS Workspace (Id INTEGER PRIMARY KEY CHECK(Id=1), Revision INTEGER NOT NULL, Payload BLOB NOT NULL);";
-        await command.ExecuteNonQueryAsync();
-        return connection;
+        try
+        {
+            await connection.OpenAsync();
+            await WorkspaceSchema.InitializeAsync(connection, databasePath, protector, CancellationToken.None);
+            await using var command = connection.CreateCommand();
+            command.CommandText = "PRAGMA secure_delete=ON;";
+            await command.ExecuteNonQueryAsync();
+            return connection;
+        }
+        catch
+        {
+            await connection.DisposeAsync();
+            throw;
+        }
     }
 
     private async Task<(long Revision, WorkspaceData Data)> ReadAsync()
@@ -364,18 +396,34 @@ public sealed class LocalWorkspace : IDisposable
             ?? throw new InvalidDataException("Invalid protected workspace."));
     }
 
-    private async Task SaveAsync(long expectedRevision, WorkspaceData data)
+    private async Task SaveAsync(long expectedRevision, WorkspaceData data,
+        string operation = "WorkspaceUpdated")
     {
         if (data.PreviousVersions.Count > 100) throw new InvalidOperationException("Export and clear the workspace before exceeding 100 profile versions.");
         var payload = protector.Protect(JsonSerializer.SerializeToUtf8Bytes(data, Json));
         await using var connection = await ConnectAsync();
+        await using var transaction = connection.BeginTransaction();
         await using var command = connection.CreateCommand();
+        command.Transaction = transaction;
         command.CommandText = expectedRevision == 0
             ? "INSERT OR IGNORE INTO Workspace VALUES(1, 1, $payload)"
             : "UPDATE Workspace SET Revision=Revision+1, Payload=$payload WHERE Id=1 AND Revision=$revision";
         command.Parameters.AddWithValue("$payload", payload);
         command.Parameters.AddWithValue("$revision", expectedRevision);
         if (await command.ExecuteNonQueryAsync() != 1) throw new InvalidOperationException("Workspace changed; refresh before confirming.");
+        await using var audit = connection.CreateCommand();
+        audit.Transaction = transaction;
+        audit.CommandText = """
+            INSERT INTO WorkspaceAuditEntries
+                (EntityRef, PreviousRevision, NewRevision, Operation, Actor, CorrelationId, OccurredAt)
+            VALUES ('workspace', $previous, $next, $operation, 'LocalUser', NULL, $occurredAt);
+            """;
+        audit.Parameters.AddWithValue("$previous", expectedRevision);
+        audit.Parameters.AddWithValue("$next", expectedRevision + 1);
+        audit.Parameters.AddWithValue("$operation", operation);
+        audit.Parameters.AddWithValue("$occurredAt", timeProvider.GetUtcNow().ToString("O"));
+        await audit.ExecuteNonQueryAsync();
+        await transaction.CommitAsync();
     }
 
     private static void CheckRevision(long expected, long actual)
