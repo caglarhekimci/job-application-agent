@@ -147,6 +147,7 @@ public static class DashboardHost
         app.MapPost("/api/workspace/delete", async (LocalWorkspace w, DeleteWorkspaceRequest request) =>
         { await w.DeleteAsync(request.ExpectedRevision); return Results.NoContent(); });
         LocalWorkspaceEndpoints.Map(app);
+        DocumentAdaptationEndpoints.Map(app);
         LocalMcpEndpoints.Map(app);
         if (Directory.Exists(webRoot))
         {

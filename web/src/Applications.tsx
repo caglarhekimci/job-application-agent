@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { DocumentAdaptation } from './DocumentAdaptation';
 
 type Question = { key: string; label: string; language: string; maxLength: number | null; sensitive?: boolean; requiresCandidateAttestation?: boolean };
 type Resolution = { question: Question; answer: { status: string; value: string | null; reason: string } };
@@ -72,12 +73,12 @@ export function Applications({ csrf, workspaceRevision, profileConfirmed, onChan
       onClick={() => void perform('applications', { expectedRevision: panel?.revision, questions: null, roleGroupId: group })}>Başvuru taslağı oluştur</button>
     {!profileConfirmed && <p>Önce profilinizi doğrulayın.</p>}
     {panel?.applications.map(application => <ApplicationCard key={application.draft.id} application={application}
-      revision={panel.revision} busy={busy} perform={perform} />)}
+      csrf={csrf} revision={panel.revision} busy={busy} perform={perform} />)}
   </section>;
 }
 
-function ApplicationCard({ application: app, revision, busy, perform }: {
-  application: Application; revision: number; busy: boolean; perform: (path: string, body: unknown) => Promise<void>;
+function ApplicationCard({ application: app, csrf, revision, busy, perform }: {
+  application: Application; csrf: string; revision: number; busy: boolean; perform: (path: string, body: unknown) => Promise<void>;
 }) {
   const [key, setKey] = useState('motivation'); const [answer, setAnswer] = useState('');
   const [scope, setScope] = useState('Application'); const [expiry, setExpiry] = useState('');
@@ -131,6 +132,8 @@ function ApplicationCard({ application: app, revision, busy, perform }: {
         <label className="delete-check"><input type="checkbox" checked={manual} onChange={e => setManual(e.target.checked)} /> Hassas soru · otomatik cevaplanmasın.</label>
         <button className="secondary" disabled={busy || !app.sourcesCurrent} type="submit">Soruyu başvuruya ekle</button>
       </form>
+      <DocumentAdaptation csrf={csrf} applicationRef={app.draft.id} workspaceRevision={revision}
+        applicationPayloadHash={app.payloadHash} disabled={busy || !app.sourcesCurrent || cancelled} />
       <button className="secondary" disabled={busy} onClick={() => void perform('applications/' + app.draft.id + '/cancel', { expectedRevision: revision })}>Bu başvuruyu iptal et</button>
     </>}
   </article>;
