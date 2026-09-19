@@ -22,6 +22,7 @@ public static class LocalWorkspaceEndpoints
             w.ReviewImportedJobFromUiAsync(id, request));
         app.MapPost("/api/workspace/proposals/{id:guid}/discard", (LocalWorkspace w, Guid id, WorkspaceRevisionRequest request) =>
             w.DiscardProposalAsync(id, request.ExpectedRevision));
+        ModelPolicyEndpoints.Map(app);
     }
 }
 

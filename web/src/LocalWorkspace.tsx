@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Applications, type ImportedJobProposal } from './Applications';
+import { ModelPolicySettings } from './ModelPolicySettings';
 
 type Experience = { sourceSpan: string; start: string; end: string | null; role: string; kind: string; skills: string[] };
 type Requirement = { id: string; requirementText: string; type: string; importance: string; skill: string; minimumYears: number | null };
@@ -94,6 +95,8 @@ export function LocalWorkspace({ csrf }: { csrf: string }) {
       {state?.document && <><p><strong>{state.fileName}</strong> · {state.document.status === 'NeedsOcr' ? 'Metin çıkarılamadı. Metin içeren bir CV yükleyin.' : 'Belge incelemeye hazır'}</p>
         <details><summary>Belge metnini ve kaynak bölümlerini incele</summary><pre>{state.document.text}</pre></details></>}
     </section>
+    {state && <ModelPolicySettings csrf={csrf} workspaceRevision={state.revision}
+      onChanged={async () => { const response = await fetch('/api/workspace'); if (!response.ok) throw new Error('Çalışma alanı yenilenemedi.'); setState(await response.json()); }} />}
     {state?.document?.status === 'ReadyForReview' && <section className="panel"><p className="eyebrow">01 / YEREL PROFİL</p><h3>Bilgilerinizi inceleyip doğrulayın</h3>
       <p className="quiet">Ad, e-posta, maaş ve deneyim tarihlerini siz girersiniz. Belgedeki bir cümle kendiliğinden doğrulanmış bilgi sayılmaz.</p>
       <form onSubmit={submitProfile}>

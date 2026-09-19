@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using JobAgent.Core.Applications;
+using JobAgent.Core.Models;
 using JobAgent.Infrastructure.Bridge;
 using JobAgent.Infrastructure.Workspace;
 using ModelContextProtocol;
@@ -99,7 +100,9 @@ public sealed class WorkspaceHostBridgeClient(RuntimeStore store) : ILocalWorksp
     private static bool ValidResult<T>(T? result, Guid? expected, Guid? expectedProfile) => result switch
     {
         HostWorkspaceRefs r => r.Revision >= 0 && r.ProfileRef != Guid.Empty && r.ResumeRef != Guid.Empty && r.JobRef != Guid.Empty &&
-            (r.ProfileRef is null ? r.ProfileVersion is null : r.ProfileVersion > 0),
+            (r.ProfileRef is null ? r.ProfileVersion is null : r.ProfileVersion > 0) && Enum.IsDefined(r.ProviderMode) &&
+            r.ProviderMode is ModelProviderMode.Fixture or ModelProviderMode.HostMediated && !r.PaidApiEnabled &&
+            r.MaxAnswerProposalOperationsPerApplication is >= 1 and <= ModelRuntimePolicy.HardMaximumOperations,
         HostProfileSummary r => Matches(r.ProfileRef, expected) && r.Version > 0 &&
             r.VerifiedSkills is { Count: <= 1500 } && r.VerifiedSkills.All(v => LocalToolInputValidator.Text(v, 80)) &&
             r.Evidence is { Count: <= 1500 } && r.Evidence.All(e => e is not null &&

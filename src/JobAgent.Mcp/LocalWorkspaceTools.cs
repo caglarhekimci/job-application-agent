@@ -7,7 +7,10 @@ namespace JobAgent.Mcp;
 
 public sealed record LocalRuntimeCapabilities(string Mode, bool PaidApiEnabled, bool CanMintApproval,
     string LinkedIn, string PersonalSubmission, string HostExecution, bool CompanionAvailable,
-    HostWorkspaceRefs? Workspace, IReadOnlyList<string> Tools);
+    HostWorkspaceRefs? Workspace, IReadOnlyList<string> Tools)
+{
+    public int MaxAnswerProposalOperationsPerApplication { get; init; } = 4;
+}
 
 [McpServerToolType]
 public sealed class LocalWorkspaceTools(WorkspaceHostBridgeClient bridge)
@@ -24,8 +27,11 @@ public sealed class LocalWorkspaceTools(WorkspaceHostBridgeClient bridge)
         HostWorkspaceRefs? refs = null;
         try { refs = await bridge.GetHostWorkspaceRefsAsync(); }
         catch (McpProtocolException e) when (e.Message == "UiUnavailable") { }
-        return new("HostMediated", false, false, "Blocked", "BlockedPermission", "NotVerifiedOnHost",
-            refs is not null, refs, ToolNames);
+        return new(refs?.ProviderMode.ToString() ?? "HostMediated", false, false, "Blocked", "BlockedPermission",
+            "NotVerifiedOnHost", refs is not null, refs, ToolNames)
+        {
+            MaxAnswerProposalOperationsPerApplication = refs?.MaxAnswerProposalOperationsPerApplication ?? 4
+        };
     }
 
     [McpServerTool(Name = "profile_get_summary", ReadOnly = true, OpenWorld = false, UseStructuredContent = true),

@@ -3,6 +3,7 @@ using System.Text.Json;
 using JobAgent.Core.Answers;
 using JobAgent.Core.Applications;
 using JobAgent.Core.Jobs;
+using JobAgent.Core.Models;
 using JobAgent.Core.Profiles;
 
 namespace JobAgent.Infrastructure.Workspace;
@@ -50,6 +51,7 @@ public sealed partial class LocalWorkspace : ILocalWorkspaceHost
     public Task<HostPendingProposal> ProposeProfilePatchAsync(HostProfilePatchRequest request) => WithWorkspace(async (revision, data) =>
     {
         ArgumentNullException.ThrowIfNull(request);
+        ModelRuntimePolicyRules.RequireHostProposal(data.ModelPolicy);
         RequireProfile(data, request.ProfileRef);
         if (request.BaseVersion != data.Profile.Version) throw new PolicyException("ProfileVersionConflict");
         if (request.Changes is null || request.Changes.Count is < 1 or > 20 || data.ProfileProposals.Count >= 20)
@@ -75,6 +77,7 @@ public sealed partial class LocalWorkspace : ILocalWorkspaceHost
     public Task<HostJobImportResult> ImportJobProposalAsync(HostJobImportRequest request) => WithWorkspace(async (revision, data) =>
     {
         ArgumentNullException.ThrowIfNull(request);
+        ModelRuntimePolicyRules.RequireHostProposal(data.ModelPolicy);
         if (string.IsNullOrWhiteSpace(request.Text) || request.Text.Length > 100_000 ||
             request.SourceUrl?.Length > 2048 || request.Employer?.Length > 200 || request.Title?.Length > 300)
             throw new ArgumentException("Job proposal limit exceeded.");
@@ -157,6 +160,9 @@ public sealed partial class LocalWorkspace : ILocalWorkspaceHost
         if (revision != request.BaseRevision) throw new PolicyException("ApplicationRevisionConflict");
         var application = Refresh(FindApplication(data, request.ApplicationRef), data);
         RequireEditable(application);
+        var usage = data.AnswerProposalOperations ?? throw new PolicyException("ProviderPolicyInvalid");
+        var usedOperations = usage.GetValueOrDefault(request.ApplicationRef);
+        ModelRuntimePolicyRules.RequireAnswerProposal(data.ModelPolicy, usedOperations);
         if (request.Answers is null || request.Answers.Count is < 1 or > 20 || request.EvidenceRefs is null ||
             request.EvidenceRefs.Count > 100 || request.EvidenceRefs.Any(e => string.IsNullOrWhiteSpace(e) || e.Length > 200) ||
             request.Answers.Any(a => a is null) ||
@@ -183,7 +189,11 @@ public sealed partial class LocalWorkspace : ILocalWorkspaceHost
             ProposalProfileVersion = pending.Count == 0 ? null : data.Profile.Version,
             ReviewHash = null
         };
-        await SaveAsync(revision, ReplaceApplication(data, next));
+        var updated = ReplaceApplication(data, next) with
+        {
+            AnswerProposalOperations = new(usage) { [request.ApplicationRef] = checked(usedOperations + 1) }
+        };
+        await SaveAsync(revision, updated);
         return new HostAnswerProposalResult(request.ApplicationRef, revision + 1, results, true);
     });
 
@@ -245,9 +255,18 @@ public sealed partial class LocalWorkspace : ILocalWorkspaceHost
         finally { gate.Release(); }
     }
 
-    private static HostWorkspaceRefs References(long revision, WorkspaceData data) => new(revision,
-        data.Document is null ? null : data.Profile.Id, data.Document is null ? null : data.Profile.Version,
-        data.ResumeRef == Guid.Empty ? null : data.ResumeRef, data.Job is null ? null : JobRef(data.Job));
+    private static HostWorkspaceRefs References(long revision, WorkspaceData data)
+    {
+        var policy = ModelRuntimePolicyRules.RequireValid(data.ModelPolicy);
+        return new(revision, data.Document is null ? null : data.Profile.Id,
+            data.Document is null ? null : data.Profile.Version,
+            data.ResumeRef == Guid.Empty ? null : data.ResumeRef, data.Job is null ? null : JobRef(data.Job))
+        {
+            ProviderMode = policy.Mode,
+            PaidApiEnabled = policy.PaidApiEnabled,
+            MaxAnswerProposalOperationsPerApplication = policy.MaxAnswerProposalOperationsPerApplication
+        };
+    }
     private static Guid JobRef(JobPosting job) => Guid.TryParse(job.Id, out var id) && id != Guid.Empty
         ? id : throw new PolicyException("InvalidJobReference");
     private static IReadOnlyList<HostSkillEvidence> HostEvidence(CandidateProfile profile)

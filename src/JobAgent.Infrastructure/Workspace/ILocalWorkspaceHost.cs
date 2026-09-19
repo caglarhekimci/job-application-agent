@@ -1,6 +1,7 @@
 using JobAgent.Core.Answers;
 using JobAgent.Core.Applications;
 using JobAgent.Core.Jobs;
+using JobAgent.Core.Models;
 
 namespace JobAgent.Infrastructure.Workspace;
 
@@ -23,7 +24,12 @@ public interface ILocalWorkspaceHost
 }
 
 public sealed record HostWorkspaceRefs(long Revision, Guid? ProfileRef, int? ProfileVersion,
-    Guid? ResumeRef, Guid? JobRef);
+    Guid? ResumeRef, Guid? JobRef)
+{
+    public ModelProviderMode ProviderMode { get; init; } = ModelProviderMode.HostMediated;
+    public bool PaidApiEnabled { get; init; }
+    public int MaxAnswerProposalOperationsPerApplication { get; init; } = ModelRuntimePolicy.DefaultMaximumOperations;
+}
 public sealed record HostSkillEvidence(string EvidenceRef, string Skill);
 public sealed record HostProfileSummary(Guid ProfileRef, int Version,
     IReadOnlyList<string> VerifiedSkills, IReadOnlyList<HostSkillEvidence> Evidence);

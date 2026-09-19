@@ -41,6 +41,8 @@ public sealed class LocalBridgeTests
             Assert.Equal(12, (await client.ListToolsAsync()).Count);
             var cap = Structured(await client.CallToolAsync("runtime_get_capabilities"));
             Assert.Equal("HostMediated", cap.GetProperty("mode").GetString());
+            Assert.False(cap.GetProperty("paidApiEnabled").GetBoolean());
+            Assert.Equal(4, cap.GetProperty("maxAnswerProposalOperationsPerApplication").GetInt32());
             Assert.False(cap.GetProperty("canMintApproval").GetBoolean());
             var refs = cap.GetProperty("workspace");
             var profileRef = refs.GetProperty("profileRef").GetString()!;
