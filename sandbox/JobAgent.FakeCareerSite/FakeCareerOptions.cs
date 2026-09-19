@@ -17,4 +17,5 @@ public sealed record FakeCareerOptions(string? RedirectTarget = null,
     bool AutoSubmitOnInput = false, string? WebSocketTarget = null,
     bool TamperSalaryOnSubmit = false, string? MalformedReceipt = null,
     ManualChallengeKind? ManualChallenge = null, int? ManualChallengeAfterResumeMilliseconds = null,
-    bool ExtendedControls = false, SyntheticFormMutation Mutation = SyntheticFormMutation.None);
+    bool ExtendedControls = false, SyntheticFormMutation Mutation = SyntheticFormMutation.None,
+    Func<CancellationToken, Task>? BeforeSubmissionDispatch = null);

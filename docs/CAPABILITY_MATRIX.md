@@ -3,7 +3,9 @@
 Local integration (2026-09-20): **255 tests passed**, including typed synthetic
 controls, persistent question review, local12 STDIO and protected recovery/audits.
 See the package-specific W07/W08/W09/store evidence. A new exact-commit package,
-public CI and actual-model local12 scenario remain separate verification steps.
+public CI remain separate verification steps. The actual-model local12 scenario
+passed two turns and twelve tools with zero target requests; the first clean-checkout
+run caught a timing-dependent challenge test, which is being corrected before release.
 
 | Capability | Status | Boundary |
 |---|---|---|

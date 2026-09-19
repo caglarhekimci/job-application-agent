@@ -26,6 +26,7 @@ public sealed record ApplicationDraft
     public string ResumeHash { get; init; } = "";
     public SortedDictionary<string, string> Answers { get; init; } = new(StringComparer.Ordinal);
     public List<FormQuestion> Questions { get; init; } = [];
+    public DateTimeOffset? AnswersValidUntil { get; init; }
     public ApplicationStatus Status { get; init; } = ApplicationStatus.ReadyForDataSharing;
     public bool Synthetic { get; init; }
 
@@ -44,6 +45,7 @@ public sealed record ApplicationDraft
             ResumeHash,
             Answers = Answers.OrderBy(p => p.Key, StringComparer.Ordinal).ToArray(),
             Questions,
+            AnswersValidUntil,
             Synthetic
         }))));
 }

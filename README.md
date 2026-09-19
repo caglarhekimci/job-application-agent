@@ -34,7 +34,8 @@ Open the private session link shown in the terminal; keep that link private.
 The current interface is in Turkish:
 
 - **“Kendi CV ve ilanım”**: import TXT/PDF/DOCX, confirm profile facts, review a
-  pasted job and preview answers. Your data stays in the local workspace.
+  pasted job and review application answers. Compare source-based CV/letter drafts
+  before approving text downloads. Your data stays in the local workspace.
 - **Synthetic demo**: import the fictional CV, review the answers, approve sharing,
   then separately approve submission. Only the local test site receives the form.
 
@@ -48,6 +49,8 @@ without platform authorization. Windows is the currently verified platform.
 Local workflows make no paid model/API calls. Optional Codex use requires your own
 Codex access and uses its normal usage allowance; it is not required to run the app.
 The packaged Codex plugin provides read-only inspection tools.
+The optional local proposal limit controls this app's accepted suggestions, not
+your Codex account quota. Paid API mode is disabled.
 
 [Installation / reset](docs/guides/INSTALL.md) · [Troubleshooting](docs/guides/TROUBLESHOOTING.md) ·
 [Optional Codex setup](docs/guides/CODEX_SETUP.md) · [Privacy](docs/PRIVACY.md) ·
@@ -85,7 +88,8 @@ Terminalde gösterilen özel oturum bağlantısını açın; bu bağlantıyı pa
 Mevcut arayüz Türkçedir:
 
 - **“Kendi CV ve ilanım”**: TXT/PDF/DOCX aktarın, profil bilgilerini doğrulayın,
-  yapıştırdığınız ilanı inceleyin ve cevapları görün. Veriler yerel çalışma alanında kalır.
+  ilanı ve başvuru cevaplarını inceleyin. Kaynak cümlelerinden hazırlanan CV/ön yazıyı
+  karşılaştırıp onayladıktan sonra metin olarak indirin. Veriler yerel alanda kalır.
 - **Sentetik demo**: kurgusal CV'yi aktarın, cevapları inceleyin, önce paylaşımı,
   ardından ayrıca gönderimi onaylayın. Form yalnız yerel test sitesine gider.
 
@@ -99,6 +103,8 @@ olmadan kapalıdır. Şu anda doğrulanan işletim sistemi Windows'tur.
 Yerel akışlar ücretli model/API çağrısı yapmaz. İsteğe bağlı Codex kullanımı için
 kendi Codex erişiminiz gerekir ve normal kullanım kotanız tüketilir; uygulamayı
 çalıştırmak için gerekli değildir. Paketlenmiş Codex eklentisi salt okunur inceleme araçları sunar.
+İsteğe bağlı öneri sınırı, uygulamanın kabul ettiği önerileri sınırlar; Codex hesap
+kotanızı yönetmez. Ücretli API kipi kapalıdır.
 
 [Kurulum / sıfırlama](docs/guides/INSTALL.md) · [Sorun giderme](docs/guides/TROUBLESHOOTING.md) ·
 [İsteğe bağlı Codex kurulumu](docs/guides/CODEX_SETUP.md) · [Gizlilik](docs/PRIVACY.md) ·

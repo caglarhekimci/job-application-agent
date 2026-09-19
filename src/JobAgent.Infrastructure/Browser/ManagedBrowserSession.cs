@@ -12,8 +12,9 @@ public sealed record ResumeDocument(string Reference, string FileName, byte[] By
     public string Hash => Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(Bytes));
 }
 
-public sealed class ManagedBrowserSession(Uri allowedOrigin) : IBrowserSession
+public sealed class ManagedBrowserSession(Uri allowedOrigin, TimeProvider? timeProvider = null) : IBrowserSession
 {
+    private readonly TimeProvider clock = timeProvider ?? TimeProvider.System;
     private const string ManualTakeoverSelector = "iframe[title*='captcha' i], iframe[src*='captcha' i], [data-sitekey], input[autocomplete='one-time-code'], input[name*='otp' i], input[name*='mfa' i], input[name*='verificationcode' i], input[name*='verification-code' i]";
     public Uri AllowedOrigin { get; } = allowedOrigin;
     private IPlaywright? playwright;
@@ -25,6 +26,10 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IBrowserSession
     private bool blockedWebSocket;
     private int actionCount;
     private int submissionRequestAllowance;
+    private ApprovalReceipt? sharingApproval;
+    private ApprovalReceipt? activeSubmissionApproval;
+    private CancellationToken submissionCancellation;
+    private PolicyException? blockedApproval;
     private TimeSpan activeTime;
     private static readonly HashSet<string> BaseAnswerKeys =
     [
@@ -42,7 +47,8 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IBrowserSession
     {
         ct.ThrowIfCancellationRequested();
         ValidateTarget(draft);
-        ApprovalPolicy.Validate(draft, sharing, ApprovalPurpose.ShareData, DateTimeOffset.UtcNow);
+        ApprovalPolicy.Validate(draft, sharing, ApprovalPurpose.ShareData, clock.GetUtcNow());
+        sharingApproval = sharing;
         if (draft.ResumeHash != resume.Hash || draft.ResumeRef != resume.Reference)
             throw new PolicyException("ResumeChanged");
         if (preparedHash is not null || page is not null) throw new PolicyException("BrowserAlreadyPrepared");
@@ -76,6 +82,14 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IBrowserSession
             {
                 // Route.Continue lets Chromium follow redirects and retry a lost POST internally.
                 // Fetch explicitly disables both; a redirect is rejected before the next hop.
+                // Validate after parsing the exact body, at the final outbound boundary.
+                ct.ThrowIfCancellationRequested();
+                if (method == "POST")
+                {
+                    submissionCancellation.ThrowIfCancellationRequested();
+                    ApprovalPolicy.Validate(draft, activeSubmissionApproval, ApprovalPurpose.Submit, clock.GetUtcNow());
+                }
+                else ApprovalPolicy.Validate(draft, sharing, ApprovalPurpose.ShareData, clock.GetUtcNow());
                 var response = await route.FetchAsync(new() { MaxRedirects = 0, MaxRetries = 0, Timeout = 10000 });
                 try
                 {
@@ -85,6 +99,10 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IBrowserSession
                 }
                 finally { await response.DisposeAsync(); }
             }
+            catch (PolicyException e)
+            { blockedApproval = e; await route.AbortAsync(); }
+            catch (OperationCanceledException)
+            { await route.AbortAsync(); }
             catch (PlaywrightException)
             { await route.AbortAsync(); }
         });
@@ -113,6 +131,7 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IBrowserSession
             await ExecuteAsync(new BrowserAction.UploadApprovedResume(), draft, resume, ct);
             preparedHash = draft.PayloadHash();
         }
+        catch (PlaywrightException) when (blockedApproval is not null) { throw blockedApproval; }
         catch (PlaywrightException) when (blockedRequest) { throw new PolicyException("RecipientChanged"); }
         catch (KeyNotFoundException) when (blockedWebSocket)
         { throw new PolicyException("RecipientChanged"); }
@@ -123,7 +142,7 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IBrowserSession
     {
         Guard(ct);
         ValidateTarget(draft);
-        ApprovalPolicy.Validate(draft, approval, ApprovalPurpose.Submit, DateTimeOffset.UtcNow);
+        ApprovalPolicy.Validate(draft, approval, ApprovalPurpose.Submit, clock.GetUtcNow());
         if (submitted) throw new PolicyException("SubmissionAlreadyAttempted");
         await EnsureReadyForSubmissionAsync(draft, ct);
         var preparedPage = page ?? throw new PolicyException("PackageChanged");
@@ -132,6 +151,8 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IBrowserSession
         await EnsureNoManualTakeoverAsync(ct);
         // Persisted submission claim is made by the workflow before this method. Never retry this click.
         submitted = true;
+        activeSubmissionApproval = approval;
+        submissionCancellation = ct;
         Interlocked.Exchange(ref submissionRequestAllowance, 1);
         try
         {
@@ -157,11 +178,16 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IBrowserSession
                  || ReceiptString(receipt, "contactMethod") != draft.Answers["preference.contact.method"]
                  || ReceiptString(receipt, "contactWindow") != draft.Answers.GetValueOrDefault("preference.contact.window")))
                 return null;
-            return new(id, key, hash, DateTimeOffset.UtcNow, draft.PayloadHash());
+            return new(id, key, hash, clock.GetUtcNow(), draft.PayloadHash());
         }
         catch (Exception e) when (e is PlaywrightException or System.TimeoutException or JsonException or OperationCanceledException)
         { return null; }
-        finally { Interlocked.Exchange(ref submissionRequestAllowance, 0); }
+        finally
+        {
+            Interlocked.Exchange(ref submissionRequestAllowance, 0);
+            activeSubmissionApproval = null;
+            submissionCancellation = default;
+        }
     }
 
     public async Task EnsureReadyForSubmissionAsync(ApplicationDraft draft, CancellationToken ct = default)
@@ -288,6 +314,7 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IBrowserSession
     private async Task ExecuteAsync(BrowserAction action, ApplicationDraft draft, ResumeDocument resume,
         CancellationToken ct)
     {
+        ApprovalPolicy.Validate(draft, sharingApproval, ApprovalPurpose.ShareData, clock.GetUtcNow());
         switch (action)
         {
             case BrowserAction.Navigate:
@@ -336,6 +363,7 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IBrowserSession
             default:
                 throw new PolicyException("InvalidBrowserAction");
         }
+        ApprovalPolicy.Validate(draft, sharingApproval, ApprovalPurpose.ShareData, clock.GetUtcNow());
     }
 
     private async Task ValidateVisibleControlsAsync(ApplicationDraft draft, BrowserStep step, CancellationToken ct)
@@ -505,6 +533,7 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IBrowserSession
     private void Guard(CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
+        if (blockedApproval is not null) throw blockedApproval;
         if (blockedRequest || page is not null && page.Url != "about:blank" && !IsAllowed(page.Url))
             throw new PolicyException("RecipientChanged");
     }

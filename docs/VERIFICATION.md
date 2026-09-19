@@ -28,7 +28,24 @@ This full run used synthetic fixtures and actual local Chromium. The offline mod
 replay is not a fresh model run. Actual-model local12 validation is recorded
 separately in [its host evidence](evidence/codex-local-service.md).
 No paid API call, personal CV upload to a host, or live employer submission occurred.
-Exact-commit clean-checkout/package/public-CI verification follows this source checkpoint.
+The actual-model local12 run passed two turns and twelve distinct tool calls
+(11 completed, one expected `BlockedPermission`), with zero target requests and
+unchanged source profile/job. See the host report for actual usage and build hashes.
+
+The first separate clean checkout of `5b65ed7` ran `bootstrap.ps1` successfully,
+then `verify.ps1` exited **1** in E2E: Core64/64 and Document15/15 passed;
+E2E83/84 passed. Reports: `artifacts/verification/20260919T231226Z/` in
+`%TEMP%/jobagent-clean-da84c25`. The timed synthetic MFA challenge appeared before
+the test's assumed post-approval phase, so execution correctly stopped with
+`NeedsInput`. The test must control its phase rather than assume a 750ms timer.
+This failed installation check is retained; a deterministic fix and fresh final
+verification are required before the next package. The public source is not
+described as having passed this clean-checkout run.
+
+The same commit `5b65ed7b8f0fe3639d12a5a45b3dce06689a9e06` passed
+[GitHub Actions35475408596](https://github.com/caglarhekimci/job-application-agent/actions/runs/35475408596)
+with conclusion `success`. This separate success does not erase the timing failure
+seen in the maintainer's clean checkout.
 
 ## Exact-commit checkout and CI — 2026-09-19 UTC / 2026-09-20 Istanbul
 

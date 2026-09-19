@@ -28,6 +28,8 @@ public static class ApplicationQuestions
             ProfileVersion = profile.Version,
             Questions = [.. questions],
             Answers = answers,
+            AnswersValidUntil = resolutions.Where(item => item.Answer.Status == AnswerStatus.Resolved)
+                .Select(item => item.Answer.ValidUntil).Min(),
             Status = resolutions.All(item => item.Answer.Status == AnswerStatus.Resolved && item.Answer.Value is not null)
                 ? ApplicationStatus.ReadyForDataSharing : ApplicationStatus.NeedsInput
         }, resolutions);

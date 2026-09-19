@@ -1,6 +1,7 @@
 using JobAgent.Core.Applications;
 using JobAgent.FakeCareerSite;
 using JobAgent.Infrastructure.Applications;
+using JobAgent.Infrastructure.Browser;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace JobAgent.E2E.Tests;
@@ -80,23 +81,34 @@ public sealed class HostCoordinatorTests : IDisposable
     public async Task LateChallengeBeforeClaim_PausesAndClearsStoredSubmissionApproval()
     {
         var root = TemporaryDirectory();
-        await using var site = FakeCareerHost.Build("http://127.0.0.1:0",
-            new(ManualChallenge: ManualChallengeKind.Mfa, ManualChallengeAfterResumeMilliseconds: 750));
+        await using var site = FakeCareerHost.Build("http://127.0.0.1:0");
         await site.StartAsync();
-        await using var workflow = NewWorkflow(root, site.Urls.Single());
+        var browser = new LateChallengeBrowserSession(new(site.Urls.Single()));
+        await using var workflow = new DemoWorkflow(root, site.Urls.Single(), HappyPathTests.FindRepo(),
+            browserFactory: _ => browser);
         var created = await CreateReviewedAsync(workflow);
         await workflow.ShareAndFillFromUiAsync("trusted-ui-session");
-        await workflow.ApproveForHostFromUiAsync(created.ApplicationRef, "trusted-ui-session");
-        await Task.Delay(1000);
+        var approved = await workflow.ApproveForHostFromUiAsync(created.ApplicationRef, "trusted-ui-session");
+        Assert.Equal(ApplicationStatus.AwaitingSubmissionApproval, approved.Status);
+        Assert.True(approved.SubmissionApproved);
+        Assert.Equal(1, browser.ReadinessChecks);
+        var journal = new ApplicationJournal(Path.Combine(root, "synthetic-applications.db"));
+        var beforeChallenge = await journal.GetAsync(created.ApplicationRef);
+        Assert.NotNull(beforeChallenge!.Submission);
+        Assert.Null(beforeChallenge.Submission.UsedAt);
+        browser.ChallengeRequired = true;
 
         var paused = await workflow.ExecuteAlreadyApprovedAsync(created.ApplicationRef);
 
         Assert.Equal(ApplicationStatus.NeedsInput, paused.Status);
         Assert.False(paused.SubmissionApproved);
+        Assert.Equal(2, browser.ReadinessChecks);
+        Assert.Equal(0, browser.SubmitCalls);
+        Assert.True(browser.Disposed);
         Assert.Equal(0, site.Services.GetRequiredService<ReceiptStore>().SubmissionPosts);
-        var record = await new ApplicationJournal(Path.Combine(root, "synthetic-applications.db"))
-            .GetAsync(created.ApplicationRef);
+        var record = await journal.GetAsync(created.ApplicationRef);
         Assert.Null(record!.Submission);
+        Assert.Null(record.Evidence);
         Assert.Equal("ManualTakeoverRequired", record.Error);
     }
 
@@ -151,6 +163,40 @@ public sealed class HostCoordinatorTests : IDisposable
 
     private static DemoWorkflow NewWorkflow(string root, string origin) =>
         new(root, origin, HappyPathTests.FindRepo());
+
+    // The real browser still prepares and validates the form. Only the challenge event's
+    // position is controlled here; BrowserPolicyTests separately exercise real MFA/CAPTCHA DOM.
+    private sealed class LateChallengeBrowserSession(Uri origin) : IBrowserSession
+    {
+        private readonly ManagedBrowserSession inner = new(origin);
+        public bool ChallengeRequired { get; set; }
+        public int ReadinessChecks { get; private set; }
+        public int SubmitCalls { get; private set; }
+        public bool Disposed { get; private set; }
+
+        public Task PrepareAsync(ApplicationDraft draft, ApprovalReceipt? sharing, ResumeDocument resume,
+            CancellationToken ct = default) => inner.PrepareAsync(draft, sharing, resume, ct);
+
+        public async Task EnsureReadyForSubmissionAsync(ApplicationDraft draft, CancellationToken ct = default)
+        {
+            ReadinessChecks++;
+            await inner.EnsureReadyForSubmissionAsync(draft, ct);
+            if (ChallengeRequired) throw new PolicyException("ManualTakeoverRequired");
+        }
+
+        public Task<SubmissionEvidence?> SubmitAsync(ApplicationDraft draft, ApprovalReceipt? approval,
+            CancellationToken ct = default)
+        {
+            SubmitCalls++;
+            return inner.SubmitAsync(draft, approval, ct);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await inner.DisposeAsync();
+            Disposed = true;
+        }
+    }
 
     private static async Task<HostApplicationSummary> CreateReviewedAsync(DemoWorkflow workflow)
     {

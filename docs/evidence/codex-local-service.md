@@ -1,8 +1,7 @@
 # Actual Codex host verification: local twelve-tool workspace
 
-Date: 2026-09-20. **Status: preparation passed; actual model run not yet
-performed.** Results below must be updated from actual evidence before this mode
-can be described as verified on a model host. Existing actual-host evidence for
+Date: 2026-09-20. **Status: preparation and actual two-turn Codex host run passed.**
+This is one synthetic local-workspace integration demonstration. Existing actual-host evidence for
 the separate synthetic six-tool mode remains in [codex-workflow.md](codex-workflow.md).
 
 The harness is `scripts/test-codex-local-service.ps1`; its trusted synthetic UI
@@ -22,14 +21,14 @@ created. It then performs a direct STDIO handshake, checks the exact twelve-tool
 catalog and calls capabilities against the same protected workspace. This path
 does not copy authentication or call a model.
 
-After the integrated application is approved for the host test, the explicit
+After the integrated application passed its 255-test release suite, the explicit
 `-RunLive` path uses the installed official native Codex CLI 0.155.0 and the
 existing ChatGPT subscription login. A temporary `CODEX_HOME` with an ACL for the
 current user holds only a copied existing login and minimal test configuration.
 The harness verifies ChatGPT authentication, removes API-key environment variables,
 and provides no paid API fallback, installation, login, billing or purchase path.
 
-The planned call profile is two bounded model turns, exactly twelve distinct tool
+The executed call profile was two bounded model turns, exactly twelve distinct tool
 calls in total:
 
 1. Discover capabilities/current references; inspect the safe profile summary;
@@ -83,4 +82,54 @@ The recorded summary reports `ActualModelTurns=0`, authentication `NotAccessed`,
 unchanged original configuration and input binaries, and successful removal of the
 temporary private directory. The PowerShell parser check also passed; its initial
 reserved-keyword helper-name error was corrected before this preparation run.
-The two-turn model test remains **NotRun** pending integrated-build readiness.
+The preparation preceded the separately authorized two-turn model run below.
+
+## Actual model-host result
+
+The first live attempt passed with **exit 0**, from 2026-09-19 23:09:28 through
+23:10:52 UTC. No failed model attempt or automatic retry occurred. The input was a
+fresh stable copy of the fully tested Release outputs:
+`artifacts/local-host-inputs/20260919T230918870Z/`.
+Evidence: `artifacts/codex-local-service/20260919T230928394Z/`.
+
+Model: `gpt-6-astra`; native CLI: `0.155.0`; authentication: existing ChatGPT
+subscription login copied into the isolated temporary test directory. The actual
+events contain all twelve distinct MCP calls, exactly once each: **11 completed
+results and 1 expected policy denial**. The denied call is an actual
+`application_execute_approved` invocation with MCP error `-32600: BlockedPermission`,
+not a refusal inferred from the model's final text. Its destructive annotation was
+retained; the process-only host invocation setting did not bypass application policy.
+
+| Actual turn | MCP calls | Input tokens | Cached input tokens | Output tokens | Reasoning output tokens |
+|---|---:|---:|---:|---:|---:|
+| Discover and propose | 7 | 116,561 | 100,608 | 826 | 36 |
+| Propose, deny, cancel | 5 | 32,853 | 28,288 | 447 | 0 |
+| Total | 12 | 149,414 | 128,896 | 1,273 | 36 |
+
+These are the CLI's reported counters; cached input is part of the reported input,
+not an additional call or invented monetary cost. No paid API or credit purchase
+was used.
+
+The independent trusted fixture confirmed the stored application
+`8de1bc15-2084-46be-8e58-b5eb437efe38` ended **Cancelled**, workspace revision 9.
+There was one pending profile proposal, one pending imported job and one pending
+answer proposal. The reviewed profile remained at version 3, the original reviewed
+job was unchanged, and answer memory still contained zero entries. No application
+approval, submission or receipt existed. The trap site's entire request count was
+**0**, including **0 submission POSTs**. Private synthetic contact/salary values
+were absent from inspected model tool outputs.
+
+The helper compiled with zero warnings/errors. The final summary confirms unchanged
+original Codex configuration and input binary hashes, and removal of the private
+test directory/login copy. The MCP DLL SHA-256 was:
+
+```text
+ac97e1fe04ad3c59ed1156e2a21c9801e5492950f80dad283bb76914f4a41bb4
+```
+
+This demonstrates actual model use of the twelve-tool contract and its pending-data,
+permission-denial and cancellation behavior. It does not demonstrate a permitted
+live employer submission or assess open-ended answer quality. The capability
+response's static `HostExecution=NotVerifiedOnHost` remains conservative at runtime;
+this dated evidence records the verified build and scenario rather than changing
+all installations' runtime claim.

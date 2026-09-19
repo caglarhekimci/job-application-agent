@@ -18,18 +18,21 @@ public sealed class DemoWorkflow : IAsyncDisposable
     private readonly string origin;
     private readonly ResumeDocument resume;
     private readonly bool extendedControls;
+    private readonly Func<Uri, IBrowserSession> browserFactory;
     private CandidateProfile? profile;
     private CandidateProfile? pendingProfile;
     private string? resumeText;
     private bool initialized;
     private Guid? currentId;
-    private ManagedBrowserSession? browser;
+    private IBrowserSession? browser;
     private CancellationTokenSource operation = new();
     private string? approvalSession;
 
-    public DemoWorkflow(string directory, string careerOrigin, string checkoutRoot, bool extendedControls = false)
+    public DemoWorkflow(string directory, string careerOrigin, string checkoutRoot, bool extendedControls = false,
+        Func<Uri, IBrowserSession>? browserFactory = null)
     {
         this.extendedControls = extendedControls;
+        this.browserFactory = browserFactory ?? (uri => new ManagedBrowserSession(uri));
         origin = careerOrigin.TrimEnd('/');
         if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri) || uri.Scheme != "http" || uri.Host != "127.0.0.1")
             throw new PolicyException("SyntheticOriginRequired");
@@ -301,7 +304,7 @@ public sealed class DemoWorkflow : IAsyncDisposable
                 });
             approvalSession = sessionId;
             operation.Dispose(); operation = new();
-            browser = new(new Uri(origin));
+            browser = browserFactory(new Uri(origin));
             try
             {
                 await browser.PrepareAsync(run.Draft, approval, resume, operation.Token);

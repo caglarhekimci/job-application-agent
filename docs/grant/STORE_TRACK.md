@@ -1,6 +1,6 @@
 # ChatGPT and Codex plugin distribution track
 
-**Status date:** 2026-09-19.
+**Status date:** 2026-09-20.
 **User intent:** Public plugin publication is explicitly requested, alongside the
 public repository and Codex for Open Source application. Paid services remain
 unauthorized. These are separate outcomes; publication does not award Pro access.
@@ -45,6 +45,12 @@ These requirements were checked on 2026-09-19. The authenticated Platform page
 showed publisher identity verification as not started; Apps Management write access
 has not been established. [Submission requirements](https://developers.openai.com/plugins/deploy/submission).
 
+On 2026-09-20, opening the individual verification flow on the authenticated
+organization page displayed **Payment method required** and required a valid default
+payment method before verification. No payment method, billing change or purchase
+was made. This is an observed account-specific gate, not a claim that verification
+itself charges a fee. It does not affect the already submitted Codex for OSS form.
+
 The published-plugin quality policy excludes trial/demo products. The initial
 fixture inspector is therefore not labeled ready for public review.
 [Plugin guidelines](https://developers.openai.com/plugins/app-guidelines).
@@ -57,7 +63,7 @@ fixture inspector is therefore not labeled ready for public review.
 | Plugin host installation | VerifiedIsolatedCodex | Actual isolated CLI installation and scenarios; see host evidence |
 | Public source and release | Published | Public main and v0.1.0-alpha.1 app/plugin ZIPs; see project ledger |
 | Public MCP access route | BlockedExternal | Approved production HTTPS architecture or OpenAI local-MCP support; no tunnel or hosted service was enabled |
-| Publisher identity and portal permission | BlockedExternal | Platform showed verification not started; user-controlled verification and Apps Management access required |
+| Publisher identity and portal permission | BlockedExternal | Verification not started; observed flow requires a valid default payment method. No billing action authorized/performed; identity and Apps Management gates remain |
 | Public listing material | Incomplete | Publish matching support, privacy and terms URLs plus production branding |
 | Reviewer scenarios | Executed with documented correction | Eight actual host turns plus targeted N2 rerun; general product review still broader |
 | Product completeness | InProgress | Complete the intended useful application and required security/installation gates |

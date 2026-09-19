@@ -7,14 +7,18 @@ passed. Prerelease v0.1.0-alpha.1 is published at b068723; see evidence/release-
 submission and normal included Codex quota for required tests. Extra paid spending
 is not authorized. Real job submissions still need a concrete selected package.
 
-Current public checkpoint before the next push: `b7f020d` (bilingual quick start).
+Current public checkpoint: `5b65ed7` (shared local service, question review and recovery).
 The next integration adds W07 typed extended controls, W08 persistent questions
 and personal review UI, W09 shared 12-tool local mode, and protected migration
 recovery/audits. Review findings for expiry, legacy scope identity, stale proposals,
 deduplication and UI concurrency have regression tests. Combined Release tests:
 **255 passed, 0 failed, 0 skipped**, under `artifacts/verification/20260919T230618Z/`.
-The new actual model local-mode scenario and exact-commit package/CI are pending;
-they are separate from the completed 188-test historical checkpoint.
+The new actual model local-mode scenario passed: two Codex turns, all12 tools,
+pending-only proposals, expected permission denial and zero target requests.
+The first exact-commit clean-checkout run caught a timing-dependent legacy
+challenge test (E2E83/84); a deterministic regression fix is in progress before
+release. FR-15 and FR-16 are being implemented in isolated worktrees. Packaging
+and the new public CI result are separate from the historical188 checkpoint.
 
 | Package | Status | Actual evidence / remaining work |
 |---|---|---|
@@ -23,7 +27,7 @@ they are separate from the completed 188-test historical checkpoint.
 | W03 | VerifiedLocal | TXT/PDF/DOCX worker, 15 parser tests; local review and protected original; packaged PDF/DOCX smoke passed; OCR absent |
 | W04-W05 | VerifiedLocal | Reviewed manual posting, permissions, deterministic answers, strict model proposal validator and reviewed scoped-memory UI/revocation; model proposals never self-approve |
 | W06-W08 | VerifiedLocal | G1, typed select/checkbox/radio/conditional forms, persisted unanswered questions, reviewed scoped memory and same-application resume; browser limited to synthetic site |
-| W09 | VerifiedLocalAndCodex, partial | Default3 / synthetic6 / local12 modes; UI and local12 share protected services; actual STDIO12 passed; fresh model12 scenario pending, legacy synthetic model workflow passed |
+| W09 | VerifiedLocalAndCodex | Default3 / synthetic6 / local12 modes; shared protected services; actual STDIO12 and two-turn real-model12 scenario passed; legacy synthetic model workflow passed |
 | W10 | VerifiedLocalAndModelPilot | Initial11 + expanded12 profiles/240 questions/60 jobs; B0 passes; real six-turn24-question pilot B1 69/72 vs B2 57/72 strict; B2 did not improve |
 | W11 | VerifiedLocal, partial | Negative browser/request/parser/storage tests; final scope in threat model |
 | W12 | VerifiedLocalAndCI, package update pending | Latest255 local tests passed; historical188 passed clean checkout and exact public CI at ac53072; new exact-commit app/plugin package pending |

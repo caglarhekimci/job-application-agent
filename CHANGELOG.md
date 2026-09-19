@@ -1,33 +1,29 @@
 # Changelog
 
-## Unreleased — next tested local checkpoint
+## Unreleased
 
-- Added reviewed application/company/global answer memory, expiry, revision checks
-  and revocation; strict model proposals remain subject to user review.
-- Added CAPTCHA/MFA stops, protected local companion/MCP bridge and three opt-in
-  synthetic workflow commands. Consent remains a separate browser UI operation.
-- Added actual UI/STDIO workflow coverage, single-POST assertions, bridge response
-  validation, redirect refusal and stale registration cleanup.
-- Fixed packaged plugin launcher selection when several dotnet paths are present.
-- Expanded B0 to 12 profiles, 240 questions and 60 jobs. A separate six-turn Codex
-  pilot found B1 better than B2 on the frozen strict metric; no improvement claimed.
-- Ran 188 local tests and an actual three-turn Codex synthetic application workflow.
-  Simulated UI approval in the latter is explicitly separated from real human approval.
-- Submitted Codex for OSS after explicit terms acceptance; selection is pending.
+- Persist application questions and resume the same draft after reviewed answers.
+  Answer memory supports application, company, role-group and default scope.
+- Support typed select, checkbox, radio and conditional fields on the synthetic
+  career site, with separate sharing and submission approval.
+- Expose twelve opt-in local MCP tools over the protected personal workspace.
+  Proposals remain pending; personal execution has no live adapter.
+- Add protected pre-upgrade snapshots, explicit offline recovery and metadata
+  audits across writable stores. Reject unsupported future schemas.
+- Add source-bound CV/letter comparison and local text export after user review.
+  Original CV attachments remain unchanged; this is extractive, not AI rewriting.
+- Add local proposal-operation limits and a Fixture/HostMediated choice. Paid API
+  mode remains disabled; limits do not control the host's tokens or account quota.
+- Fix launcher PATH selection and keep the packaged inspector read-only even when
+  command flags are inherited. Add English-first, Turkish-second setup guidance.
+- Record regression fixes and their actual failing/passing tests in the
+  [verification ledger](docs/VERIFICATION.md).
+
+No employer or LinkedIn automation is enabled. Local packaging and Codex for OSS
+submission do not mean ChatGPT store approval or a program award.
 
 ## v0.1.0-alpha.1 — 2026-09-19 UTC
 
-- Added versioned profile facts, DPAPI storage and bounded TXT import.
-- Added typed job evaluation and deterministic answers with safe abstention.
-- Added separate UI sharing/submission approvals and durable submission attempts.
-- Added a real Chromium workflow, file upload and verified synthetic receipt.
-- Fixed redirect-before-check, early script POST, network retry, outgoing answer
-  tampering, malformed receipt handling and state-response session disclosure.
-- Added a read-only STDIO MCP server with real subprocess protocol tests.
-- Added setup, verification, source/history scan and local packaging scripts.
-
-- Added protected personal CV/profile/job review, PDF/DOCX worker imports and export/deletion.
-- Verified one actual read-only Codex capability call and a relocated local plugin package.
-- Published source with passing Windows CI and a clean-checkout 137-test result.
-
-No live adapter, model-quality benchmark, independent adoption or store approval is claimed.
+First public Windows prototype: local CV/job review, synthetic browser submission,
+read-only local plugin and source installation. The exact release passed137 tests
+and Windows CI. See [release evidence](docs/evidence/release-alpha1.md).

@@ -53,7 +53,8 @@ public static class AnswerResolver
             Status = AnswerStatus.Resolved,
             Value = scoped.Answer,
             Reason = "Resolved from scoped answer memory.",
-            EvidenceIds = [.. scoped.EvidenceIds]
+            EvidenceIds = [.. scoped.EvidenceIds],
+            ValidUntil = EarliestDeadline(profile, scoped.EvidenceIds, scoped.ExpiresAt)
         }, question.MaxLength);
     }
 
@@ -124,15 +125,21 @@ public static class AnswerResolver
 
         var days = merged.Sum(period => period.End.DayNumber - period.Start.DayNumber);
         var years = Math.Floor(days / 365m);
+        var evidenceIds = sourcePeriods.SelectMany(item => item.EvidenceIds)
+            .Where(verifiedIds.Contains).Distinct(StringComparer.Ordinal).ToList();
         return new()
         {
             Status = AnswerStatus.Resolved,
             Value = years.ToString(CultureInfo.InvariantCulture),
             Reason = "Calculated from non-overlapping verified professional periods.",
-            EvidenceIds = sourcePeriods.SelectMany(item => item.EvidenceIds)
-                .Where(verifiedIds.Contains).Distinct(StringComparer.Ordinal).ToList()
+            EvidenceIds = evidenceIds,
+            ValidUntil = EarliestDeadline(profile, evidenceIds)
         };
     }
+
+    private static DateTimeOffset? EarliestDeadline(CandidateProfile profile, IReadOnlyCollection<string> evidenceIds,
+        DateTimeOffset? memoryExpiry = null) => profile.Facts.Where(fact => evidenceIds.Contains(fact.Id))
+        .Select(fact => fact.ValidUntil).Append(memoryExpiry).Min();
 
     private static bool ScopeMatches(AnswerMemory answer, JobPosting job, AnswerScopeContext? context) => answer.Scope switch
     {

@@ -111,7 +111,8 @@ public sealed class DocumentAdaptationUiTests
             Assert.Empty(externalRequests);
             await page.ScreenshotAsync(new()
             {
-                Path = Path.Combine(repo, "artifacts", "fr15-document-adaptation.png"), FullPage = true
+                Path = Path.Combine(repo, "artifacts", "fr15-document-adaptation.png"),
+                FullPage = true
             });
         }
         finally

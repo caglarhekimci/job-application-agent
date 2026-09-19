@@ -20,4 +20,5 @@ public sealed record AnswerResolution
     public string? Value { get; init; }
     public string Reason { get; init; } = string.Empty;
     public List<string> EvidenceIds { get; init; } = [];
+    public DateTimeOffset? ValidUntil { get; init; }
 }

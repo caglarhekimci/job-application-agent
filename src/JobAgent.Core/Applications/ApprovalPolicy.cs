@@ -3,9 +3,14 @@ namespace JobAgent.Core.Applications;
 public static class ApprovalPolicy
 {
     public static ApprovalReceipt GrantFromUserInterface(ApplicationDraft draft,
-        ApprovalPurpose purpose, string userSessionId, DateTimeOffset now) =>
-        new(Guid.NewGuid(), draft.Id, draft.PayloadHash(), draft.RecipientOrigin,
-            draft.ProfileVersion, draft.ResumeHash, userSessionId, purpose, now, now.AddMinutes(10));
+        ApprovalPurpose purpose, string userSessionId, DateTimeOffset now)
+    {
+        ValidateAnswerDeadline(draft, now);
+        var expiresAt = now.AddMinutes(10);
+        if (draft.AnswersValidUntil is { } deadline && deadline < expiresAt) expiresAt = deadline;
+        return new(Guid.NewGuid(), draft.Id, draft.PayloadHash(), draft.RecipientOrigin,
+            draft.ProfileVersion, draft.ResumeHash, userSessionId, purpose, now, expiresAt);
+    }
 
     public static void Validate(ApplicationDraft draft, ApprovalReceipt? receipt,
         ApprovalPurpose purpose, DateTimeOffset now)
@@ -15,6 +20,7 @@ public static class ApprovalPolicy
         if (receipt.UsedAt is not null) throw new PolicyException("ApprovalAlreadyUsed");
         if (receipt.ExpiresAt <= now || receipt.ApprovedAt > now)
             throw new PolicyException("ApprovalExpired");
+        ValidateAnswerDeadline(draft, now);
         if (receipt.Purpose != purpose) throw new PolicyException("WrongApprovalPurpose");
         if (receipt.ApplicationId != draft.Id || receipt.PayloadHash != draft.PayloadHash()
             || receipt.RecipientOrigin != draft.RecipientOrigin || receipt.ResumeHash != draft.ResumeHash
@@ -30,5 +36,11 @@ public static class ApprovalPolicy
     {
         Validate(draft, receipt, purpose, now);
         return receipt with { UsedAt = now };
+    }
+
+    private static void ValidateAnswerDeadline(ApplicationDraft draft, DateTimeOffset now)
+    {
+        if (draft.AnswersValidUntil is { } deadline && deadline <= now)
+            throw new PolicyException("AnswersExpired");
     }
 }

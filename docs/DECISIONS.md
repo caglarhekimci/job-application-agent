@@ -1,5 +1,32 @@
 # Decisions
 
+## ADR-013 — Extractive document adaptation
+FR-15 uses exact verified CV source statements, selected/reordered for a reviewed
+job and kept under their original experience kinds. Fixed structural headings and
+a neutral job header may be added; unsupported paraphrases and new candidate
+claims are rejected. This is an extractive CV/letter aid, not a claim of generative
+writing quality. Users compare source and output and approve a bound bundle before
+local text export. Source changes and expiry invalidate approval. The generated
+document never silently replaces the original CV or submission attachment.
+
+## ADR-014 — Local proposal limits and zero paid runtime
+FR-16 exposes Fixture and HostMediated policy choices in the trusted local UI.
+Paid API mode stays disabled: no keys, adapter, purchase or fallback are added.
+Per-application proposal-operation counts live in the protected workspace and
+survive restart. Changing a limit does not reset usage. Model/host tools cannot
+change this policy. This bounds accepted local proposal operations; it cannot
+select the user's host model, measure model tokens, enforce a Codex account quota,
+or stop host-side reasoning before a call reaches this application. Keep those
+limitations visible instead of labeling the setting a universal model-cost cap.
+
+## ADR-015 — Consent at the outbound boundary
+Approval must still be valid when a managed request leaves the browser, after any
+asynchronous page checks or body parsing. Propagate the earliest relevant answer
+or evidence expiry into the hashed package and clamp approval to that deadline.
+Check the immutable receipt again at outbound transmission. Test time changes with
+a controlled clock and a gated synthetic request, not sleep-based assumptions.
+A previously claimed but uncertain submission is still never automatically retried.
+
 ## ADR-012 — Shared local service and resumable questions
 The protected personal workspace is the single source for its UI and optional
 12-tool MCP service. Do not mirror personal records into the synthetic plaintext

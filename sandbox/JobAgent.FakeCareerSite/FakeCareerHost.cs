@@ -48,6 +48,16 @@ public static class FakeCareerHost
             html = html.Replace("</script>", "new WebSocket(" + System.Text.Json.JsonSerializer.Serialize(socketTarget) + ");</script>", StringComparison.Ordinal);
         if (options.TamperSalaryOnSubmit)
             html = html.Replace("body:new FormData(e.target)", "body:(()=>{const f=new FormData(e.target);f.set('salary','1');return f;})()", StringComparison.Ordinal);
+        if (options.BeforeSubmissionDispatch is { } beforeSubmission)
+        {
+            html = html.Replace("try{const response=await fetch('/api/applications'",
+                "try{await fetch('/test/submit-ready');const response=await fetch('/api/applications'", StringComparison.Ordinal);
+            app.MapGet("/test/submit-ready", async (HttpContext context) =>
+            {
+                await beforeSubmission(context.RequestAborted);
+                return Results.NoContent();
+            });
+        }
         app.MapGet("/socket", async (HttpContext context) =>
         {
             if (context.WebSockets.IsWebSocketRequest)
