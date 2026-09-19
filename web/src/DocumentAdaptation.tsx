@@ -23,11 +23,11 @@ export function DocumentAdaptation({ csrf, applicationRef, workspaceRevision, ap
   const [confirmedKey, setConfirmedKey] = useState<string | null>(null);
   useEffect(() => {
     let active = true;
-    setConfirmedKey(null);
     void fetch(`/api/workspace/applications/${applicationRef}/document-adaptation`).then(async response => {
       if (!response.ok) throw new Error('Belge uyarlaması açılamadı.');
       const next: View = await response.json();
-      if (active) setView(next);
+      if (active) setView(previous => previous?.applicationRef === next.applicationRef &&
+        previous.revision > next.revision ? previous : next);
     }).catch(reason => { if (active) setError((reason as Error).message); });
     return () => { active = false; };
   }, [applicationRef, workspaceRevision]);
@@ -49,13 +49,15 @@ export function DocumentAdaptation({ csrf, applicationRef, workspaceRevision, ap
           ? 'CV, profil veya ilan değişti. Yeni bir öneri oluşturun.'
           : 'Belge işlemi tamamlanamadı. Güncel kaynaklarla yeniden deneyin.');
       }
-      setView(await response.json());
+      const next: View = await response.json();
+      setView(previous => previous?.applicationRef === next.applicationRef &&
+        previous.revision > next.revision ? previous : next);
     } catch (reason) { setError((reason as Error).message); }
     finally { setBusy(false); }
   }
 
   const proposal = view?.proposal;
-  const confirmationKey = proposal && view ? `${view.revision}:${proposal.bundleHash}` : '';
+  const confirmationKey = proposal && view ? `${applicationRef}:${view.revision}:${view.status}:${proposal.bundleHash}` : '';
   const confirmed = confirmedKey === confirmationKey;
   return <section data-testid="document-adaptation">
     <h5>CV ve ön yazı uyarlaması</h5>
@@ -78,7 +80,7 @@ export function DocumentAdaptation({ csrf, applicationRef, workspaceRevision, ap
           {change.sourceSpan ? ` · ${change.sourceSpan}` : ''}<br />{change.text}</p>)}</details>
       <button className="secondary" disabled={busy || disabled} onClick={() => void act('propose')}>Öneriyi yeniden oluştur</button>
       {view.status !== 'Approved' && view.status !== 'Stale' && <>
-        <label className="delete-check"><input type="checkbox" checked={confirmed}
+        <label className="delete-check"><input type="checkbox" checked={confirmed} disabled={busy || disabled}
           onChange={event => setConfirmedKey(event.target.checked ? confirmationKey : null)} /> Bu belge içeriklerini ve kaynaklarını inceledim.</label>
         <button disabled={busy || disabled || !confirmed} onClick={() => void act('approve')}>Bu belge paketini onayla</button>
       </>}

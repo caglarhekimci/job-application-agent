@@ -17,7 +17,9 @@ GitHub issues. They do not increase the external-report metrics below.
 | Launcher selected more than one `dotnet` executable on PATH | Actual installed-host discovery and package regression; [evidence](../evidence/plugin-host.md) | ac53072 | Next package; alpha.1 assets retained |
 | Expired evidence and incorrect legacy application-scope identity | Real failing tests, strict expiry and draft-GUID binding; [review record](../evidence/common-service-review.md) | 5b65ed7 | Next package |
 | Deleted private data retained in a recovery snapshot | Separate failing profile/workspace tests, followed by backup invalidation; [store record](../evidence/store-recovery.md) | 5b65ed7 | Next package |
-| Late-challenge test assumed a 750ms approval window | Failed clean-checkout run; deterministic phase-controlled correction in progress | Pending | Not released |
+| Late-challenge test assumed a 750ms approval window | Failed clean-checkout run; deterministic phase-controlled correction passed13 focused tests | 0e01176 | Alpha.2 pending |
+| Approval could expire during asynchronous browser work | Controlled-clock RED/GREEN tests; final outbound receipt check and answer deadline binding | 0e01176 | Alpha.2 pending |
+| Document confirmation reset during background refresh | Actual clean-checkout failure; revision/status/hash-bound UI correction and focused browser pass | See final integration evidence | Alpha.2 pending |
 
 ## External maintenance-entry template
 

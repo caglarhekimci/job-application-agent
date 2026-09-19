@@ -107,7 +107,7 @@ The user still performs two independent actions in the authenticated local UI:
 1. approve sharing the fixed synthetic package so the managed browser may fill it;
 2. approve submission after reviewing the filled package.
 
-Submission approval is bound to the application ID, payload hash, recipient origin, profile version, resume hash and UI session. It expires after ten minutes and is consumed by one durable claim. Merely calling `application_prepare_review` does not approve either action.
+Submission approval is bound to the application ID, payload hash, recipient origin, profile version, resume hash and UI session. It expires within ten minutes (earlier when a relevant answer expires), is rechecked at outbound transmission, and is consumed by one durable claim. Merely calling `application_prepare_review` does not approve either action.
 
 The bridge client uses HTTP/1.1 directly to literal loopback with proxies, cookies and redirects disabled. It never follows a redirect or forwards the bridge token to another origin. It does not retry execution. If execution returns `CommandOutcomeUnknownCheckStatus`, use the read-only `application_get_status` tool to poll the durable journal. Do not call `application_execute_approved` again to guess the outcome.
 

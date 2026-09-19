@@ -1,5 +1,21 @@
 # Verification ledger
 
+## Final alpha.2 integration — 2026-09-20 Istanbul
+
+The clean-checkout sequence covers **293 distinct passing tests**, no skips:
+Core83, Document15, E2E95, Infrastructure41, MCP22, Workspace37. The initial
+`verify.ps1` exited **1** (E2E94/95); its document-checkbox regression passed **1/1**
+after a UI-only correction, and continuation exited **0**. Already-passing suites
+were not repeated. Reports: `artifacts/verification/20260919T233219Z/`, including
+`continued/`. See [exact execution boundaries](evidence/final-integration.md).
+
+Release build and formatting passed with zero warnings/errors. Frontend,
+launcher, initial/expanded fixture evaluation, offline replay12 assertions,
+scanner regressions4/4, source/history scan357 files/11 commits, prerequisites and
+whitespace checks passed. Replay is not a fresh model run. The obsolete-binary
+filtered attempt that found zero tests is explicitly excluded from the count.
+Public CI and package verification are tracked separately in release evidence.
+
 ## Shared application service and recovery integration — 2026-09-20 Istanbul
 
 `scripts/verify.ps1` exited **0**. Reports:

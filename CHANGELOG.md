@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.1.0-alpha.2 — 2026-09-20
 
 - Persist application questions and resume the same draft after reviewed answers.
   Answer memory supports application, company, role-group and default scope.
@@ -16,6 +16,8 @@
   mode remains disabled; limits do not control the host's tokens or account quota.
 - Fix launcher PATH selection and keep the packaged inspector read-only even when
   command flags are inherited. Add English-first, Turkish-second setup guidance.
+- Recheck approval at outbound transmission, cap its lifetime by answer expiry,
+  and preserve document-review confirmation through unchanged background refreshes.
 - Record regression fixes and their actual failing/passing tests in the
   [verification ledger](docs/VERIFICATION.md).
 
