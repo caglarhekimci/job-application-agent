@@ -19,7 +19,7 @@ Assets include confirmed profile facts, private salary minimum, original CV byte
 ## Known limits and release gates
 
 - Browser controls are application policy, not an OS network firewall. WebRTC, hostile external sites and every browser channel are not certified. Native host/browser tools bypass this managed runtime (`NativeHostBypassesManagedRuntime`).
-- Playwright 1.62 can throw `KeyNotFoundException` when routed WebSocket close events omit optional fields. The runtime tolerates only the known cleanup shape after denying the socket and always disposes the driver; a zero-handshake regression covers the boundary.
+- Playwright 1.62 can throw `KeyNotFoundException` when routed WebSocket close events omit optional fields and can race while closing an already-disposed driver process. Only the observed transport-cleanup shapes are tolerated after denying a socket; driver disposal is attempted once. A zero-handshake regression covers the request boundary.
 - The CAPTCHA/MFA behavior is a fail-closed pause. It does not provide an interactive manual browser handoff or same-page resume.
 - The managed browser is still restricted to the bundled synthetic site. The twelve-tool personal workspace mode prepares and reviews applications locally; it has no live-site adapter or remote MCP transport. LinkedIn automation remains blocked without platform authorization.
 - Local claim plus fixture deduplication does not promise exactly-once delivery to arbitrary employers. An unknown external result would still require human reconciliation.

@@ -2,6 +2,11 @@
 
 ## Final alpha.2 integration — 2026-09-20 Istanbul
 
+The first public candidate `f3f38dd` failed CI on a separate already-denied
+WebSocket driver-cleanup race (E2E94/95). The narrow cleanup fix passed all10
+focused adversarial browser tests. [Failure and correction](evidence/ci-websocket-cleanup.md).
+The archive must use the corrected commit; candidate packages are superseded.
+
 The clean-checkout sequence covers **293 distinct passing tests**, no skips:
 Core83, Document15, E2E95, Infrastructure41, MCP22, Workspace37. The initial
 `verify.ps1` exited **1** (E2E94/95); its document-checkbox regression passed **1/1**

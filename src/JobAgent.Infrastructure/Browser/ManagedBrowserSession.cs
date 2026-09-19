@@ -554,6 +554,15 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin, TimeProvider? timeP
         // Playwright 1.62's WebSocketRoute assumes optional close-event fields exist.
         // Only suppress that transport cleanup fault after a socket was already denied.
         catch (KeyNotFoundException) when (blockedWebSocket) { }
-        finally { playwright?.Dispose(); }
+        finally
+        {
+            try { Interlocked.Exchange(ref playwright, null)?.Dispose(); }
+            // After the denied-socket transport fault, Playwright may already have
+            // disposed its driver process before its Close callback waits for it.
+            catch (InvalidOperationException error) when (blockedWebSocket &&
+                error.StackTrace?.Contains("Microsoft.Playwright.Transport.StdIOTransport.Close",
+                    StringComparison.Ordinal) == true)
+            { }
+        }
     }
 }
