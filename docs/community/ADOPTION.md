@@ -1,14 +1,14 @@
 # Adoption evidence
 
-**Snapshot:** 2026-09-18
+**Snapshot:** 2026-09-19 UTC
 
 | Metric | Current verified value | Notes |
 |---|---:|---|
 | Independent users | **0** | Maintainer activity, CI, agents, and synthetic sessions are excluded |
-| Confirmed independent installations | **0** | Project is not public |
+| Confirmed independent installations | **0** | Public source exists; maintainer clean-checkout tests are excluded |
 | Independent feedback entries | **0** | No outreach has been published |
 | Confirmed repeat users | **0** | No claim available |
-| Published releases | **0** | No public repository/release URL |
+| Published releases | **1** | [v0.1.0-alpha.1](https://github.com/caglarhekimci/job-application-agent/releases/tag/v0.1.0-alpha.1) |
 | External component reuse | **0 verified** | Designed reuse is not counted as actual reuse |
 
 ## Evidence-entry template
@@ -32,6 +32,6 @@ Allowed event types: installation confirmed, demo completed, repeat use confirme
 
 ## Unsent pilot invitation template
 
-> I am testing an early local-first job application agent for .NET developers and agent builders. The public pilot, once released, will use a synthetic CV and a local fake career site, so you will not need to share personal data or contact an employer. I am looking for candid installation, clarity, and approval-flow feedback. The project is experimental and does not claim to improve hiring outcomes.
+> I am testing an early local-first job application agent for .NET developers and agent builders: https://github.com/caglarhekimci/job-application-agent. The public pilot uses a synthetic CV and a local fake career site, so you do not need to share personal data or contact an employer. I am looking for candid installation, clarity, and approval-flow feedback. The project is experimental and does not claim to improve hiring outcomes.
 
 This invitation has not been published. Any outreach requires the user's approval and must follow the rules of the chosen community.

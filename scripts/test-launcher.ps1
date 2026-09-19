@@ -7,6 +7,8 @@ if (-not $LauncherDirectory) { $LauncherDirectory = Join-Path $repoRoot 'src/Job
 $LauncherDirectory = [IO.Path]::GetFullPath($LauncherDirectory)
 $runtimeTestRoot = Join-Path ([IO.Path]::GetTempPath()) ('jobagent-launch-test-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $runtimeTestRoot | Out-Null
+$staleBridge = Join-Path $runtimeTestRoot 'host-bridge.dpapi'
+[IO.File]::WriteAllText($staleBridge, 'stale-registration-from-an-interrupted-instance')
 $process = $null
 try {
     $start = [Diagnostics.ProcessStartInfo]::new((Get-Command dotnet).Source)
@@ -18,6 +20,7 @@ try {
     $start.RedirectStandardOutput = $true
     $start.RedirectStandardError = $true
     $start.Environment['JOBAGENT_RUNTIME_DIR'] = $runtimeTestRoot
+    $start.Environment['JOBAGENT_ENABLE_SYNTHETIC_COMMANDS'] = '0'
     $process = [Diagnostics.Process]::Start($start)
     $ready = $false
     for ($attempt = 0; $attempt -lt 30; $attempt++) {
@@ -30,6 +33,7 @@ try {
         Start-Sleep -Milliseconds 200
     }
     if (-not $ready) { throw 'CLI did not serve the built dashboard.' }
+    if (Test-Path -LiteralPath $staleBridge) { throw 'Default-off startup left a stale host bridge registration.' }
     $scripts = [regex]::Matches($page.Content, '(?:src|href)="(/assets/[^\"]+)"')
     if ($scripts.Count -lt 2) { throw 'Compiled script/style references are missing.' }
     foreach ($asset in $scripts) {
@@ -42,7 +46,7 @@ try {
     try {
         if (-not $second.WaitForExit(5000) -or $second.ExitCode -ne 1) { throw 'Second launcher did not reject the locked runtime.' }
     } finally { if (-not $second.HasExited) { $second.Kill($true) }; $second.Dispose() }
-    Write-Host 'CLI smoke passed: dashboard, all referenced assets, paired fixture, exclusive runtime lock.'
+    Write-Host 'CLI smoke passed: dashboard, all referenced assets, paired fixture, exclusive runtime lock, stale bridge removal.'
 } finally {
     if ($process) { if (-not $process.HasExited) { $process.Kill($true); $process.WaitForExit() }; $process.Dispose() }
     $resolved = [IO.Path]::GetFullPath($runtimeTestRoot)

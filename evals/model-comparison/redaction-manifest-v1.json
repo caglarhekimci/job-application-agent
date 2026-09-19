@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0",
+  "createdAt": "2026-09-19T22:05:31.1833269+00:00",
+  "redactionPolicy": "Replace only the user-specific CLI executable prefix with %LOCALAPPDATA%; preserve immutable originals under the ignored artifacts tree.",
+  "replacement": "%LOCALAPPDATA%\\JobApplicationAgent\\tools\\codex-0.155.0\\node_modules\\@openai\\codex-win32-x64\\vendor\\x86_64-pc-windows-msvc\\bin\\codex.exe",
+  "redactedFields": ["cli.executable"],
+  "entries": [
+    {
+      "publicPath": "evals/model-comparison/results/2026-09-20-pilot-v1/report.json",
+      "immutableOriginalPath": "artifacts/model-comparison/raw/2026-09-20-pilot-v1/report.json",
+      "originalSha256": "90AF83715B201373FA6173F7273F5B95A76BFDDBF533A78864A4D3C339937C11",
+      "publicSha256": "C6998814660F7B8B7D50C98FA96EC0EE044309D9BD7D5833CB8E632C4CE3644B"
+    },
+    {
+      "publicPath": "evals/model-comparison/results/2026-09-20-pilot-v1-schema-v2/report.json",
+      "immutableOriginalPath": "artifacts/model-comparison/raw/2026-09-20-pilot-v1-schema-v2/report.json",
+      "originalSha256": "B93B870869983B9897462B09FB6B8CE20A41ACB7929332C3F2DAB8205C2D2EE7",
+      "publicSha256": "171FC115EDC0486250838B938800F111958EADBC0C823ED086AFA4FC966E43C3"
+    }
+  ],
+  "rawEventOrResponseRedactions": 0,
+  "credentialRedactions": 0
+}

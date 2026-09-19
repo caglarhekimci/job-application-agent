@@ -1,0 +1,17 @@
+{
+  "strategy": "B2",
+  "repetition": 2,
+  "requestedModel": "gpt-6-astra",
+  "startedAt": "2026-09-19T21:55:39.6740899+00:00",
+  "finishedAt": "2026-09-19T21:56:23.0126058+00:00",
+  "exitCode": 0,
+  "timedOut": false,
+  "eventTypes": [
+    "thread.started",
+    "turn.started",
+    "item.completed:agent_message",
+    "turn.completed"
+  ],
+  "eventsSha256": "A8C2383AB3CC273DA3E0A11C0CB0E1E87D1E9DC170FA50240269ED1113181277",
+  "outputSha256": "6BEA7A33A5DF19FC6670E170CDC9AD119DAE2739E2F7E3A803DD7A6C2ACB78E9"
+}

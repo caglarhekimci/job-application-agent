@@ -1,5 +1,54 @@
 # Verification ledger
 
+## Expanded local workflow — 2026-09-19 UTC / 2026-09-20 Istanbul
+
+`scripts/verify.ps1` exited **0**, reports `artifacts/verification/20260919T215755Z/`.
+**188 passed, 0 failed, 0 skipped**: Core 58, Document 15, E2E 59,
+Infrastructure 32, MCP 14, Workspace 10. Release build: 0 warnings/errors.
+Locked restore, frontend build, formatting, paired launcher, stale bridge cleanup,
+initial 11-case fixture evaluation, expanded B0 evaluation, scanner regressions,
+291-file/5-commit source/history scan and whitespace checks passed.
+
+The new tests cover reviewed scoped memory, strict model-proposal validation,
+CAPTCHA/MFA stops, DPAPI bridge registration, isolated model commands, malformed
+bridge results, redirects, and actual Chromium UI + official STDIO integration.
+`w09-review-green/bridge-ui-green.trx` records 20 focused checks. Before fixes,
+`w09-review-red/boundary-red.trx` had 2 failures, `response-red.trx` had 7 failures,
+and `ui-red.trx` reproduced missing refresh for a host-created draft. The launcher
+regression failed with stale bridge state before its fix. Intermediate harness
+corrections (protocol exceptions and GET-inclusive counters) are not product bugs.
+
+`scripts/run-evaluation.ps1` now exercises the expanded CLI contract: its first
+run exited 1 because `eval-expanded` was absent, then passed after implementation
+at `artifacts/evaluations/20260919T215731Z/`. Expanded B0: **240/240 question
+outcomes**, including **110/110 answerable** and **130/130 appropriate abstentions**,
+and **60/60 job outcomes** across 12 synthetic profiles. This is deterministic
+fixture evidence, not model accuracy; B1/B2 live results have their own report.
+
+The actual installed-plugin eight-scenario run and targeted follow-up are in
+[plugin-host.md](evidence/plugin-host.md). The separate real-model workflow is
+recorded in [codex-workflow.md](evidence/codex-workflow.md), including any host
+approval blockage. These model tests consume included Codex quota only and are
+not run by ordinary verification or CI. No paid API or live employer test ran.
+
+Actual multi-turn Codex workflow: `artifacts/codex-workflow/20260919T220144149Z`,
+exit 0, three turns/five tool calls, no approval => `ConsentRequired`/zero POST,
+then simulated protected-UI approval => exactly one POST/receipt with matching CV.
+The earlier never-approve host policy blocked the tool before application execution;
+the final isolated test explicitly approved only that synthetic MCP tool at the
+host layer while preserving application/UI consent. Global settings were unchanged.
+This is not a human-approved real employer application.
+
+Real comparison: six substantive turns on 24 frozen questions, three per strategy.
+Strict B1 **69/72**, B2 **57/72**; B2 was worse. Both answerable **27/27** and
+appropriate abstention **42/45**. Preserve the policy-tension analysis and schema
+rejection attempts in [the model pilot report](evidence/w10-model-comparison.md).
+There is no automatic model-answer deployment based on these results.
+
+Codex for OSS: submitted after explicit final terms acceptance; OpenAI's success
+page was observed. Private confirmation is outside the repository. Selection and
+benefits remain unknown. Submitted text preserves its original 137-test claim.
+
 ## Public source and independent checkout — 2026-09-19 UTC
 
 Public main is commit `da84c258362402e6feed898cfd5f02224af9b7c3`.

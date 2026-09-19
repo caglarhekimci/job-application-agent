@@ -12,7 +12,10 @@ public sealed record RuntimeCapabilities(
     bool PaidApiEnabled,
     bool CanMintApproval,
     string HostExecution,
-    IReadOnlyList<string> ReadOnlyTools);
+    IReadOnlyList<string> ReadOnlyTools)
+{
+    public IReadOnlyList<string> SyntheticCommands { get; init; } = [];
+}
 
 public sealed record ProfileSummary(
     string ProfileRef,
@@ -34,10 +37,14 @@ public sealed record ApplicationStatusSummary(
 public sealed class ReadOnlyTools(RuntimeStore runtimeStore)
 {
     [McpServerTool(Name = "runtime_get_capabilities", ReadOnly = true, OpenWorld = false, UseStructuredContent = true),
-     Description("Returns the constrained local fixture runtime capabilities. Does not call a model, browser, or external service.")]
+     Description("Returns the constrained local fixture runtime capabilities. Does not call a model, browser, or external service. Approval and synthetic submission require the companion application's local review flow; this read-only inspector cannot approve or submit.")]
     public RuntimeCapabilities RuntimeGetCapabilities() => new(
         "Fixture", true, "Blocked", false, false, "NotVerifiedOnHost",
-        ["runtime_get_capabilities", "profile_get_summary", "application_get_status"]);
+        ["runtime_get_capabilities", "profile_get_summary", "application_get_status"])
+    {
+        SyntheticCommands = runtimeStore.SyntheticCommandsEnabled
+            ? ["application_create_draft", "application_prepare_review", "application_execute_approved"] : []
+    };
 
     [McpServerTool(Name = "profile_get_summary", ReadOnly = true, OpenWorld = false, UseStructuredContent = true),
      Description("Reads a confirmed local profile by its fixed GUID reference and returns only version and verified skill names.")]

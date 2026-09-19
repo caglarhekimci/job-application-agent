@@ -1,7 +1,7 @@
 # Codex for Open Source readiness
 
-Status: 2026-09-19 UTC. **Prepared; awaiting action-time terms confirmation.**
-Submission is authorized. No submission, selection, credit, security access or
+Status: 2026-09-19 UTC. **Submitted; confirmation observed.**
+Submission is authorized. No selection, credit, security access or
 Pro benefit is claimed yet. Public plugin listing and this program are separate.
 
 | Item | Verified state |
@@ -12,12 +12,12 @@ Pro benefit is claimed yet. Public plugin listing and this program are separate.
 | Installation/package | Source setup, manifest, packaged PDF/DOCX imports and relocated plugin STDIO passed |
 | Security/community | Source/history scan passed; MIT/dependency notices, contribution files and private vulnerability reporting present |
 | Independent users | 0; maintainer runs and CI are excluded |
-| Tagged releases | Pending; application narrative does not claim one |
+| Tagged releases | v0.1.0-alpha.1 published; exact-commit evidence in release-alpha1.md |
 | Private fields | User provided contact fields; Organization ID read from authenticated Platform, stored only outside repo |
 | Optional support | No API credits and no Codex Security; Pro/Codex only |
 | Final fields | Counted and populated; see exact public draft |
-| Program terms | Read and shown; final browser action-time confirmation pending |
-| Submission receipt | Not yet obtained |
+| Program terms | Explicit user action-time acceptance received before submission |
+| Submission receipt | Success page observed; private confirmation saved outside repository |
 | Selection/benefit | Unknown; no guarantee |
 
 The form's Organization ID and API-use explanation remain required even without

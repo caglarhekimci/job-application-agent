@@ -1,0 +1,2059 @@
+{
+  "schemaVersion": "1.0",
+  "datasetId": "expanded-synthetic-benchmark-v1",
+  "synthetic": true,
+  "license": "MIT",
+  "scope": "Expanded deterministic B0 benchmark with split-owned reusable families: 12 profiles, 240 questions, and 60 jobs. B1 and B2 are not run.",
+  "profiles": [
+    {
+      "id": "dev-experienced-confirmed",
+      "synthetic": true,
+      "split": "Development",
+      "groupId": "group-dev-experienced",
+      "familyId": "family-dev-experienced",
+      "archetype": "DevExperiencedConfirmed"
+    },
+    {
+      "id": "dev-junior-confirmed",
+      "synthetic": true,
+      "split": "Development",
+      "groupId": "group-dev-junior",
+      "familyId": "family-dev-junior",
+      "archetype": "DevJuniorConfirmed"
+    },
+    {
+      "id": "dev-personal-project-only",
+      "synthetic": true,
+      "split": "Development",
+      "groupId": "group-dev-project",
+      "familyId": "family-dev-project",
+      "archetype": "DevPersonalProjectOnly"
+    },
+    {
+      "id": "dev-unverified-contacts",
+      "synthetic": true,
+      "split": "Development",
+      "groupId": "group-dev-unverified",
+      "familyId": "family-dev-unverified",
+      "archetype": "DevUnverifiedContacts"
+    },
+    {
+      "id": "dev-annual-gross-salary",
+      "synthetic": true,
+      "split": "Development",
+      "groupId": "group-dev-annual-salary",
+      "familyId": "family-dev-annual-salary",
+      "archetype": "DevAnnualGrossSalary"
+    },
+    {
+      "id": "dev-turkish-two-years",
+      "synthetic": true,
+      "split": "Development",
+      "groupId": "group-dev-turkish",
+      "familyId": "family-dev-turkish",
+      "archetype": "DevTurkishTwoYears"
+    },
+    {
+      "id": "test-experienced-four-years",
+      "synthetic": true,
+      "split": "Test",
+      "groupId": "group-test-experienced",
+      "familyId": "family-test-experienced",
+      "archetype": "TestExperiencedFourYears"
+    },
+    {
+      "id": "test-internship-only",
+      "synthetic": true,
+      "split": "Test",
+      "groupId": "group-test-internship",
+      "familyId": "family-test-internship",
+      "archetype": "TestInternshipOnly"
+    },
+    {
+      "id": "test-expired-evidence",
+      "synthetic": true,
+      "split": "Test",
+      "groupId": "group-test-expired",
+      "familyId": "family-test-expired",
+      "archetype": "TestExpiredEvidence"
+    },
+    {
+      "id": "test-no-salary",
+      "synthetic": true,
+      "split": "Test",
+      "groupId": "group-test-no-salary",
+      "familyId": "family-test-no-salary",
+      "archetype": "TestNoSalary"
+    },
+    {
+      "id": "test-turkish-five-years",
+      "synthetic": true,
+      "split": "Test",
+      "groupId": "group-test-turkish",
+      "familyId": "family-test-turkish",
+      "archetype": "TestTurkishFiveYears"
+    },
+    {
+      "id": "test-scoped-answers",
+      "synthetic": true,
+      "split": "Test",
+      "groupId": "group-test-scoped",
+      "familyId": "family-test-scoped",
+      "archetype": "TestScopedAnswers"
+    }
+  ],
+  "questionFamilies": [
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "KnownName",
+      "templateFamilyId": "question-dev-contact-known",
+      "ruleRationale": "A locally confirmed synthetic name resolves exactly; an unconfirmed name requires review.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "Resolved",
+          "value": "Synthetic DevExperiencedConfirmed",
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "Resolved",
+          "value": "Synthetic DevJuniorConfirmed",
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "Resolved",
+          "value": "Synthetic DevPersonalProjectOnly",
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "Resolved",
+          "value": "Synthetic DevAnnualGrossSalary",
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "Resolved",
+          "value": "Synthetic DevTurkishTwoYears",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "KnownEmail",
+      "templateFamilyId": "question-dev-email-known",
+      "ruleRationale": "A locally confirmed synthetic email resolves exactly; an unconfirmed email requires review.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "Resolved",
+          "value": "devexperiencedconfirmed@example.invalid",
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "Resolved",
+          "value": "devjuniorconfirmed@example.invalid",
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "Resolved",
+          "value": "devpersonalprojectonly@example.invalid",
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "Resolved",
+          "value": "devannualgrosssalary@example.invalid",
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "Resolved",
+          "value": "devturkishtwoyears@example.invalid",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "ExpectedMonthlyNetSalary",
+      "templateFamilyId": "question-dev-salary-monthly-net",
+      "ruleRationale": "Only a locally confirmed monthly net TRY target resolves; unit mismatch abstains.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "Resolved",
+          "value": "100000",
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "Resolved",
+          "value": "100000",
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "Resolved",
+          "value": "100000",
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "Resolved",
+          "value": "100000",
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "Resolved",
+          "value": "100000",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "ExpectedAnnualGrossSalary",
+      "templateFamilyId": "question-dev-salary-annual-gross",
+      "ruleRationale": "A monthly-net resolver must not convert or reuse a value for an annual-gross question.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "CurrentSalary",
+      "templateFamilyId": "question-dev-salary-current",
+      "ruleRationale": "Current salary is distinct from expected salary and has no approved value.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "ProfessionalCsharpYears",
+      "templateFamilyId": "question-dev-experience-professional-csharp",
+      "ruleRationale": "Only verified professional C# periods count; projects abstain.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "Resolved",
+          "value": "3",
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "Resolved",
+          "value": "1",
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "Resolved",
+          "value": "3",
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "Resolved",
+          "value": "3",
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "Resolved",
+          "value": "2",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "UnknownField",
+      "templateFamilyId": "question-dev-unknown-field",
+      "ruleRationale": "An unknown semantic key must abstain rather than invent a value.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "SensitiveName",
+      "templateFamilyId": "question-dev-sensitive-field",
+      "ruleRationale": "A sensitive question remains manual even when a related profile value exists.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "AttestedEmail",
+      "templateFamilyId": "question-dev-candidate-attestation",
+      "ruleRationale": "A candidate-attested answer cannot be automated from stored contact data.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "CompanyAvailabilityCurrent",
+      "templateFamilyId": "question-dev-scope-company-current",
+      "ruleRationale": "The current employer receives its company-scoped availability answer.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "Resolved",
+          "value": "One week",
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "Resolved",
+          "value": "One week",
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "Resolved",
+          "value": "One week",
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "Resolved",
+          "value": "One week",
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "Resolved",
+          "value": "One week",
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "Resolved",
+          "value": "One week",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "CompanyAvailabilityOther",
+      "templateFamilyId": "question-dev-scope-company-other",
+      "ruleRationale": "Another employer falls back to the reviewed default instead of receiving the company-scoped answer.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "Resolved",
+          "value": "Two weeks",
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "Resolved",
+          "value": "Two weeks",
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "Resolved",
+          "value": "Two weeks",
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "Resolved",
+          "value": "Two weeks",
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "Resolved",
+          "value": "Two weeks",
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "Resolved",
+          "value": "Two weeks",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "ApplicationMotivationCurrent",
+      "templateFamilyId": "question-dev-scope-application-current",
+      "ruleRationale": "The matching application receives its application-scoped reviewed statement.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "Resolved",
+          "value": "Application-specific statement",
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "Resolved",
+          "value": "Application-specific statement",
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "Resolved",
+          "value": "Application-specific statement",
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "Resolved",
+          "value": "Application-specific statement",
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "Resolved",
+          "value": "Application-specific statement",
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "Resolved",
+          "value": "Application-specific statement",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "ApplicationMotivationOther",
+      "templateFamilyId": "question-dev-scope-application-other",
+      "ruleRationale": "A different application cannot reuse an application-scoped statement.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "RelocationTurkish",
+      "templateFamilyId": "question-dev-language-turkish",
+      "ruleRationale": "The Turkish question resolves only the reviewed Turkish memory.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "Resolved",
+          "value": "Evet",
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "Resolved",
+          "value": "Evet",
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "Resolved",
+          "value": "Evet",
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "Resolved",
+          "value": "Evet",
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "Resolved",
+          "value": "Evet",
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "Resolved",
+          "value": "Evet",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "RelocationEnglish",
+      "templateFamilyId": "question-dev-language-english",
+      "ruleRationale": "The English question resolves only the reviewed English memory.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "Resolved",
+          "value": "Yes",
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "Resolved",
+          "value": "Yes",
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "Resolved",
+          "value": "Yes",
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "Resolved",
+          "value": "Yes",
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "Resolved",
+          "value": "Yes",
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "Resolved",
+          "value": "Yes",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "ExpiredPreference",
+      "templateFamilyId": "question-dev-answer-expired",
+      "ruleRationale": "A stored answer expiring at scenario time requires review.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "EvidencePreference",
+      "templateFamilyId": "question-dev-answer-evidence-current",
+      "ruleRationale": "A memory citing current verified evidence resolves.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "Resolved",
+          "value": "Grounded",
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "Resolved",
+          "value": "Grounded",
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "Resolved",
+          "value": "Grounded",
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "Resolved",
+          "value": "Grounded",
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "Resolved",
+          "value": "Grounded",
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "Resolved",
+          "value": "Grounded",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "OverLengthAnswer",
+      "templateFamilyId": "question-dev-field-length",
+      "ruleRationale": "A reviewed answer longer than the form field limit requires review instead of truncation.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "UnsupportedLanguage",
+      "templateFamilyId": "question-dev-language-unsupported",
+      "ruleRationale": "No reviewed German answer exists, so the resolver abstains.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "PortfolioUnknown",
+      "templateFamilyId": "question-dev-portfolio-unknown",
+      "ruleRationale": "No reviewed portfolio answer exists, so the resolver abstains.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestNameTightLimit",
+      "templateFamilyId": "question-test-name-tight-limit",
+      "ruleRationale": "A confirmed name that exceeds a ten-character field requires review rather than truncation.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestEmailTightLimit",
+      "templateFamilyId": "question-test-email-tight-limit",
+      "ruleRationale": "A confirmed email that exceeds a twelve-character field requires review rather than truncation.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestSalaryTightLimit",
+      "templateFamilyId": "question-test-salary-tight-limit",
+      "ruleRationale": "A salary that exceeds a five-character field or lacks confirmation requires review.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestExperienceTightLimit",
+      "templateFamilyId": "question-test-experience-tight-limit",
+      "ruleRationale": "A known experience answer cannot fit a zero-length field; unavailable experience still abstains.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestCertificationUnknown",
+      "templateFamilyId": "question-test-certification-unknown",
+      "ruleRationale": "No reviewed certification value exists, so the resolver abstains.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestSensitiveHealth",
+      "templateFamilyId": "question-test-health-sensitive",
+      "ruleRationale": "Health information is sensitive and remains manual.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestLegalAttestation",
+      "templateFamilyId": "question-test-legal-attestation",
+      "ruleRationale": "A legal attestation must be entered directly by the candidate.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "ManualOnly",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestNoticeEnglish",
+      "templateFamilyId": "question-test-notice-english",
+      "ruleRationale": "The English notice-period memory resolves in the matching language.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "Resolved",
+          "value": "30 days",
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "Resolved",
+          "value": "30 days",
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "Resolved",
+          "value": "30 days",
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "Resolved",
+          "value": "30 days",
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "Resolved",
+          "value": "30 days",
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "Resolved",
+          "value": "30 days",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestNoticeTurkish",
+      "templateFamilyId": "question-test-notice-turkish",
+      "ruleRationale": "The Turkish notice-period memory resolves in the matching language.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "Resolved",
+          "value": "30 gün",
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "Resolved",
+          "value": "30 gün",
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "Resolved",
+          "value": "30 gün",
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "Resolved",
+          "value": "30 gün",
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "Resolved",
+          "value": "30 gün",
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "Resolved",
+          "value": "30 gün",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestTravelCurrentCompany",
+      "templateFamilyId": "question-test-travel-current-company",
+      "ruleRationale": "The current employer receives its company-scoped travel answer.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "Resolved",
+          "value": "Yes",
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "Resolved",
+          "value": "Yes",
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "Resolved",
+          "value": "Yes",
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "Resolved",
+          "value": "Yes",
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "Resolved",
+          "value": "Yes",
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "Resolved",
+          "value": "Yes",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestTravelOtherCompany",
+      "templateFamilyId": "question-test-travel-other-company",
+      "ruleRationale": "Another employer receives the reviewed default travel answer, not the company-scoped value.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "Resolved",
+          "value": "No",
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "Resolved",
+          "value": "No",
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "Resolved",
+          "value": "No",
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "Resolved",
+          "value": "No",
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "Resolved",
+          "value": "No",
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "Resolved",
+          "value": "No",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestCoverCurrentApplication",
+      "templateFamilyId": "question-test-cover-current-application",
+      "ruleRationale": "The matching application receives its application-scoped cover statement.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "Resolved",
+          "value": "Reviewed cover statement",
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "Resolved",
+          "value": "Reviewed cover statement",
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "Resolved",
+          "value": "Reviewed cover statement",
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "Resolved",
+          "value": "Reviewed cover statement",
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "Resolved",
+          "value": "Reviewed cover statement",
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "Resolved",
+          "value": "Reviewed cover statement",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestCoverOtherApplication",
+      "templateFamilyId": "question-test-cover-other-application",
+      "ruleRationale": "A different application cannot reuse the application-scoped cover statement.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "NeedsInput",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestLocationEnglish",
+      "templateFamilyId": "question-test-location-english",
+      "ruleRationale": "The English location preference resolves in English.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "Resolved",
+          "value": "Remote",
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "Resolved",
+          "value": "Remote",
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "Resolved",
+          "value": "Remote",
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "Resolved",
+          "value": "Remote",
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "Resolved",
+          "value": "Remote",
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "Resolved",
+          "value": "Remote",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestLocationTurkish",
+      "templateFamilyId": "question-test-location-turkish",
+      "ruleRationale": "The Turkish location preference resolves in Turkish.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "Resolved",
+          "value": "Uzaktan",
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "Resolved",
+          "value": "Uzaktan",
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "Resolved",
+          "value": "Uzaktan",
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "Resolved",
+          "value": "Uzaktan",
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "Resolved",
+          "value": "Uzaktan",
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "Resolved",
+          "value": "Uzaktan",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestFutureExpiry",
+      "templateFamilyId": "question-test-future-expiry",
+      "ruleRationale": "An answer whose expiry is still in the future remains current.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "Resolved",
+          "value": "Current",
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "Resolved",
+          "value": "Current",
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "Resolved",
+          "value": "Current",
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "Resolved",
+          "value": "Current",
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "Resolved",
+          "value": "Current",
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "Resolved",
+          "value": "Current",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestMissingEvidence",
+      "templateFamilyId": "question-test-missing-evidence",
+      "ruleRationale": "A memory citing a missing evidence record requires review.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestUnverifiedEvidence",
+      "templateFamilyId": "question-test-unverified-evidence",
+      "ruleRationale": "A memory citing proposed rather than verified evidence requires review.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestExactLength",
+      "templateFamilyId": "question-test-exact-length",
+      "ruleRationale": "A reviewed answer exactly at the field limit resolves without truncation.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "Resolved",
+          "value": "Yes",
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "Resolved",
+          "value": "Yes",
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "Resolved",
+          "value": "Yes",
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "Resolved",
+          "value": "Yes",
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "Resolved",
+          "value": "Yes",
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "Resolved",
+          "value": "Yes",
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestOverLength",
+      "templateFamilyId": "question-test-over-length",
+      "ruleRationale": "A reviewed answer above the field limit requires review.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "RequiresReview",
+          "value": null,
+          "decision": null
+        }
+      }
+    }
+  ],
+  "jobFamilies": [
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "MandatoryCsharpTwoYears",
+      "templateFamilyId": "job-dev-mandatory-csharp-two",
+      "ruleRationale": "A mandatory two-year threshold matches verified professional periods, mismatches shorter verified work, and abstains without professional evidence.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "Eligible",
+          "value": null,
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "HardRequirementMismatch",
+          "value": null,
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "Eligible",
+          "value": null,
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "Eligible",
+          "value": null,
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "Eligible",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "PreferredCsharpFourYears",
+      "templateFamilyId": "job-dev-preferred-csharp-four",
+      "ruleRationale": "A preferred four-year threshold is eligible when met and otherwise requests review.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "ReviewNeeded",
+          "value": null,
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "ReviewNeeded",
+          "value": null,
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "ReviewNeeded",
+          "value": null,
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "ReviewNeeded",
+          "value": null,
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "ReviewNeeded",
+          "value": null,
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "ReviewNeeded",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "WorkAuthorizationMandatory",
+      "templateFamilyId": "job-dev-work-authorization",
+      "ruleRationale": "Missing work-authorization evidence cannot be treated as a mandatory match.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "LanguageMandatory",
+      "templateFamilyId": "job-dev-language-requirement",
+      "ruleRationale": "The deterministic evaluator has no verified language rule and reports insufficient information.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Development",
+      "scenario": "ClosedLocation",
+      "templateFamilyId": "job-dev-closed-location",
+      "ruleRationale": "A closed posting is ineligible regardless of its location requirement.",
+      "expectedByArchetype": {
+        "DevExperiencedConfirmed": {
+          "status": "Closed",
+          "value": null,
+          "decision": null
+        },
+        "DevJuniorConfirmed": {
+          "status": "Closed",
+          "value": null,
+          "decision": null
+        },
+        "DevPersonalProjectOnly": {
+          "status": "Closed",
+          "value": null,
+          "decision": null
+        },
+        "DevUnverifiedContacts": {
+          "status": "Closed",
+          "value": null,
+          "decision": null
+        },
+        "DevAnnualGrossSalary": {
+          "status": "Closed",
+          "value": null,
+          "decision": null
+        },
+        "DevTurkishTwoYears": {
+          "status": "Closed",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestMandatoryCsharpFourYears",
+      "templateFamilyId": "job-test-mandatory-csharp-four",
+      "ruleRationale": "A mandatory four-year threshold distinguishes senior verified work, shorter work, and missing evidence.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "Eligible",
+          "value": null,
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "HardRequirementMismatch",
+          "value": null,
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "Eligible",
+          "value": null,
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "HardRequirementMismatch",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestPreferredCsharpTwoYears",
+      "templateFamilyId": "job-test-preferred-csharp-two",
+      "ruleRationale": "A preferred two-year threshold is eligible when met and otherwise requests review.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "Eligible",
+          "value": null,
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "ReviewNeeded",
+          "value": null,
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "ReviewNeeded",
+          "value": null,
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "Eligible",
+          "value": null,
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "Eligible",
+          "value": null,
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "Eligible",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestSkillMandatory",
+      "templateFamilyId": "job-test-skill-requirement",
+      "ruleRationale": "No deterministic verified skill rule exists for this mandatory free-form skill requirement.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestContractMandatory",
+      "templateFamilyId": "job-test-contract-requirement",
+      "ruleRationale": "No deterministic verified contract rule exists for this mandatory contract requirement.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "InsufficientInformation",
+          "value": null,
+          "decision": null
+        }
+      }
+    },
+    {
+      "synthetic": true,
+      "split": "Test",
+      "scenario": "TestClosedLanguage",
+      "templateFamilyId": "job-test-closed-language",
+      "ruleRationale": "A closed posting is ineligible regardless of its language requirement.",
+      "expectedByArchetype": {
+        "TestExperiencedFourYears": {
+          "status": "Closed",
+          "value": null,
+          "decision": null
+        },
+        "TestInternshipOnly": {
+          "status": "Closed",
+          "value": null,
+          "decision": null
+        },
+        "TestExpiredEvidence": {
+          "status": "Closed",
+          "value": null,
+          "decision": null
+        },
+        "TestNoSalary": {
+          "status": "Closed",
+          "value": null,
+          "decision": null
+        },
+        "TestTurkishFiveYears": {
+          "status": "Closed",
+          "value": null,
+          "decision": null
+        },
+        "TestScopedAnswers": {
+          "status": "Closed",
+          "value": null,
+          "decision": null
+        }
+      }
+    }
+  ]
+}

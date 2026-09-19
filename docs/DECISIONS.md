@@ -1,5 +1,20 @@
 # Decisions
 
+## ADR-010 — Fixed synthetic host commands and empirical model boundary
+The default plugin keeps three read-only tools. Three additional MCP commands
+are explicitly opt-in in both companion and host processes. They use a separate,
+current-user DPAPI-protected loopback registration and cannot accept approval,
+browser actions, paths, URLs or replacement packages. The companion UI alone
+grants ten-minute package-bound approval; the durable journal claims one attempt.
+Host-level tool permission is a second independent layer. Test-only scoped host
+permission does not bypass the companion's UI consent.
+
+The frozen actual-model pilot did not show B2 improvement (57/72 strict versus
+B1 69/72). Proposed model wording remains unapproved, and deterministic rules
+remain authoritative for the implemented submission path. Keep the original
+pilot and the benchmark's annual-gross-policy limitation visible; do not tune
+expectations after seeing output or advertise model-quality improvement.
+
 ## ADR-009 — Personal review workspace and cost constraint
 The user authorizes required real Codex tests using the existing subscription's
 included quota. No extra credit purchase or paid API is authorized. The local UI

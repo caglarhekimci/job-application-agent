@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "1.0",
+  "recordedAt": "2026-09-19T22:00:30.0470770+00:00",
+  "reason": "The first scoring pass treated a non-null value on an abstaining status as a whole-run failure, although the frozen output schema permits string or null. The amended scorer preserves the run and records a strict value mismatch plus abstentionWithValue. Raw events and final responses were not changed and no additional model calls were made.",
+  "preRescoreReportSha256": "B33C4659106F3E55515C343DC4E62AE3CA6AEBD5FA49E7D1F0F7F575A6AEDF95",
+  "preRescoreSummary": {
+    "B1Strict": "69/72",
+    "B2Strict": "23/72",
+    "B1FailedRuns": 0,
+    "B2FailedRuns": 2
+  },
+  "rescoredReportSha256AtRecordTime": "B93B870869983B9897462B09FB6B8CE20A41ACB7929332C3F2DAB8205C2D2EE7",
+  "rescoredSummary": {
+    "B1Strict": "69/72",
+    "B2Strict": "57/72",
+    "B1FailedRuns": 0,
+    "B2FailedRuns": 0,
+    "B2AbstentionWithValue": 12
+  }
+}

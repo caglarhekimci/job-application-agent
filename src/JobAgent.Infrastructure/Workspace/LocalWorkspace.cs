@@ -43,6 +43,23 @@ public sealed record WorkspaceView(long Revision, CandidateProfile Profile,
     ResumeImportResult? Document, string? FileName, JobPosting? Job, JobEvaluation? Evaluation,
     decimal? SalaryPrivateMinimum);
 
+public sealed record WorkspaceAnswerReview
+{
+    public long ExpectedRevision { get; init; }
+    public string SemanticKey { get; init; } = "";
+    public string Answer { get; init; } = "";
+    public AnswerScopeType Scope { get; init; }
+    public string Language { get; init; } = "tr";
+    public List<string> EvidenceIds { get; init; } = [];
+    public DateTimeOffset? ExpiresAt { get; init; }
+}
+
+public sealed record WorkspaceAnswerRevocation
+{
+    public long ExpectedRevision { get; init; }
+    public AnswerMemoryKey Key { get; init; } = new();
+}
+
 internal sealed record WorkspaceData
 {
     public CandidateProfile Profile { get; init; } = new();
@@ -231,6 +248,11 @@ public sealed class LocalWorkspace : IDisposable
         {
             var (revision, data) = await ReadAsync();
             CheckRevision(review.ExpectedRevision, revision);
+            if (data.Job is { } previous && previous.Employer.Equals(job.Employer, StringComparison.OrdinalIgnoreCase) &&
+                ((!string.IsNullOrEmpty(job.CanonicalUrl) && previous.CanonicalUrl == job.CanonicalUrl) ||
+                 (string.IsNullOrEmpty(job.CanonicalUrl) && string.IsNullOrEmpty(previous.CanonicalUrl) &&
+                  previous.Title == job.Title && previous.Text == job.Text)))
+                job = job with { Id = previous.Id, ExternalId = previous.ExternalId, FirstSeenAt = previous.FirstSeenAt };
             var next = data with { Job = job };
             await SaveAsync(revision, next);
             return View(revision + 1, next);
@@ -243,6 +265,57 @@ public sealed class LocalWorkspace : IDisposable
         if (question.Key.Length > 200 || question.Label.Length > 2000) throw new ArgumentException("Question is too long.");
         var state = await GetAsync();
         return AnswerResolver.Resolve(question, state.Profile, state.Job ?? new(), DateTimeOffset.UtcNow);
+    }
+
+    public async Task<WorkspaceView> ReviewAnswerAsync(WorkspaceAnswerReview review)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            var (revision, data) = await ReadAsync();
+            CheckRevision(review.ExpectedRevision, revision);
+            if (data.Profile.VerifiedAt is null) throw new InvalidOperationException("Review the profile first.");
+            if (review.Scope != AnswerScopeType.Default && data.Job is null)
+                throw new InvalidOperationException("Scoped memory requires a reviewed job.");
+            if (data.Profile.Answers.Count >= 200)
+                throw new InvalidOperationException("Remove an answer before adding more than 200.");
+            var profile = AnswerMemoryService.UpsertReviewed(data.Profile, new()
+            {
+                SemanticKey = review.SemanticKey,
+                Answer = review.Answer,
+                Scope = review.Scope,
+                ScopeId = review.Scope switch
+                {
+                    AnswerScopeType.Default => null,
+                    AnswerScopeType.Company => data.Job!.Employer,
+                    AnswerScopeType.Application => data.Job!.Id,
+                    _ => throw new ArgumentException("Invalid answer scope.")
+                },
+                Language = review.Language,
+                EvidenceIds = review.EvidenceIds,
+                ExpiresAt = review.ExpiresAt
+            }, DateTimeOffset.UtcNow);
+            var next = data with { Profile = profile, PreviousVersions = [.. data.PreviousVersions, data.Profile] };
+            await SaveAsync(revision, next);
+            return View(revision + 1, next);
+        }
+        finally { gate.Release(); }
+    }
+
+    public async Task<WorkspaceView> RevokeAnswerAsync(WorkspaceAnswerRevocation request)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            var (revision, data) = await ReadAsync();
+            CheckRevision(request.ExpectedRevision, revision);
+            var profile = AnswerMemoryService.Revoke(data.Profile, request.Key);
+            if (profile.Version == data.Profile.Version) return View(revision, data);
+            var next = data with { Profile = profile, PreviousVersions = [.. data.PreviousVersions, data.Profile] };
+            await SaveAsync(revision, next);
+            return View(revision + 1, next);
+        }
+        finally { gate.Release(); }
     }
 
     public async Task<string> ExportAsync()

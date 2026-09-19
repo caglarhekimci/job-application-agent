@@ -2,16 +2,18 @@ import { useEffect, useState, type FormEvent } from 'react';
 
 type Experience = { sourceSpan: string; start: string; end: string | null; role: string; kind: string; skills: string[] };
 type Requirement = { id: string; requirementText: string; type: string; importance: string; skill: string; minimumYears: number | null };
+type Memory = { semanticKey: string; answer: string; scope: string; scopeId: string | null; language: string; expiresAt: string | null };
 type Workspace = { revision: number; fileName: string | null; salaryPrivateMinimum: number | null;
   document: { text: string; status: string; fileHash: string; evidenceSegments: { sourceSpan: string; text: string }[] } | null;
   profile: { fullName: string; email: string; version: number; verifiedAt: string | null; facts: { id: string; sourceSpan: string }[];
-    experience: (Experience & { evidenceIds: string[] })[]; salary: { confirmedAt: string | null; target: { amount: number }; privateMinimum: { amount: number } } };
+    experience: (Experience & { evidenceIds: string[] })[]; answers: Memory[]; salary: { confirmedAt: string | null; target: { amount: number }; privateMinimum: { amount: number } } };
   job: { employer: string; title: string; text: string; sourceUrl: string; requirements: Requirement[] } | null;
   evaluation: { status: string; requirements: { requirementText: string; assessment: string; reason: string }[] } | null };
 type Answer = { status: string; value: string | null; reason: string; evidenceIds: string[] };
 const answerNames: Record<string, string> = { Resolved: 'Doğrulanmış cevap', NeedsInput: 'Bilgi eksik', RequiresReview: 'İnceleme gerekli', ManualOnly: 'Kendiniz yanıtlayın', Blocked: 'Kapalı' };
 const assessmentNames: Record<string, string> = { Match: 'Eşleşiyor', Mismatch: 'Eşleşmiyor', Unknown: 'Bilgi eksik', NotApplicable: 'Uygulanmaz' };
 const evaluationNames: Record<string, string> = { Eligible: 'İncelenen koşullar eşleşiyor', ReviewNeeded: 'İnceleme gerekiyor', HardRequirementMismatch: 'Zorunlu koşul karşılanmıyor', InsufficientInformation: 'Bilgi yetersiz', Closed: 'İlan kapalı' };
+const memoryQuestionNames: Record<string, string> = { motivation: 'Bu rolü neden istiyorsunuz?', availability: 'Ne zaman başlayabilirsiniz?' };
 
 export function LocalWorkspace({ csrf }: { csrf: string }) {
   const [state, setState] = useState<Workspace | null>(null);
@@ -25,6 +27,11 @@ export function LocalWorkspace({ csrf }: { csrf: string }) {
   const [requirements, setRequirements] = useState<Requirement[]>([]);
   const [question, setQuestion] = useState('contact.name'); const [answer, setAnswer] = useState<Answer | null>(null);
   const [deleteConfirmed, setDeleteConfirmed] = useState(false);
+  const [memoryQuestion, setMemoryQuestion] = useState(''); const [memoryType, setMemoryType] = useState('motivation'); const [memoryAnswer, setMemoryAnswer] = useState('');
+  const [memoryScope, setMemoryScope] = useState('Application'); const [memoryLanguage, setMemoryLanguage] = useState('tr');
+  const [memoryExpiry, setMemoryExpiry] = useState(''); const [memoryConfirmedRevision, setMemoryConfirmedRevision] = useState<number | null>(null);
+  const memoryConfirmed = state !== null && memoryConfirmedRevision === state.revision;
+  const setMemoryConfirmed = (value: boolean) => setMemoryConfirmedRevision(value ? state?.revision ?? null : null);
   useEffect(() => {
     if (!csrf) return;
     void fetch('/api/workspace').then(async r => {
@@ -51,6 +58,7 @@ export function LocalWorkspace({ csrf }: { csrf: string }) {
       if (path === 'answer') setAnswer(await r.json());
       else if (r.status !== 204) setState(await r.json());
       else { setState(await (await fetch('/api/workspace')).json()); setName(''); setEmail(''); setSalary(''); setMinimum(''); setExperience([]); setEmployer(''); setTitle(''); setJobText(''); setSourceUrl(''); setRequirements([]); setDeleteConfirmed(false); }
+      if (path === 'answer-memory') { setMemoryAnswer(''); setMemoryConfirmed(false); }
     } catch (e) { setError((e as Error).message); }
     finally { setBusy(false); }
   }
@@ -114,6 +122,33 @@ export function LocalWorkspace({ csrf }: { csrf: string }) {
       <button disabled={busy} onClick={() => void action('answer', { key: question, language: 'tr' })}>Cevabı kontrol et</button>
       {answer && <div className="answer-preview" data-testid="local-answer"><strong>{answerNames[answer.status]}</strong><p>{answer.value || 'Eksik bilgi yerine bir cevap üretilmedi.'}</p><small>{answer.evidenceIds.length} kaynak kaydı</small></div>}
       <p className="quiet">Bu alandaki cevaplar dışarı gönderilmez. Tarayıcıda gönderim denemesi için üstteki sentetik test sekmesini kullanın.</p>
+    </section>}
+    {state?.profile.verifiedAt && <section className="panel"><p className="eyebrow">04 / CEVAP HAFIZASI</p><h3>Yeni bir cevabı nerede hatırlayalım?</h3>
+      <p>Soru türünü seçin ve kendi incelediğiniz cevabı yazın. Kapsam, bu cevabın hangi ilanda yeniden kullanılacağını sınırlar. Buraya hassas kimlik veya sağlık bilgisi eklemeyin.</p>
+      <form onSubmit={e => { e.preventDefault(); if (memoryConfirmed) void action('answer-memory', {
+        expectedRevision: memoryConfirmedRevision, semanticKey: memoryType === 'custom' ? 'custom:' + memoryQuestion.trim() : memoryType, answer: memoryAnswer, scope: memoryScope,
+        language: memoryLanguage, expiresAt: memoryExpiry ? new Date(memoryExpiry + 'T23:59:59').toISOString() : null
+      }); }}>
+        <label className="field">Hatırlanacak soru<select aria-label="Hatırlanacak soru" value={memoryType} onChange={e => { setMemoryType(e.target.value); setMemoryConfirmed(false); }}>
+          {Object.entries(memoryQuestionNames).map(([key, label]) => <option key={key} value={key}>{label}</option>)}<option value="custom">Başka bir soru · yalnız aynı metinle eşleşir</option></select></label>
+        {memoryType === 'custom' && <label className="field">Özel sorunun tam metni<input required maxLength={193} value={memoryQuestion} onChange={e => { setMemoryQuestion(e.target.value); setMemoryConfirmed(false); }} /></label>}
+        <label className="field">İncelediğiniz cevap<textarea required maxLength={4000} rows={3} value={memoryAnswer} onChange={e => { setMemoryAnswer(e.target.value); setMemoryConfirmed(false); }} /></label>
+        <div className="form-grid"><label className="field">Cevabın kapsamı<select aria-label="Cevabın kapsamı" value={memoryScope} onChange={e => { setMemoryScope(e.target.value); setMemoryConfirmed(false); }}>
+          <option value="Application" disabled={!state.job}>Yalnız bu ilan</option>
+          <option value="Company" disabled={!state.job}>Yalnız bu şirket</option>
+          <option value="Default">Genel · diğer ilanlarda da kullanılabilir</option></select></label>
+          <label className="field">Cevabın dili<select aria-label="Cevabın dili" value={memoryLanguage} onChange={e => { setMemoryLanguage(e.target.value); setMemoryConfirmed(false); }}><option value="tr">Türkçe</option><option value="en">English</option></select></label>
+          <label className="field">Geçerlilik sonu · isteğe bağlı<input type="date" value={memoryExpiry} onChange={e => { setMemoryExpiry(e.target.value); setMemoryConfirmed(false); }} /></label></div>
+        <p className="quiet">{memoryScope === 'Default' ? 'Bu cevap tüm şirketlerin aynı sorusu için kullanılabilir.' : state.job ? 'Kapsam: ' + state.job.employer + (memoryScope === 'Application' ? ' · ' + state.job.title : '') : 'Önce bir ilan inceleyin veya genel kapsamı seçin.'}</p>
+        <label className="delete-check"><input type="checkbox" checked={memoryConfirmed} onChange={e => setMemoryConfirmed(e.target.checked)} /> Cevabı ve seçtiğim kapsamı inceledim.</label>
+        <button type="submit" disabled={busy || !memoryConfirmed || (!state.job && memoryScope !== 'Default')}>Cevabı bu kapsamda hatırla</button>
+      </form>
+      <div data-testid="answer-memory">{state.profile.answers.length === 0 ? <p>Henüz hatırlanan cevap yok.</p> : state.profile.answers.map(a => <article key={[a.semanticKey, a.scope, a.scopeId, a.language].join('|')}>
+        <h4>{memoryQuestionNames[a.semanticKey] || a.semanticKey.replace(/^custom:/, '')}</h4><p>{a.answer}</p><p className="quiet">{a.scope === 'Default' ? 'Genel' : a.scope === 'Company' ? 'Şirket: ' + a.scopeId : 'Yalnız kayıtlı ilan'} · {a.language}{a.expiresAt ? ' · ' + new Date(a.expiresAt).toLocaleDateString('tr-TR') + ' tarihine kadar' : ''}</p>
+        <button className="secondary" disabled={busy} onClick={() => void action('answer', { key: a.semanticKey, language: a.language })}>Bu ilan için kontrol et</button>
+        <button className="secondary" disabled={busy} onClick={() => void action('answer-memory/revoke', { expectedRevision: state.revision, key: { semanticKey: a.semanticKey, language: a.language, scope: a.scope, scopeId: a.scopeId } })}>Bu cevabın kullanımını kaldır</button>
+      </article>)}</div>
+      <p className="quiet">Kullanımı kaldırmak önceki sürüm geçmişini silmez. Tüm geçmişi temizlemek için alttaki yerel veri silme işlemini kullanın. Yeni CV veya profil incelemesi bu cevapları yeniden doğrulamanızı gerektirir.</p>
     </section>}
     {state?.document && <section className="panel"><h3>Verilerinizin kontrolü</h3><p>Dışa aktarım CV’nizi, profilinizi ve sürüm geçmişinizi içerir. İndirdiğiniz dosya şifrelenmez; güvenli bir yerde saklayın.</p>
       <a className="download-link" href="/api/workspace/export" download>Yerel verilerimi indir</a>

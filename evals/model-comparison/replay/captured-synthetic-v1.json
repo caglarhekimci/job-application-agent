@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0",
+  "syntheticReplay": true,
+  "description": "Normalized captured outputs for deterministic scorer tests. These are authored fixtures, not model results.",
+  "runs": [
+    { "strategy": "B1", "repetition": 1, "exitCode": 0, "eventTypes": ["thread.started", "turn.started", "item.completed:reasoning", "item.completed:agent_message", "turn.completed"], "usage": { "inputTokens": 1000, "cachedInputTokens": 0, "outputTokens": 500 }, "outputFile": "perfect-output.json" },
+    { "strategy": "B1", "repetition": 2, "exitCode": 0, "eventTypes": ["thread.started", "turn.started", "item.completed:agent_message", "turn.completed"], "usage": { "inputTokens": 1000, "cachedInputTokens": 0, "outputTokens": 500 }, "outputFile": "bad-claim-output.json" },
+    { "strategy": "B1", "repetition": 3, "exitCode": 0, "eventTypes": ["thread.started", "turn.started", "item.completed:agent_message", "turn.completed"], "usage": { "inputTokens": 1000, "cachedInputTokens": 0, "outputTokens": 500 }, "outputFile": "perfect-output.json" },
+    { "strategy": "B2", "repetition": 1, "exitCode": 0, "eventTypes": ["thread.started", "turn.started", "item.completed:reasoning", "item.completed:agent_message", "turn.completed"], "usage": { "inputTokens": 1000, "cachedInputTokens": 0, "outputTokens": 500 }, "outputFile": "perfect-output.json" },
+    { "strategy": "B2", "repetition": 2, "exitCode": 0, "eventTypes": ["thread.started", "turn.started", "item.completed:agent_message", "turn.completed"], "usage": { "inputTokens": 1000, "cachedInputTokens": 0, "outputTokens": 500 }, "outputFile": "perfect-output.json" },
+    { "strategy": "B2", "repetition": 3, "exitCode": 0, "eventTypes": ["thread.started", "turn.started", "item.completed:agent_message", "turn.completed"], "usage": { "inputTokens": 1000, "cachedInputTokens": 0, "outputTokens": 500 }, "outputFile": "perfect-output.json" }
+  ]
+}

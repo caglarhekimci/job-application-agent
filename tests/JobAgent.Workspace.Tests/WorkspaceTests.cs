@@ -110,6 +110,104 @@ public sealed class WorkspaceTests : IDisposable
         Assert.Throws<InvalidOperationException>(() => new LocalWorkspace(root, Environment.CurrentDirectory, new SyntheticPlaintextPayloadProtector()));
     }
 
+    [Fact]
+    public async Task ReviewedMemoryIsBoundToCurrentJobPersistsAndCanBeRevoked()
+    {
+        using var workspace = Open();
+        var imported = await workspace.ImportAsync(Resume(), "candidate.txt");
+        var profile = await workspace.ReviewProfileAsync(Review(imported.Revision));
+        var job = await workspace.ReviewJobAsync(new()
+        {
+            ExpectedRevision = profile.Revision,
+            Employer = "First employer",
+            Title = "Developer",
+            Text = "A synthetic role."
+        });
+        var request = new WorkspaceAnswerReview
+        {
+            ExpectedRevision = job.Revision,
+            SemanticKey = "motivation",
+            Answer = "I prefer this role's focus.",
+            Scope = AnswerScopeType.Company
+        };
+        var saved = await workspace.ReviewAnswerAsync(request);
+        Assert.Equal("First employer", Assert.Single(saved.Profile.Answers).ScopeId);
+        Assert.Equal(profile.Profile.Version + 1, saved.Profile.Version);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => workspace.ReviewAnswerAsync(request));
+        using var reopened = Open();
+        var answer = await reopened.ResolveAsync(new() { Key = "motivation", Language = "tr" });
+        Assert.Equal("I prefer this role's focus.", answer.Value);
+        var other = await reopened.ReviewJobAsync(new()
+        {
+            ExpectedRevision = saved.Revision,
+            Employer = "Other employer",
+            Title = "Other",
+            Text = "Another synthetic role."
+        });
+        Assert.Equal(AnswerStatus.NeedsInput, (await reopened.ResolveAsync(new() { Key = "motivation", Language = "tr" })).Status);
+        var revoked = await reopened.RevokeAnswerAsync(new()
+        {
+            ExpectedRevision = other.Revision,
+            Key = new() { SemanticKey = "motivation", Scope = AnswerScopeType.Company, ScopeId = "First employer", Language = "tr" }
+        });
+        Assert.Empty(revoked.Profile.Answers);
+        using var export = System.Text.Json.JsonDocument.Parse(await reopened.ExportAsync());
+        Assert.Contains(export.RootElement.GetProperty("previousVersions").EnumerateArray(),
+            version => version.GetProperty("answers").EnumerateArray().Any(a =>
+                a.GetProperty("answer").GetString() == "I prefer this role's focus."));
+    }
+
+    [Fact]
+    public async Task ScopedMemoryRequiresReviewedProfileAndAJobAndInvalidatesOnCvChange()
+    {
+        using var workspace = Open();
+        await Assert.ThrowsAsync<InvalidOperationException>(() => workspace.ReviewAnswerAsync(new()
+        { SemanticKey = "availability", Answer = "Two weeks.", Scope = AnswerScopeType.Default }));
+        var imported = await workspace.ImportAsync(Resume(), "candidate.txt");
+        var profile = await workspace.ReviewProfileAsync(Review(imported.Revision));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => workspace.ReviewAnswerAsync(new()
+        { ExpectedRevision = profile.Revision, SemanticKey = "availability", Answer = "Two weeks.", Scope = AnswerScopeType.Application }));
+        await workspace.ReviewAnswerAsync(new()
+        {
+            ExpectedRevision = profile.Revision,
+            SemanticKey = "availability",
+            Answer = "Two weeks.",
+            Scope = AnswerScopeType.Default
+        });
+        var changed = await workspace.ImportAsync(Resume(), "changed.txt");
+        Assert.Empty(changed.Profile.Answers);
+    }
+
+    [Fact]
+    public async Task SamePostingReviewPreservesApplicationMemoryButChangedEmployerDoesNot()
+    {
+        using var workspace = Open();
+        var imported = await workspace.ImportAsync(Resume(), "candidate.txt");
+        var profile = await workspace.ReviewProfileAsync(Review(imported.Revision));
+        var request = new JobReview
+        {
+            ExpectedRevision = profile.Revision,
+            Employer = "First",
+            Title = "Developer",
+            Text = "Synthetic role.",
+            SourceUrl = "https://example.invalid/jobs/1"
+        };
+        var job = await workspace.ReviewJobAsync(request);
+        var memory = await workspace.ReviewAnswerAsync(new()
+        {
+            ExpectedRevision = job.Revision,
+            SemanticKey = "motivation",
+            Answer = "A specific answer.",
+            Scope = AnswerScopeType.Application
+        });
+        var reviewed = await workspace.ReviewJobAsync(request with { ExpectedRevision = memory.Revision });
+        Assert.Equal(job.Job!.Id, reviewed.Job!.Id);
+        Assert.Equal("A specific answer.", (await workspace.ResolveAsync(new() { Key = "motivation", Language = "tr" })).Value);
+        var other = await workspace.ReviewJobAsync(request with { ExpectedRevision = reviewed.Revision, Employer = "Other" });
+        Assert.NotEqual(job.Job.Id, other.Job!.Id);
+        Assert.Equal(AnswerStatus.NeedsInput, (await workspace.ResolveAsync(new() { Key = "motivation", Language = "tr" })).Status);
+    }
+
     private static ProfileReview Review(long revision) => new()
     {
         ExpectedRevision = revision,

@@ -55,6 +55,20 @@ try {
     $start.RedirectStandardOutput = $true
     $start.RedirectStandardError = $true
     $start.Environment['JOBAGENT_RUNTIME_DIR'] = $runtime
+    # Ambient workflow opt-in must not widen this explicitly read-only package.
+    $start.Environment['JOBAGENT_ENABLE_SYNTHETIC_COMMANDS'] = '1'
+    # Exercise the installed-host fallback: no SDK under LOCALAPPDATA and more
+    # than one dotnet executable on PATH. Only the first executable may run.
+    $fallbackLocalData = Join-Path $temporaryRoot 'isolated-local-data'
+    $sentinelDirectory = Join-Path $temporaryRoot 'second-dotnet'
+    New-Item -ItemType Directory -Path $fallbackLocalData, $sentinelDirectory | Out-Null
+    Set-Content -LiteralPath (Join-Path $sentinelDirectory 'dotnet.exe') -Value 'Never execute this second PATH candidate.'
+    $primaryDotnet = Join-Path $env:LOCALAPPDATA 'JobApplicationAgent/tools/dotnet/dotnet.exe'
+    if (-not (Test-Path -LiteralPath $primaryDotnet)) {
+        $primaryDotnet = (Get-Command dotnet -CommandType Application | Select-Object -First 1).Source
+    }
+    $start.Environment['LOCALAPPDATA'] = $fallbackLocalData
+    $start.Environment['PATH'] = (Split-Path $primaryDotnet -Parent) + ';' + $sentinelDirectory + ';' + $env:PATH
     $process = [Diagnostics.Process]::Start($start)
     $stderr = $process.StandardError.ReadToEndAsync()
     function Send-Rpc([hashtable]$Message) {
@@ -85,6 +99,8 @@ try {
         if ($tool.annotations.readOnlyHint -ne $true -or $tool.annotations.openWorldHint -ne $false) { throw 'Incorrect tool annotations.' }
     }
     Write-Host 'PASS: Relocated archive starts, initializes, and lists exactly three read-only tools.'
+    Write-Host 'PASS: Ambient synthetic-command opt-in cannot expose writes through the inspector package.'
+    Write-Host 'PASS: Isolated LOCALAPPDATA and multiple dotnet PATH candidates select the first runtime.'
     Send-Rpc @{ jsonrpc = '2.0'; id = 3; method = 'tools/call'; params = @{ name = 'runtime_get_capabilities'; arguments = @{} } }
     $call = Receive-Rpc 3
     $capabilities = $call.result.structuredContent

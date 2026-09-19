@@ -5,7 +5,8 @@ using System.Text.Json;
 namespace JobAgent.Infrastructure.Applications;
 
 public sealed record WorkflowRecord(ApplicationDraft Draft, ApprovalReceipt? Sharing = null,
-    ApprovalReceipt? Submission = null, SubmissionEvidence? Evidence = null, string? Error = null);
+    ApprovalReceipt? Submission = null, SubmissionEvidence? Evidence = null, string? Error = null,
+    DateTimeOffset? HostReviewRequestedAt = null);
 
 public sealed class ApplicationJournal(string databasePath)
 {
@@ -89,6 +90,7 @@ public sealed class ApplicationJournal(string databasePath)
                     Status = state == ApplicationStatus.Submitting
                     ? ApplicationStatus.SubmittedUnverified : ApplicationStatus.ReadyForDataSharing
                 },
+                Submission = state == ApplicationStatus.Submitting ? current.Submission : null,
                 Error = state == ApplicationStatus.Submitting ? "SubmissionOutcomeUnknown" : "BrowserSessionLost"
             });
         }

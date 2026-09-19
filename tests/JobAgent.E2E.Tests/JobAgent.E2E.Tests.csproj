@@ -2,6 +2,7 @@
   <PropertyGroup><IsTestProject>true</IsTestProject><IsPackable>false</IsPackable></PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/JobAgent.Web/JobAgent.Web.csproj" />
+    <ProjectReference Include="../../src/JobAgent.Mcp/JobAgent.Mcp.csproj" />
     <ProjectReference Include="../../sandbox/JobAgent.FakeCareerSite/JobAgent.FakeCareerSite.csproj" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />

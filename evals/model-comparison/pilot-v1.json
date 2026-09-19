@@ -1,0 +1,322 @@
+{
+  "schemaVersion": "1.0",
+  "pilotId": "codex-comparison-pilot-v1",
+  "synthetic": true,
+  "license": "MIT",
+  "datasetId": "expanded-synthetic-benchmark-v1",
+  "datasetSha256": "17EDD99D9DCC17C9074EA782F5457957BDD40AF6AE71D84C0AAD55BADA82D7E0",
+  "asOf": "2026-09-18T00:00:00Z",
+  "scope": "Frozen 24-question stratified pilot: two cases from each of 12 synthetic profile families. It measures these cases only and is not 240-case model coverage.",
+  "profiles": [
+    {
+      "id": "dev-experienced-confirmed",
+      "split": "Development",
+      "facts": [
+        { "evidenceId": "dev-experienced-name", "field": "contact.name", "value": "Synthetic DevExperiencedConfirmed", "verification": "Verified", "locallyConfirmed": true },
+        { "evidenceId": "dev-experienced-salary", "field": "salary.expected", "value": "100000", "verification": "Verified", "locallyConfirmed": true, "currency": "TRY", "period": "Month", "taxBasis": "Net" }
+      ]
+    },
+    {
+      "id": "dev-junior-confirmed",
+      "split": "Development",
+      "facts": [
+        { "evidenceId": "dev-junior-csharp", "field": "experience", "value": "C#", "verification": "Verified", "kind": "Professional", "start": "2025-09-18", "end": "2026-09-18" },
+        { "evidenceId": "dev-junior-expected-salary", "field": "salary.expected", "value": "100000", "verification": "Verified", "locallyConfirmed": true, "currency": "TRY", "period": "Month", "taxBasis": "Net" }
+      ]
+    },
+    {
+      "id": "dev-personal-project-only",
+      "split": "Development",
+      "facts": [
+        { "evidenceId": "dev-project-csharp", "field": "experience", "value": "C#", "verification": "Verified", "kind": "PersonalProject", "start": "2021-09-18", "end": "2026-09-18" }
+      ]
+    },
+    {
+      "id": "dev-unverified-contacts",
+      "split": "Development",
+      "facts": [
+        { "evidenceId": "dev-unverified-name", "field": "contact.name", "value": "Synthetic DevUnverifiedContacts", "verification": "Proposed", "locallyConfirmed": false },
+        { "evidenceId": "dev-unverified-email", "field": "contact.email", "value": "devunverifiedcontacts@example.invalid", "verification": "Proposed", "locallyConfirmed": false }
+      ]
+    },
+    {
+      "id": "dev-annual-gross-salary",
+      "split": "Development",
+      "facts": [
+        { "evidenceId": "dev-annual-salary", "field": "salary.expected", "value": "100000", "verification": "Verified", "locallyConfirmed": true, "currency": "TRY", "period": "Year", "taxBasis": "Gross" }
+      ]
+    },
+    {
+      "id": "dev-turkish-two-years",
+      "split": "Development",
+      "facts": [
+        { "evidenceId": "dev-tr-relocation", "field": "answer.relocation", "value": "Evet", "verification": "Reviewed", "language": "tr", "scope": "Default" }
+      ]
+    },
+    {
+      "id": "test-experienced-four-years",
+      "split": "Test",
+      "facts": [
+        { "evidenceId": "test-experienced-csharp", "field": "experience", "value": "C#", "verification": "Verified", "kind": "Professional", "start": "2022-09-18", "end": "2026-09-18" },
+        { "evidenceId": "test-experienced-notice", "field": "answer.notice.period", "value": "30 days", "verification": "Reviewed", "language": "en", "scope": "Default" }
+      ]
+    },
+    {
+      "id": "test-internship-only",
+      "split": "Test",
+      "facts": [
+        { "evidenceId": "test-intern-csharp", "field": "experience", "value": "C#", "verification": "Verified", "kind": "Internship", "start": "2023-09-18", "end": "2026-09-18" }
+      ]
+    },
+    {
+      "id": "test-expired-evidence",
+      "split": "Test",
+      "facts": [
+        { "evidenceId": "test-missing-memory", "field": "answer.missing.evidence", "value": "Unsupported", "verification": "Reviewed", "language": "en", "scope": "Default", "referencedEvidenceIds": ["missing-fact"] },
+        { "evidenceId": "test-unverified-memory", "field": "answer.unverified.evidence", "value": "Unverified", "verification": "Reviewed", "language": "en", "scope": "Default", "referencedEvidenceIds": ["test-proposed-fact"] },
+        { "evidenceId": "test-proposed-fact", "field": "unverified.preference", "value": "Unverified", "verification": "Proposed" }
+      ]
+    },
+    {
+      "id": "test-no-salary",
+      "split": "Test",
+      "facts": [
+        { "evidenceId": "test-no-salary-target", "field": "salary.expected", "value": "0", "verification": "Proposed", "locallyConfirmed": false, "currency": "TRY", "period": "Month", "taxBasis": "Net" }
+      ]
+    },
+    {
+      "id": "test-turkish-five-years",
+      "split": "Test",
+      "facts": [
+        { "evidenceId": "test-tr-notice", "field": "answer.notice.period", "value": "30 gün", "verification": "Reviewed", "language": "tr", "scope": "Default" },
+        { "evidenceId": "test-tr-location", "field": "answer.preferred.location", "value": "Uzaktan", "verification": "Reviewed", "language": "tr", "scope": "Default" }
+      ]
+    },
+    {
+      "id": "test-scoped-answers",
+      "split": "Test",
+      "facts": [
+        { "evidenceId": "test-travel-default", "field": "answer.travel", "value": "No", "verification": "Reviewed", "language": "en", "scope": "Default" },
+        { "evidenceId": "test-travel-company", "field": "answer.travel", "value": "Yes", "verification": "Reviewed", "language": "en", "scope": "Company", "scopeId": "Synthetic Employer" }
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "id": "dev-experienced-confirmed--question--KnownName",
+      "profileId": "dev-experienced-confirmed",
+      "templateFamilyId": "question-dev-contact-known",
+      "question": { "key": "contact.name", "label": "Full name", "language": "en", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": ["dev-experienced-name"],
+      "expected": { "status": "Resolved", "value": "Synthetic DevExperiencedConfirmed" },
+      "ruleRationale": "A locally confirmed synthetic name resolves exactly; an unconfirmed name requires review."
+    },
+    {
+      "id": "dev-experienced-confirmed--question--ExpectedMonthlyNetSalary",
+      "profileId": "dev-experienced-confirmed",
+      "templateFamilyId": "question-dev-salary-monthly-net",
+      "question": { "key": "salary.expected.monthly.net.TRY", "label": "Expected monthly net salary in TRY", "language": "en", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": ["dev-experienced-salary"],
+      "expected": { "status": "Resolved", "value": "100000" },
+      "ruleRationale": "Only a locally confirmed monthly net TRY target resolves; unit mismatch abstains."
+    },
+    {
+      "id": "dev-junior-confirmed--question--ProfessionalCsharpYears",
+      "profileId": "dev-junior-confirmed",
+      "templateFamilyId": "question-dev-experience-professional-csharp",
+      "question": { "key": "experience.professional.csharp.years", "label": "Years of professional C# experience", "language": "en", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": ["dev-junior-csharp"],
+      "expected": { "status": "Resolved", "value": "1" },
+      "ruleRationale": "Only verified professional C# periods count; projects abstain."
+    },
+    {
+      "id": "dev-junior-confirmed--question--CurrentSalary",
+      "profileId": "dev-junior-confirmed",
+      "templateFamilyId": "question-dev-salary-current",
+      "question": { "key": "salary.current.monthly.net.TRY", "label": "Current monthly net salary in TRY", "language": "en", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": [],
+      "expected": { "status": "NeedsInput", "value": null },
+      "ruleRationale": "Current salary is distinct from expected salary and has no approved value."
+    },
+    {
+      "id": "dev-personal-project-only--question--ProfessionalCsharpYears",
+      "profileId": "dev-personal-project-only",
+      "templateFamilyId": "question-dev-experience-professional-csharp",
+      "question": { "key": "experience.professional.csharp.years", "label": "Years of professional C# experience", "language": "en", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": ["dev-project-csharp"],
+      "expected": { "status": "NeedsInput", "value": null },
+      "ruleRationale": "Only verified professional C# periods count; projects abstain."
+    },
+    {
+      "id": "dev-personal-project-only--question--UnknownField",
+      "profileId": "dev-personal-project-only",
+      "templateFamilyId": "question-dev-unknown-field",
+      "question": { "key": "unknown.claim", "label": "Unknown claim", "language": "en", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": [],
+      "expected": { "status": "NeedsInput", "value": null },
+      "ruleRationale": "An unknown semantic key must abstain rather than invent a value."
+    },
+    {
+      "id": "dev-unverified-contacts--question--KnownName",
+      "profileId": "dev-unverified-contacts",
+      "templateFamilyId": "question-dev-contact-known",
+      "question": { "key": "contact.name", "label": "Full name", "language": "en", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": ["dev-unverified-name"],
+      "expected": { "status": "RequiresReview", "value": null },
+      "ruleRationale": "A locally confirmed synthetic name resolves exactly; an unconfirmed name requires review."
+    },
+    {
+      "id": "dev-unverified-contacts--question--KnownEmail",
+      "profileId": "dev-unverified-contacts",
+      "templateFamilyId": "question-dev-email-known",
+      "question": { "key": "contact.email", "label": "Email", "language": "en", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": ["dev-unverified-email"],
+      "expected": { "status": "RequiresReview", "value": null },
+      "ruleRationale": "A locally confirmed synthetic email resolves exactly; an unconfirmed email requires review."
+    },
+    {
+      "id": "dev-annual-gross-salary--question--ExpectedMonthlyNetSalary",
+      "profileId": "dev-annual-gross-salary",
+      "templateFamilyId": "question-dev-salary-monthly-net",
+      "question": { "key": "salary.expected.monthly.net.TRY", "label": "Expected monthly net salary in TRY", "language": "en", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": ["dev-annual-salary"],
+      "expected": { "status": "NeedsInput", "value": null },
+      "ruleRationale": "Only a locally confirmed monthly net TRY target resolves; unit mismatch abstains."
+    },
+    {
+      "id": "dev-annual-gross-salary--question--ExpectedAnnualGrossSalary",
+      "profileId": "dev-annual-gross-salary",
+      "templateFamilyId": "question-dev-salary-annual-gross",
+      "question": { "key": "salary.expected.yearly.gross.TRY", "label": "Expected annual gross salary in TRY", "language": "en", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": ["dev-annual-salary"],
+      "expected": { "status": "NeedsInput", "value": null },
+      "ruleRationale": "A monthly-net resolver must not convert or reuse a value for an annual-gross question."
+    },
+    {
+      "id": "dev-turkish-two-years--question--RelocationTurkish",
+      "profileId": "dev-turkish-two-years",
+      "templateFamilyId": "question-dev-language-turkish",
+      "question": { "key": "relocation", "label": "Taşınabilir misiniz?", "language": "tr", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": ["dev-tr-relocation"],
+      "expected": { "status": "Resolved", "value": "Evet" },
+      "ruleRationale": "The Turkish question resolves only the reviewed Turkish memory."
+    },
+    {
+      "id": "dev-turkish-two-years--question--UnsupportedLanguage",
+      "profileId": "dev-turkish-two-years",
+      "templateFamilyId": "question-dev-language-unsupported",
+      "question": { "key": "relocation", "label": "Sind Sie umzugsbereit?", "language": "de", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": [],
+      "expected": { "status": "NeedsInput", "value": null },
+      "ruleRationale": "No reviewed German answer exists, so the resolver abstains."
+    },
+    {
+      "id": "test-experienced-four-years--question--TestExperienceTightLimit",
+      "profileId": "test-experienced-four-years",
+      "templateFamilyId": "question-test-experience-tight-limit",
+      "question": { "key": "experience.professional.csharp.years", "label": "Years of professional C# experience", "language": "en", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false, "zeroLengthField": true },
+      "allowedEvidenceIds": ["test-experienced-csharp"],
+      "expected": { "status": "RequiresReview", "value": null },
+      "ruleRationale": "A known experience answer cannot fit a zero-length field; unavailable experience still abstains."
+    },
+    {
+      "id": "test-experienced-four-years--question--TestNoticeEnglish",
+      "profileId": "test-experienced-four-years",
+      "templateFamilyId": "question-test-notice-english",
+      "question": { "key": "notice.period", "label": "Notice period", "language": "en", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": ["test-experienced-notice"],
+      "expected": { "status": "Resolved", "value": "30 days" },
+      "ruleRationale": "The English notice-period memory resolves in the matching language."
+    },
+    {
+      "id": "test-internship-only--question--TestExperienceTightLimit",
+      "profileId": "test-internship-only",
+      "templateFamilyId": "question-test-experience-tight-limit",
+      "question": { "key": "experience.professional.csharp.years", "label": "Years of professional C# experience", "language": "en", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false, "zeroLengthField": true },
+      "allowedEvidenceIds": ["test-intern-csharp"],
+      "expected": { "status": "NeedsInput", "value": null },
+      "ruleRationale": "A known experience answer cannot fit a zero-length field; unavailable experience still abstains."
+    },
+    {
+      "id": "test-internship-only--question--TestSensitiveHealth",
+      "profileId": "test-internship-only",
+      "templateFamilyId": "question-test-health-sensitive",
+      "question": { "key": "health.status", "label": "Health status", "language": "en", "maxLength": 0, "sensitive": true, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": [],
+      "expected": { "status": "ManualOnly", "value": null },
+      "ruleRationale": "Health information is sensitive and remains manual."
+    },
+    {
+      "id": "test-expired-evidence--question--TestMissingEvidence",
+      "profileId": "test-expired-evidence",
+      "templateFamilyId": "question-test-missing-evidence",
+      "question": { "key": "missing.evidence", "label": "Missing evidence preference", "language": "en", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": ["test-missing-memory"],
+      "expected": { "status": "RequiresReview", "value": null },
+      "ruleRationale": "A memory citing a missing evidence record requires review."
+    },
+    {
+      "id": "test-expired-evidence--question--TestUnverifiedEvidence",
+      "profileId": "test-expired-evidence",
+      "templateFamilyId": "question-test-unverified-evidence",
+      "question": { "key": "unverified.evidence", "label": "Unverified evidence preference", "language": "en", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": ["test-unverified-memory", "test-proposed-fact"],
+      "expected": { "status": "RequiresReview", "value": null },
+      "ruleRationale": "A memory citing proposed rather than verified evidence requires review."
+    },
+    {
+      "id": "test-no-salary--question--TestSalaryTightLimit",
+      "profileId": "test-no-salary",
+      "templateFamilyId": "question-test-salary-tight-limit",
+      "question": { "key": "salary.expected.monthly.net.TRY", "label": "Expected monthly net salary in TRY", "language": "en", "maxLength": 5, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": ["test-no-salary-target"],
+      "expected": { "status": "RequiresReview", "value": null },
+      "ruleRationale": "A salary that exceeds a five-character field or lacks confirmation requires review."
+    },
+    {
+      "id": "test-no-salary--question--TestCertificationUnknown",
+      "profileId": "test-no-salary",
+      "templateFamilyId": "question-test-certification-unknown",
+      "question": { "key": "certification", "label": "Certification", "language": "en", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": [],
+      "expected": { "status": "NeedsInput", "value": null },
+      "ruleRationale": "No reviewed certification value exists, so the resolver abstains."
+    },
+    {
+      "id": "test-turkish-five-years--question--TestNoticeTurkish",
+      "profileId": "test-turkish-five-years",
+      "templateFamilyId": "question-test-notice-turkish",
+      "question": { "key": "notice.period", "label": "İhbar süresi", "language": "tr", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": ["test-tr-notice"],
+      "expected": { "status": "Resolved", "value": "30 gün" },
+      "ruleRationale": "The Turkish notice-period memory resolves in the matching language."
+    },
+    {
+      "id": "test-turkish-five-years--question--TestLocationTurkish",
+      "profileId": "test-turkish-five-years",
+      "templateFamilyId": "question-test-location-turkish",
+      "question": { "key": "preferred.location", "label": "Tercih edilen çalışma yeri", "language": "tr", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false },
+      "allowedEvidenceIds": ["test-tr-location"],
+      "expected": { "status": "Resolved", "value": "Uzaktan" },
+      "ruleRationale": "The Turkish location preference resolves in Turkish."
+    },
+    {
+      "id": "test-scoped-answers--question--TestTravelCurrentCompany",
+      "profileId": "test-scoped-answers",
+      "templateFamilyId": "question-test-travel-current-company",
+      "question": { "key": "travel", "label": "Willing to travel?", "language": "en", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false, "company": "Synthetic Employer", "applicationId": "synthetic-job-1" },
+      "allowedEvidenceIds": ["test-travel-company"],
+      "expected": { "status": "Resolved", "value": "Yes" },
+      "ruleRationale": "The current employer receives its company-scoped travel answer."
+    },
+    {
+      "id": "test-scoped-answers--question--TestTravelOtherCompany",
+      "profileId": "test-scoped-answers",
+      "templateFamilyId": "question-test-travel-other-company",
+      "question": { "key": "travel", "label": "Willing to travel?", "language": "en", "maxLength": 0, "sensitive": false, "requiresCandidateAttestation": false, "company": "Other Employer", "applicationId": "other-job" },
+      "allowedEvidenceIds": ["test-travel-default"],
+      "expected": { "status": "Resolved", "value": "No" },
+      "ruleRationale": "Another employer receives the reviewed default travel answer, not the company-scoped value."
+    }
+  ]
+}

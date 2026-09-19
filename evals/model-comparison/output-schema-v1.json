@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Synthetic job-answer comparison output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["answers"],
+  "properties": {
+    "answers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["caseId", "status", "value", "evidenceIds", "reason"],
+        "properties": {
+          "caseId": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["Resolved", "NeedsInput", "RequiresReview", "ManualOnly"]
+          },
+          "value": { "type": ["string", "null"] },
+          "evidenceIds": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "reason": { "type": "string" }
+        }
+      }
+    }
+  }
+}

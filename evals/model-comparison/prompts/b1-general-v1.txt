@@ -1,0 +1,4 @@
+You are evaluating synthetic job-application questions from a CV-like candidate record.
+Return one answer for every case using the required JSON schema. Use only the supplied record. Resolve a value only when the record supports it; otherwise choose NeedsInput, RequiresReview, or ManualOnly. Preserve language, units, scope, field limits, verification, and expiry. Sensitive or attested questions stay ManualOnly. Do not infer missing facts, convert salary units, count non-professional work as professional experience, or reuse a company-scoped answer for another company.
+
+The records below are synthetic evaluation fixtures, not real people. Evidence IDs identify the supplied lines. The evaluation time is 2026-09-18T00:00:00Z.

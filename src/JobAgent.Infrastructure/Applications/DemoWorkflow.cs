@@ -101,7 +101,14 @@ public sealed class DemoWorkflow : IAsyncDisposable
                 evaluation = profile is null ? null : JobEvaluator.Evaluate(Job, profile, DateTimeOffset.UtcNow),
                 answers = profile is null ? null : Questions.ToDictionary(q => q.Key,
                     q => AnswerResolver.Resolve(q, profile, Job, DateTimeOffset.UtcNow)),
-                application = run is null ? null : new { draft = run.Draft, evidence = run.Evidence, error = run.Error }
+                application = run is null ? null : new
+                {
+                    draft = run.Draft,
+                    evidence = run.Evidence,
+                    error = run.Error,
+                    hostReviewRequested = run.HostReviewRequestedAt is not null,
+                    submissionApproved = HasValidSubmissionApproval(run, DateTimeOffset.UtcNow)
+                }
             };
         }
         finally { gate.Release(); }
@@ -155,29 +162,49 @@ public sealed class DemoWorkflow : IAsyncDisposable
         try
         {
             await Initialize();
-            if (currentId is not null) return;
-            var verified = profile ?? throw new PolicyException("ProfileReviewRequired");
-            var answers = new SortedDictionary<string, string>(StringComparer.Ordinal);
-            foreach (var question in Questions)
+            await CreateDraftCoreAsync();
+        }
+        finally { gate.Release(); }
+    }
+
+    public async Task<HostApplicationSummary> CreateSyntheticDraftForHostAsync()
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await Initialize();
+            return ToHostSummary(await CreateDraftCoreAsync());
+        }
+        finally { gate.Release(); }
+    }
+
+    public async Task<HostApplicationSummary> RequestHostReviewAsync(Guid applicationRef)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await Initialize();
+            var run = await Current(applicationRef);
+            if (run.Draft.Status is not (ApplicationStatus.ReadyForDataSharing or ApplicationStatus.AwaitingSubmissionApproval))
+                throw new PolicyException("ApplicationNotActionable");
+            if (run.HostReviewRequestedAt is null)
             {
-                var answer = AnswerResolver.Resolve(question, verified, Job, DateTimeOffset.UtcNow);
-                if (answer.Status != AnswerStatus.Resolved || answer.Value is null) throw new PolicyException("NeedsInput");
-                answers.Add(question.Key, answer.Value);
+                await journal.UpdateAsync(run.Draft.Id, run.Draft.Status,
+                    r => r with { HostReviewRequestedAt = DateTimeOffset.UtcNow });
+                run = await Current(applicationRef);
             }
-            var draft = new ApplicationDraft
-            {
-                ProfileId = verified.Id,
-                ProfileVersion = verified.Version,
-                Synthetic = true,
-                JobKey = Job.Id,
-                JobTitle = Job.Title,
-                Employer = Job.Employer,
-                RecipientOrigin = origin,
-                ResumeRef = resume.Reference,
-                ResumeHash = resume.Hash,
-                Answers = answers
-            };
-            await journal.CreateAsync(new(draft)); currentId = draft.Id;
+            return ToHostSummary(run);
+        }
+        finally { gate.Release(); }
+    }
+
+    public async Task<HostApplicationSummary> GetHostStatusAsync(Guid applicationRef)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await Initialize();
+            return ToHostSummary(await Current(applicationRef));
         }
         finally { gate.Release(); }
     }
@@ -187,6 +214,7 @@ public sealed class DemoWorkflow : IAsyncDisposable
         await gate.WaitAsync();
         try
         {
+            await Initialize();
             var run = await Current();
             if (run.Draft.Status != ApplicationStatus.ReadyForDataSharing) throw new PolicyException("InvalidStateTransition");
             var approval = ApprovalPolicy.GrantFromUserInterface(run.Draft, ApprovalPurpose.ShareData, sessionId, DateTimeOffset.UtcNow);
@@ -194,6 +222,8 @@ public sealed class DemoWorkflow : IAsyncDisposable
                 r => r with
                 {
                     Sharing = ApprovalPolicy.Consume(r.Draft, approval, ApprovalPurpose.ShareData, DateTimeOffset.UtcNow),
+                    Submission = null,
+                    Error = null,
                     Draft = r.Draft with { Status = ApplicationStatus.Filling }
                 });
             approvalSession = sessionId;
@@ -207,10 +237,15 @@ public sealed class DemoWorkflow : IAsyncDisposable
             }
             catch (Exception e) when (e is PolicyException or Microsoft.Playwright.PlaywrightException or OperationCanceledException)
             {
+                var manualTakeover = e is PolicyException { Code: "ManualTakeoverRequired" };
                 await journal.UpdateAsync(run.Draft.Id, ApplicationStatus.Filling,
                     r => r with
                     {
-                        Draft = r.Draft with { Status = operation.IsCancellationRequested ? ApplicationStatus.Cancelled : ApplicationStatus.FailedBeforeSubmission },
+                        Draft = r.Draft with
+                        {
+                            Status = operation.IsCancellationRequested ? ApplicationStatus.Cancelled
+                            : manualTakeover ? ApplicationStatus.NeedsInput : ApplicationStatus.FailedBeforeSubmission
+                        },
                         Error = e is PolicyException p ? p.Code : "BrowserPreparationFailed"
                     });
                 await browser.DisposeAsync(); browser = null;
@@ -224,32 +259,46 @@ public sealed class DemoWorkflow : IAsyncDisposable
         await gate.WaitAsync();
         try
         {
+            await Initialize();
             var run = await Current();
-            if (run.Draft.Status != ApplicationStatus.AwaitingSubmissionApproval || browser is null)
-                throw new PolicyException("SubmissionNotReady");
-            if (approvalSession != sessionId) throw new PolicyException("UserSessionChanged");
+            try { await EnsureUiCanApproveAsync(run, sessionId); }
+            catch (PolicyException e) when (e.Code == "ManualTakeoverRequired") { return; }
             var approval = ApprovalPolicy.GrantFromUserInterface(run.Draft, ApprovalPurpose.Submit, sessionId, DateTimeOffset.UtcNow);
             await journal.UpdateAsync(run.Draft.Id, ApplicationStatus.AwaitingSubmissionApproval,
                 r => r with { Submission = approval });
-            if (!await journal.ClaimSubmissionAsync(run.Draft.Id, DateTimeOffset.UtcNow)) throw new PolicyException("SubmissionAlreadyClaimed");
-            SubmissionEvidence? evidence = null;
-            try { evidence = await browser.SubmitAsync(run.Draft, approval, operation.Token); }
-            catch (Exception e) when (e is not OutOfMemoryException and not StackOverflowException and not AccessViolationException)
-            { /* A durable attempt exists. Never claim success or retry after uncertainty. */ }
-            finally
-            {
-                try
-                {
-                    await journal.UpdateAsync(run.Draft.Id, ApplicationStatus.Submitting,
-                        r => r with
-                        {
-                            Draft = r.Draft with { Status = evidence is null ? ApplicationStatus.SubmittedUnverified : ApplicationStatus.SubmittedVerified },
-                            Evidence = evidence,
-                            Error = evidence is null ? "SubmissionOutcomeUnknown" : null
-                        });
-                }
-                finally { await browser.DisposeAsync(); browser = null; }
-            }
+            await ExecuteStoredApprovalCoreAsync(run.Draft.Id);
+        }
+        finally { gate.Release(); }
+    }
+
+    // Approval remains a trusted local UI operation. Host callers can only execute a receipt already stored here.
+    public async Task<HostApplicationSummary> ApproveForHostFromUiAsync(Guid applicationRef, string sessionId)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await Initialize();
+            var run = await Current(applicationRef);
+            if (run.HostReviewRequestedAt is null) throw new PolicyException("HostReviewNotRequested");
+            try { await EnsureUiCanApproveAsync(run, sessionId); }
+            catch (PolicyException e) when (e.Code == "ManualTakeoverRequired")
+            { return ToHostSummary(await Current(applicationRef)); }
+            var approval = ApprovalPolicy.GrantFromUserInterface(run.Draft, ApprovalPurpose.Submit, sessionId, DateTimeOffset.UtcNow);
+            await journal.UpdateAsync(run.Draft.Id, ApplicationStatus.AwaitingSubmissionApproval,
+                r => r with { Submission = approval, Error = null });
+            return ToHostSummary(await Current(applicationRef));
+        }
+        finally { gate.Release(); }
+    }
+
+    public async Task<HostApplicationSummary> ExecuteAlreadyApprovedAsync(Guid applicationRef)
+    {
+        await gate.WaitAsync();
+        try
+        {
+            await Initialize();
+            await Current(applicationRef);
+            return await ExecuteStoredApprovalCoreAsync(applicationRef);
         }
         finally { gate.Release(); }
     }
@@ -270,9 +319,132 @@ public sealed class DemoWorkflow : IAsyncDisposable
         finally { gate.Release(); }
     }
 
-    private async Task<WorkflowRecord> Current() => currentId is { } id
-        ? await journal.GetAsync(id) ?? throw new PolicyException("ApplicationNotFound")
-        : throw new PolicyException("ApplicationNotFound");
+    private async Task<WorkflowRecord> CreateDraftCoreAsync()
+    {
+        if (currentId is { } existing) return await Current(existing);
+        var verified = profile ?? throw new PolicyException("ProfileReviewRequired");
+        var answers = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        foreach (var question in Questions)
+        {
+            var answer = AnswerResolver.Resolve(question, verified, Job, DateTimeOffset.UtcNow);
+            if (answer.Status != AnswerStatus.Resolved || answer.Value is null) throw new PolicyException("NeedsInput");
+            answers.Add(question.Key, answer.Value);
+        }
+        var draft = new ApplicationDraft
+        {
+            ProfileId = verified.Id,
+            ProfileVersion = verified.Version,
+            Synthetic = true,
+            JobKey = Job.Id,
+            JobTitle = Job.Title,
+            Employer = Job.Employer,
+            RecipientOrigin = origin,
+            ResumeRef = resume.Reference,
+            ResumeHash = resume.Hash,
+            Answers = answers
+        };
+        await journal.CreateAsync(new(draft));
+        currentId = draft.Id;
+        return await Current(draft.Id);
+    }
+
+    private async Task EnsureUiCanApproveAsync(WorkflowRecord run, string sessionId)
+    {
+        if (run.Draft.Status != ApplicationStatus.AwaitingSubmissionApproval || browser is null)
+            throw new PolicyException("SubmissionNotReady");
+        if (approvalSession != sessionId) throw new PolicyException("UserSessionChanged");
+        try { await browser.EnsureReadyForSubmissionAsync(run.Draft, operation.Token); }
+        catch (PolicyException e) when (e.Code == "ManualTakeoverRequired")
+        {
+            await PauseForManualTakeoverAsync(run);
+            throw;
+        }
+    }
+
+    private async Task<HostApplicationSummary> ExecuteStoredApprovalCoreAsync(Guid applicationRef)
+    {
+        var run = await Current(applicationRef);
+        if (run.Draft.Status is ApplicationStatus.SubmittedVerified or ApplicationStatus.SubmittedUnverified)
+            return ToHostSummary(run);
+        if (run.Draft.Status != ApplicationStatus.AwaitingSubmissionApproval || browser is null)
+            throw new PolicyException("SubmissionNotReady");
+
+        var approval = run.Submission;
+        ApprovalPolicy.Validate(run.Draft, approval, ApprovalPurpose.Submit, DateTimeOffset.UtcNow);
+        try { await browser.EnsureReadyForSubmissionAsync(run.Draft, operation.Token); }
+        catch (PolicyException e) when (e.Code == "ManualTakeoverRequired")
+        {
+            await PauseForManualTakeoverAsync(run);
+            return ToHostSummary(await Current(applicationRef));
+        }
+
+        if (!await journal.ClaimSubmissionAsync(run.Draft.Id, DateTimeOffset.UtcNow))
+        {
+            var changed = await Current(applicationRef);
+            if (changed.Draft.Status is ApplicationStatus.SubmittedVerified or ApplicationStatus.SubmittedUnverified)
+                return ToHostSummary(changed);
+            throw new PolicyException("SubmissionAlreadyClaimed");
+        }
+
+        SubmissionEvidence? evidence = null;
+        try { evidence = await browser.SubmitAsync(run.Draft, approval!, operation.Token); }
+        catch (Exception e) when (e is not OutOfMemoryException and not StackOverflowException and not AccessViolationException)
+        { /* A durable attempt exists. Never claim success or retry after uncertainty. */ }
+        finally
+        {
+            try
+            {
+                await journal.UpdateAsync(run.Draft.Id, ApplicationStatus.Submitting,
+                    r => r with
+                    {
+                        Draft = r.Draft with { Status = evidence is null ? ApplicationStatus.SubmittedUnverified : ApplicationStatus.SubmittedVerified },
+                        Evidence = evidence,
+                        Error = evidence is null ? "SubmissionOutcomeUnknown" : null
+                    });
+            }
+            finally { await browser.DisposeAsync(); browser = null; }
+        }
+        return ToHostSummary(await Current(applicationRef));
+    }
+
+    private async Task PauseForManualTakeoverAsync(WorkflowRecord run)
+    {
+        await journal.UpdateAsync(run.Draft.Id, ApplicationStatus.AwaitingSubmissionApproval,
+            r => r with
+            {
+                Draft = r.Draft with { Status = ApplicationStatus.NeedsInput },
+                Submission = null,
+                Error = "ManualTakeoverRequired"
+            });
+        await browser!.DisposeAsync();
+        browser = null;
+    }
+
+    private static HostApplicationSummary ToHostSummary(WorkflowRecord run) => new(
+        run.Draft.Id,
+        run.Draft.Status,
+        run.HostReviewRequestedAt is not null,
+        HasValidSubmissionApproval(run, DateTimeOffset.UtcNow),
+        run.Evidence?.ReceiptId);
+
+    private static bool HasValidSubmissionApproval(WorkflowRecord run, DateTimeOffset now)
+    {
+        try
+        {
+            ApprovalPolicy.Validate(run.Draft, run.Submission, ApprovalPurpose.Submit, now);
+            return true;
+        }
+        catch (PolicyException) { return false; }
+    }
+
+    private Task<WorkflowRecord> Current() => currentId is { } id
+        ? Current(id) : throw new PolicyException("ApplicationNotFound");
+
+    private async Task<WorkflowRecord> Current(Guid applicationRef)
+    {
+        if (currentId is not { } id || id != applicationRef) throw new PolicyException("ApplicationNotFound");
+        return await journal.GetAsync(id) ?? throw new PolicyException("ApplicationNotFound");
+    }
 
     public async ValueTask DisposeAsync()
     {

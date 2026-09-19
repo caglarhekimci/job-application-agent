@@ -1,0 +1,28 @@
+{
+  "answers": [
+    { "caseId": "dev-experienced-confirmed--question--KnownName", "status": "Resolved", "value": "Synthetic DevExperiencedConfirmed", "evidenceIds": ["dev-experienced-name"], "reason": "Confirmed source value." },
+    { "caseId": "dev-experienced-confirmed--question--ExpectedMonthlyNetSalary", "status": "Resolved", "value": "100000", "evidenceIds": ["dev-experienced-salary"], "reason": "Matching confirmed salary units." },
+    { "caseId": "dev-junior-confirmed--question--ProfessionalCsharpYears", "status": "Resolved", "value": "1", "evidenceIds": ["dev-junior-csharp"], "reason": "Verified professional interval." },
+    { "caseId": "dev-junior-confirmed--question--CurrentSalary", "status": "NeedsInput", "value": null, "evidenceIds": [], "reason": "Current salary is absent." },
+    { "caseId": "dev-personal-project-only--question--ProfessionalCsharpYears", "status": "NeedsInput", "value": null, "evidenceIds": [], "reason": "Project work is not professional experience." },
+    { "caseId": "dev-personal-project-only--question--UnknownField", "status": "NeedsInput", "value": null, "evidenceIds": [], "reason": "No source field exists." },
+    { "caseId": "dev-unverified-contacts--question--KnownName", "status": "RequiresReview", "value": null, "evidenceIds": ["dev-unverified-name"], "reason": "Contact is not locally confirmed." },
+    { "caseId": "dev-unverified-contacts--question--KnownEmail", "status": "RequiresReview", "value": null, "evidenceIds": ["dev-unverified-email"], "reason": "Contact is not locally confirmed." },
+    { "caseId": "dev-annual-gross-salary--question--ExpectedMonthlyNetSalary", "status": "NeedsInput", "value": null, "evidenceIds": [], "reason": "Salary units do not match." },
+    { "caseId": "dev-annual-gross-salary--question--ExpectedAnnualGrossSalary", "status": "NeedsInput", "value": null, "evidenceIds": [], "reason": "No supported reviewed answer exists." },
+    { "caseId": "dev-turkish-two-years--question--RelocationTurkish", "status": "Resolved", "value": "Evet", "evidenceIds": ["dev-tr-relocation"], "reason": "Reviewed Turkish memory." },
+    { "caseId": "dev-turkish-two-years--question--UnsupportedLanguage", "status": "NeedsInput", "value": null, "evidenceIds": [], "reason": "German memory is absent." },
+    { "caseId": "test-experienced-four-years--question--TestExperienceTightLimit", "status": "RequiresReview", "value": null, "evidenceIds": ["test-experienced-csharp"], "reason": "Known answer cannot fit." },
+    { "caseId": "test-experienced-four-years--question--TestNoticeEnglish", "status": "Resolved", "value": "30 days", "evidenceIds": ["test-experienced-notice"], "reason": "Reviewed English memory." },
+    { "caseId": "test-internship-only--question--TestExperienceTightLimit", "status": "NeedsInput", "value": null, "evidenceIds": [], "reason": "No professional interval exists." },
+    { "caseId": "test-internship-only--question--TestSensitiveHealth", "status": "ManualOnly", "value": null, "evidenceIds": [], "reason": "Sensitive question." },
+    { "caseId": "test-expired-evidence--question--TestMissingEvidence", "status": "RequiresReview", "value": null, "evidenceIds": ["test-missing-memory"], "reason": "Referenced evidence is missing." },
+    { "caseId": "test-expired-evidence--question--TestUnverifiedEvidence", "status": "RequiresReview", "value": null, "evidenceIds": ["test-unverified-memory", "test-proposed-fact"], "reason": "Referenced evidence is proposed." },
+    { "caseId": "test-no-salary--question--TestSalaryTightLimit", "status": "RequiresReview", "value": null, "evidenceIds": ["test-no-salary-target"], "reason": "Salary is unconfirmed." },
+    { "caseId": "test-no-salary--question--TestCertificationUnknown", "status": "NeedsInput", "value": null, "evidenceIds": [], "reason": "Certification is absent." },
+    { "caseId": "test-turkish-five-years--question--TestNoticeTurkish", "status": "Resolved", "value": "30 gün", "evidenceIds": ["test-tr-notice"], "reason": "Reviewed Turkish memory." },
+    { "caseId": "test-turkish-five-years--question--TestLocationTurkish", "status": "Resolved", "value": "Uzaktan", "evidenceIds": ["test-tr-location"], "reason": "Reviewed Turkish memory." },
+    { "caseId": "test-scoped-answers--question--TestTravelCurrentCompany", "status": "Resolved", "value": "Yes", "evidenceIds": ["test-travel-company"], "reason": "Matching company scope." },
+    { "caseId": "test-scoped-answers--question--TestTravelOtherCompany", "status": "Resolved", "value": "No", "evidenceIds": ["test-travel-default"], "reason": "Reviewed default applies." }
+  ]
+}

@@ -1,0 +1,66 @@
+You are evaluating synthetic job-application questions from a CV-like candidate record.
+Return one answer for every case using the required JSON schema. Use only the supplied record. Resolve a value only when the record supports it; otherwise choose NeedsInput, RequiresReview, or ManualOnly. Preserve language, units, scope, field limits, verification, and expiry. Sensitive or attested questions stay ManualOnly. Do not infer missing facts, convert salary units, count non-professional work as professional experience, or reuse a company-scoped answer for another company.
+
+The records below are synthetic evaluation fixtures, not real people. Evidence IDs identify the supplied lines. The evaluation time is 2026-09-18T00:00:00Z.
+
+SYNTHETIC CV-LIKE SOURCE RECORDS
+PROFILE dev-experienced-confirmed [Development]
+- evidenceId=dev-experienced-name; field=contact.name; value=Synthetic DevExperiencedConfirmed; verification=Verified; locallyConfirmed=true
+- evidenceId=dev-experienced-salary; field=salary.expected; value=100000; verification=Verified; locallyConfirmed=true; currency=TRY; period=Month; taxBasis=Net
+PROFILE dev-junior-confirmed [Development]
+- evidenceId=dev-junior-csharp; field=experience; value=C#; verification=Verified; kind=Professional; start=2025-09-18; end=2026-09-18
+- evidenceId=dev-junior-expected-salary; field=salary.expected; value=100000; verification=Verified; locallyConfirmed=true; currency=TRY; period=Month; taxBasis=Net
+PROFILE dev-personal-project-only [Development]
+- evidenceId=dev-project-csharp; field=experience; value=C#; verification=Verified; kind=PersonalProject; start=2021-09-18; end=2026-09-18
+PROFILE dev-unverified-contacts [Development]
+- evidenceId=dev-unverified-name; field=contact.name; value=Synthetic DevUnverifiedContacts; verification=Proposed; locallyConfirmed=false
+- evidenceId=dev-unverified-email; field=contact.email; value=devunverifiedcontacts@example.invalid; verification=Proposed; locallyConfirmed=false
+PROFILE dev-annual-gross-salary [Development]
+- evidenceId=dev-annual-salary; field=salary.expected; value=100000; verification=Verified; locallyConfirmed=true; currency=TRY; period=Year; taxBasis=Gross
+PROFILE dev-turkish-two-years [Development]
+- evidenceId=dev-tr-relocation; field=answer.relocation; value=Evet; verification=Reviewed; language=tr; scope=Default
+PROFILE test-experienced-four-years [Test]
+- evidenceId=test-experienced-csharp; field=experience; value=C#; verification=Verified; kind=Professional; start=2022-09-18; end=2026-09-18
+- evidenceId=test-experienced-notice; field=answer.notice.period; value=30 days; verification=Reviewed; language=en; scope=Default
+PROFILE test-internship-only [Test]
+- evidenceId=test-intern-csharp; field=experience; value=C#; verification=Verified; kind=Internship; start=2023-09-18; end=2026-09-18
+PROFILE test-expired-evidence [Test]
+- evidenceId=test-missing-memory; field=answer.missing.evidence; value=Unsupported; verification=Reviewed; language=en; scope=Default; referencedEvidenceIds=missing-fact
+- evidenceId=test-unverified-memory; field=answer.unverified.evidence; value=Unverified; verification=Reviewed; language=en; scope=Default; referencedEvidenceIds=test-proposed-fact
+- evidenceId=test-proposed-fact; field=unverified.preference; value=Unverified; verification=Proposed
+PROFILE test-no-salary [Test]
+- evidenceId=test-no-salary-target; field=salary.expected; value=0; verification=Proposed; locallyConfirmed=false; currency=TRY; period=Month; taxBasis=Net
+PROFILE test-turkish-five-years [Test]
+- evidenceId=test-tr-notice; field=answer.notice.period; value=30 gün; verification=Reviewed; language=tr; scope=Default
+- evidenceId=test-tr-location; field=answer.preferred.location; value=Uzaktan; verification=Reviewed; language=tr; scope=Default
+PROFILE test-scoped-answers [Test]
+- evidenceId=test-travel-default; field=answer.travel; value=No; verification=Reviewed; language=en; scope=Default
+- evidenceId=test-travel-company; field=answer.travel; value=Yes; verification=Reviewed; language=en; scope=Company; scopeId=Synthetic Employer
+
+QUESTIONS
+CASE dev-experienced-confirmed--question--KnownName; profileId=dev-experienced-confirmed; key=contact.name; label=Full name; language=en; maxLength=0; sensitive=false; requiresCandidateAttestation=false
+CASE dev-experienced-confirmed--question--ExpectedMonthlyNetSalary; profileId=dev-experienced-confirmed; key=salary.expected.monthly.net.TRY; label=Expected monthly net salary in TRY; language=en; maxLength=0; sensitive=false; requiresCandidateAttestation=false
+CASE dev-junior-confirmed--question--ProfessionalCsharpYears; profileId=dev-junior-confirmed; key=experience.professional.csharp.years; label=Years of professional C# experience; language=en; maxLength=0; sensitive=false; requiresCandidateAttestation=false
+CASE dev-junior-confirmed--question--CurrentSalary; profileId=dev-junior-confirmed; key=salary.current.monthly.net.TRY; label=Current monthly net salary in TRY; language=en; maxLength=0; sensitive=false; requiresCandidateAttestation=false
+CASE dev-personal-project-only--question--ProfessionalCsharpYears; profileId=dev-personal-project-only; key=experience.professional.csharp.years; label=Years of professional C# experience; language=en; maxLength=0; sensitive=false; requiresCandidateAttestation=false
+CASE dev-personal-project-only--question--UnknownField; profileId=dev-personal-project-only; key=unknown.claim; label=Unknown claim; language=en; maxLength=0; sensitive=false; requiresCandidateAttestation=false
+CASE dev-unverified-contacts--question--KnownName; profileId=dev-unverified-contacts; key=contact.name; label=Full name; language=en; maxLength=0; sensitive=false; requiresCandidateAttestation=false
+CASE dev-unverified-contacts--question--KnownEmail; profileId=dev-unverified-contacts; key=contact.email; label=Email; language=en; maxLength=0; sensitive=false; requiresCandidateAttestation=false
+CASE dev-annual-gross-salary--question--ExpectedMonthlyNetSalary; profileId=dev-annual-gross-salary; key=salary.expected.monthly.net.TRY; label=Expected monthly net salary in TRY; language=en; maxLength=0; sensitive=false; requiresCandidateAttestation=false
+CASE dev-annual-gross-salary--question--ExpectedAnnualGrossSalary; profileId=dev-annual-gross-salary; key=salary.expected.yearly.gross.TRY; label=Expected annual gross salary in TRY; language=en; maxLength=0; sensitive=false; requiresCandidateAttestation=false
+CASE dev-turkish-two-years--question--RelocationTurkish; profileId=dev-turkish-two-years; key=relocation; label=Taşınabilir misiniz?; language=tr; maxLength=0; sensitive=false; requiresCandidateAttestation=false
+CASE dev-turkish-two-years--question--UnsupportedLanguage; profileId=dev-turkish-two-years; key=relocation; label=Sind Sie umzugsbereit?; language=de; maxLength=0; sensitive=false; requiresCandidateAttestation=false
+CASE test-experienced-four-years--question--TestExperienceTightLimit; profileId=test-experienced-four-years; key=experience.professional.csharp.years; label=Years of professional C# experience; language=en; maxLength=0; sensitive=false; requiresCandidateAttestation=false; zeroLengthField=true
+CASE test-experienced-four-years--question--TestNoticeEnglish; profileId=test-experienced-four-years; key=notice.period; label=Notice period; language=en; maxLength=0; sensitive=false; requiresCandidateAttestation=false
+CASE test-internship-only--question--TestExperienceTightLimit; profileId=test-internship-only; key=experience.professional.csharp.years; label=Years of professional C# experience; language=en; maxLength=0; sensitive=false; requiresCandidateAttestation=false; zeroLengthField=true
+CASE test-internship-only--question--TestSensitiveHealth; profileId=test-internship-only; key=health.status; label=Health status; language=en; maxLength=0; sensitive=true; requiresCandidateAttestation=false
+CASE test-expired-evidence--question--TestMissingEvidence; profileId=test-expired-evidence; key=missing.evidence; label=Missing evidence preference; language=en; maxLength=0; sensitive=false; requiresCandidateAttestation=false
+CASE test-expired-evidence--question--TestUnverifiedEvidence; profileId=test-expired-evidence; key=unverified.evidence; label=Unverified evidence preference; language=en; maxLength=0; sensitive=false; requiresCandidateAttestation=false
+CASE test-no-salary--question--TestSalaryTightLimit; profileId=test-no-salary; key=salary.expected.monthly.net.TRY; label=Expected monthly net salary in TRY; language=en; maxLength=5; sensitive=false; requiresCandidateAttestation=false
+CASE test-no-salary--question--TestCertificationUnknown; profileId=test-no-salary; key=certification; label=Certification; language=en; maxLength=0; sensitive=false; requiresCandidateAttestation=false
+CASE test-turkish-five-years--question--TestNoticeTurkish; profileId=test-turkish-five-years; key=notice.period; label=İhbar süresi; language=tr; maxLength=0; sensitive=false; requiresCandidateAttestation=false
+CASE test-turkish-five-years--question--TestLocationTurkish; profileId=test-turkish-five-years; key=preferred.location; label=Tercih edilen çalışma yeri; language=tr; maxLength=0; sensitive=false; requiresCandidateAttestation=false
+CASE test-scoped-answers--question--TestTravelCurrentCompany; profileId=test-scoped-answers; key=travel; label=Willing to travel?; language=en; maxLength=0; sensitive=false; requiresCandidateAttestation=false; company=Synthetic Employer; applicationId=synthetic-job-1
+CASE test-scoped-answers--question--TestTravelOtherCompany; profileId=test-scoped-answers; key=travel; label=Willing to travel?; language=en; maxLength=0; sensitive=false; requiresCandidateAttestation=false; company=Other Employer; applicationId=other-job
+
+Return JSON only. Include each caseId exactly once.

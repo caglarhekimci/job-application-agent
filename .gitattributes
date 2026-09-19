@@ -1,4 +1,7 @@
 * text=auto eol=lf
+evals/model-comparison/** -text
+evals/model-comparison/results/** -whitespace
+evals/datasets/expanded-synthetic-v1.json -text
 third-party-notices/* -whitespace
 *.png binary
 *.zip binary

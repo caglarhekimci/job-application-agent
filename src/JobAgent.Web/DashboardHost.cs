@@ -8,6 +8,7 @@ using JobAgent.Core.Answers;
 using JobAgent.Infrastructure.Documents;
 using JobAgent.Infrastructure.Storage;
 using JobAgent.Infrastructure.Workspace;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace JobAgent.Web;
 
@@ -16,6 +17,11 @@ public static class DashboardHost
     public static WebApplication Build(string[] args, DashboardOptions? options = null)
     {
         options ??= new();
+        if (options.EnableSyntheticCommands &&
+            (options.BootstrapToken.Length != 64 || !options.BootstrapToken.All(Uri.IsHexDigit) ||
+             options.BridgeToken.Length != 64 || !options.BridgeToken.All(Uri.IsHexDigit) ||
+             string.Equals(options.BridgeToken, options.BootstrapToken, StringComparison.Ordinal)))
+            throw new ArgumentException("UI and host bridge credentials must be distinct 256-bit tokens.", nameof(options));
         var root = FindRoot();
         var webRoot = options.WebRootPath ?? Path.Combine(AppContext.BaseDirectory, "wwwroot");
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { Args = args, WebRootPath = webRoot });
@@ -38,6 +44,19 @@ public static class DashboardHost
             context.Response.Headers["Referrer-Policy"] = "no-referrer";
             context.Response.Headers["Cache-Control"] = "no-store";
             context.Response.Headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'";
+            if (req.Path.StartsWithSegments("/internal/mcp"))
+            {
+                if (context.Connection.RemoteIpAddress is not { } ip || !System.Net.IPAddress.IsLoopback(ip) ||
+                    req.Headers.Origin.Count != 0)
+                { context.Response.StatusCode = 403; return; }
+                var supplied = req.Headers["X-JobAgent-Bridge"].ToString();
+                if (!options.EnableSyntheticCommands || options.BridgeExpiresAt <= DateTimeOffset.UtcNow ||
+                    !CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(supplied), Encoding.UTF8.GetBytes(options.BridgeToken)))
+                { context.Response.StatusCode = 401; return; }
+                if (!HttpMethods.IsPost(req.Method) || req.QueryString.HasValue ||
+                    context.Features.Get<IHttpRequestBodyDetectionFeature>()?.CanHaveBody == true)
+                { context.Response.StatusCode = 400; return; }
+            }
             if (req.Path.StartsWithSegments("/api"))
             {
                 var write = !HttpMethods.IsGet(req.Method);
@@ -83,6 +102,17 @@ public static class DashboardHost
         { await w.ShareAndFillFromUiAsync(((UiSession)c.Items["session"]!).Id); return Results.NoContent(); });
         app.MapPost("/api/approve-submit", async (DemoWorkflow w, HttpContext c) =>
         { await w.SubmitFromUiAsync(((UiSession)c.Items["session"]!).Id); return Results.NoContent(); });
+        app.MapPost("/api/approve-host-submit/{applicationRef:guid}", async (DemoWorkflow w, HttpContext c, Guid applicationRef) =>
+        {
+            if (!options.EnableSyntheticCommands) return Results.NotFound();
+            await w.ApproveForHostFromUiAsync(applicationRef, ((UiSession)c.Items["session"]!).Id);
+            return Results.NoContent();
+        });
+        app.MapPost("/internal/mcp/applications", async (DemoWorkflow w) => await w.CreateSyntheticDraftForHostAsync());
+        app.MapPost("/internal/mcp/applications/{applicationRef:guid}/review", async (DemoWorkflow w, Guid applicationRef) =>
+            await w.RequestHostReviewAsync(applicationRef));
+        app.MapPost("/internal/mcp/applications/{applicationRef:guid}/execute", async (DemoWorkflow w, Guid applicationRef) =>
+            await w.ExecuteAlreadyApprovedAsync(applicationRef));
         app.MapPost("/api/cancel", async (DemoWorkflow w) => { await w.CancelAsync(); return Results.NoContent(); });
         app.MapGet("/api/workspace", async (LocalWorkspace w) => await w.GetAsync());
         app.MapPost("/api/workspace/import", async (LocalWorkspace w, HttpContext c) =>
@@ -90,6 +120,8 @@ public static class DashboardHost
         app.MapPost("/api/workspace/profile", async (LocalWorkspace w, ProfileReview review) => await w.ReviewProfileAsync(review));
         app.MapPost("/api/workspace/job", async (LocalWorkspace w, JobReview review) => await w.ReviewJobAsync(review));
         app.MapPost("/api/workspace/answer", async (LocalWorkspace w, FormQuestion question) => await w.ResolveAsync(question));
+        app.MapPost("/api/workspace/answer-memory", async (LocalWorkspace w, WorkspaceAnswerReview review) => await w.ReviewAnswerAsync(review));
+        app.MapPost("/api/workspace/answer-memory/revoke", async (LocalWorkspace w, WorkspaceAnswerRevocation request) => await w.RevokeAnswerAsync(request));
         app.MapGet("/api/workspace/export", async (LocalWorkspace w) => Results.File(
             Encoding.UTF8.GetBytes(await w.ExportAsync()), "application/json", "job-agent-local-export.json"));
         app.MapPost("/api/workspace/delete", async (LocalWorkspace w, DeleteWorkspaceRequest request) =>

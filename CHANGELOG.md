@@ -1,6 +1,21 @@
 # Changelog
 
-## Unreleased — local synthetic prototype
+## Unreleased — next tested local checkpoint
+
+- Added reviewed application/company/global answer memory, expiry, revision checks
+  and revocation; strict model proposals remain subject to user review.
+- Added CAPTCHA/MFA stops, protected local companion/MCP bridge and three opt-in
+  synthetic workflow commands. Consent remains a separate browser UI operation.
+- Added actual UI/STDIO workflow coverage, single-POST assertions, bridge response
+  validation, redirect refusal and stale registration cleanup.
+- Fixed packaged plugin launcher selection when several dotnet paths are present.
+- Expanded B0 to 12 profiles, 240 questions and 60 jobs. A separate six-turn Codex
+  pilot found B1 better than B2 on the frozen strict metric; no improvement claimed.
+- Ran 188 local tests and an actual three-turn Codex synthetic application workflow.
+  Simulated UI approval in the latter is explicitly separated from real human approval.
+- Submitted Codex for OSS after explicit terms acceptance; selection is pending.
+
+## v0.1.0-alpha.1 — 2026-09-19 UTC
 
 - Added versioned profile facts, DPAPI storage and bounded TXT import.
 - Added typed job evaluation and deterministic answers with safe abstention.

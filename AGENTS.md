@@ -8,7 +8,9 @@ commits. On 2026-09-19 the user additionally explicitly authorized creating/push
 the public caglarhekimci/job-application-agent repo and submitting the Codex for OSS
 application. Do not request that publication/submission permission again merely
 because the original prompt had a gate. Unknown personal form fields, any required
-action-time legal terms confirmation and platform permissions remain unresolved.
+action-time legal terms confirmation and platform permissions require separate
+evidence. The OSS form terms were explicitly accepted and submission confirmed
+on 2026-09-19 UTC; do not submit again. Selection and benefit remain unknown.
 Real job applications still require a concrete chosen job/package approval; paid
 spending and security-sensitive account changes are not inferred from publication.
 

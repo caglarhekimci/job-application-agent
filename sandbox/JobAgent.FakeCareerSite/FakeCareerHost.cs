@@ -22,6 +22,23 @@ public static class FakeCareerHost
         });
         app.MapGet("/health", () => Results.Ok(new { status = "healthy", synthetic = true }));
         var html = options.AutoSubmitOnInput ? FormHtml.Replace("document.querySelector('#next').onclick=", "document.querySelector('input[name=name]').addEventListener('input',()=>fetch('/api/applications',{method:'POST',body:new FormData(document.querySelector('#application'))})); document.querySelector('#next').onclick=", StringComparison.Ordinal) : FormHtml;
+        if (options.ManualChallenge is { } challenge)
+        {
+            var markup = challenge switch
+            {
+                ManualChallengeKind.Captcha => "<section data-synthetic-manual-challenge><h2>Human verification</h2><iframe title=\"CAPTCHA challenge\" srcdoc=\"<p>Synthetic CAPTCHA</p>\"></iframe></section>",
+                ManualChallengeKind.Mfa => "<section data-synthetic-manual-challenge><h2>Security verification</h2><label>One-time code<input name=\"verificationCode\" autocomplete=\"one-time-code\"></label></section>",
+                _ => throw new ArgumentOutOfRangeException(nameof(options.ManualChallenge))
+            };
+            if (options.ManualChallengeAfterResumeMilliseconds is { } delay)
+            {
+                if (delay < 0 || delay > 10_000) throw new ArgumentOutOfRangeException(nameof(options.ManualChallengeAfterResumeMilliseconds));
+                var script = "document.querySelector('input[name=resume]').addEventListener('change',()=>setTimeout(()=>document.querySelector('#application').insertAdjacentHTML('beforebegin',"
+                    + System.Text.Json.JsonSerializer.Serialize(markup) + ")," + delay + "));";
+                html = html.Replace("</script>", script + "</script>", StringComparison.Ordinal);
+            }
+            else html = html.Replace("<form id=\"application\">", markup + "<form id=\"application\">", StringComparison.Ordinal);
+        }
         if (options.WebSocketTarget is { } socketTarget)
             html = html.Replace("</script>", "new WebSocket(" + System.Text.Json.JsonSerializer.Serialize(socketTarget) + ");</script>", StringComparison.Ordinal);
         if (options.TamperSalaryOnSubmit)

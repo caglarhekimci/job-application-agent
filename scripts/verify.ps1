@@ -23,6 +23,7 @@ try {
     }
     & ./scripts/test-launcher.ps1 2>&1 | Tee-Object (Join-Path $reportRoot 'launcher.log')
     & ./scripts/run-evaluation.ps1 2>&1 | Tee-Object (Join-Path $reportRoot 'evaluation.log')
+    & ./evals/model-comparison/test-harness.ps1 2>&1 | Tee-Object (Join-Path $reportRoot 'model-scorer-replay.log')
     & ./scripts/test-source-scan.ps1 2>&1 | Tee-Object (Join-Path $reportRoot 'source-scan-tests.log')
     & ./scripts/scan-public.ps1 2>&1 | Tee-Object (Join-Path $reportRoot 'source-scan.log')
     & git diff --check

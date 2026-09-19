@@ -33,15 +33,22 @@ bilgilerinizi doğrulayabilir, ilan metni ve koşullarını inceleyebilir, cevap
 görebilir ve yerel verilerinizi dışa aktarabilir/silebilirsiniz. Bu ekran hiçbir
 işveren sitesine bağlanmaz. Tarayıcı denemeleri ayrı sentetik sekmededir.
 
-Genel ürün henüz tamamlanmadı: geniş değerlendirme seti, model üzerinden tam başvuru
-akışı ve izinli canlı adaptörler eksik. LinkedIn otomasyonu platform izni olmadan
-kapalıdır. Üç salt okunur MCP aracı gerçek alt süreçte test edildi; ayrıca güncel
-Codex host'unda yetenek sorgusu başarıyla çalıştırıldı.
+Yeni cevapları başvuru/şirket/genel kapsamda, dil ve son kullanma tarihiyle
+kaydedebilir veya geri çekebilirsiniz. Model önerisi şema denetimini geçse de
+kullanıcı incelemesi olmadan doğrulanmış sayılmaz. Değerlendirme komutu 12 sentetik
+profilde 240 soru ve 60 ilan sonucunu çalıştırır; bu sayılar model doğruluğu değildir.
+
+Üç salt okunur MCP aracına ek olarak açıkça etkinleştirilen üç sentetik işlem aracı
+vardır. Model taslak hazırlayıp inceleme isteyebilir; gönderim izni yalnız yerel
+arayüzde verilir. Gerçek tarayıcı ve MCP birlikte test edildi. CAPTCHA/MFA
+görüldüğünde otomasyon durur. Genel form adaptörleri ve izinli canlı hedefler
+henüz tamamlanmadı. LinkedIn otomasyonu platform izni olmadan kapalıdır.
 
 [Kurulum](docs/guides/INSTALL.md) · [Sorun giderme](docs/guides/TROUBLESHOOTING.md) ·
 [Test kayıtları](docs/VERIFICATION.md) · [Yetenek matrisi](docs/CAPABILITY_MATRIX.md) ·
 [Devam kaydı](docs/PROJECT_STATE.md)
 
-Bağımsız kullanıcı ve benimsenme kanıtı yok. Codex
-for OSS taslağı hazırlandı; gönderim durumu proje kayıtlarında tutulur ve kabul
-garantisi bulunmuyor. Ücretli çağrı ve gerçek başvuru ayrıca kullanıcı onayı gerektirir.
+Public repo ve ilk ön sürüm yayımlandı. Codex for OSS başvurusu gönderildi ve
+OpenAI'nin alındı mesajı görüldü; kabul ve üyelik desteği henüz belli değil.
+Bağımsız kullanıcı ve benimsenme kanıtı yok. Ücretli çağrı ve gerçek başvuru
+ayrıca kullanıcı onayı gerektirir.

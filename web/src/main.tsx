@@ -7,7 +7,8 @@ type Answer = { status: string; value: string | null; reason: string; evidenceId
 type Profile = { fullName: string; email: string; version: number; facts: { id: string; value: string; sourceSpan: string; verificationStatus: string }[];
   salary: { amount: number; currency: string; period: string; taxBasis: string } };
 type Application = { draft: { id: string; status: string; employer: string; jobTitle: string; recipientOrigin: string; resumeHash: string; answers: Record<string, string> };
-  evidence: { receiptId: string; verifiedAt: string; resumeHash: string } | null; error: string | null };
+  evidence: { receiptId: string; verifiedAt: string; resumeHash: string } | null; error: string | null;
+  hostReviewRequested: boolean; submissionApproved: boolean };
 type State = { mode: string; profileConfirmed: boolean; profile: Profile | null; resumeText: string | null; resumeHash: string;
   job: { employer: string; title: string; text: string }; evaluation: { status: string; requirements: { requirementText: string; assessment: string }[] } | null;
   answers: Record<string, Answer> | null; application: Application | null };
@@ -29,6 +30,7 @@ const errorLabels: Record<string, string> = {
   BrowserSessionLost: 'Tarayıcı oturumu kapandı. Formu doldurmak için yeniden paylaşım onayı verin.',
   CancelledByUser: 'Yeni işlemler durduruldu.', FormChanged: 'Form değişti. Yeniden inceleme gerekiyor.',
   RecipientChanged: 'Hedef değiştiği için işlem durduruldu.', NeedsInput: 'Cevap için doğrulanmış bilgi eksik.',
+  ManualTakeoverRequired: 'CAPTCHA veya ek giriş doğrulaması görüldü. İşlem durduruldu; otomatik çözüm ve tekrar gönderim yapılmaz.',
   LocalOperationFailed: 'Yerel işlem tamamlanamadı. Kurulum ve test kayıtlarını kontrol edin.'
 };
 
@@ -55,6 +57,23 @@ function App() {
       } catch (e) { setError((e as Error).message); }
     })();
   }, []);
+  useEffect(() => {
+    if (!csrf || busy) return;
+    const controller = new AbortController();
+    let timer: ReturnType<typeof setTimeout>;
+    async function poll() {
+      try {
+        const response = await fetch('/api/state', { signal: controller.signal });
+        if (response.ok) {
+          const next: State = await response.json();
+          if (!controller.signal.aborted) setState(next);
+        }
+      } catch { /* Keep the last visible state; user actions report failures. */ }
+      if (!controller.signal.aborted) timer = setTimeout(() => void poll(), 1000);
+    }
+    timer = setTimeout(() => void poll(), 1000);
+    return () => { controller.abort(); clearTimeout(timer); };
+  }, [csrf, busy]);
   async function act(path: string) {
     setBusy(true); setError('');
     try {
@@ -105,7 +124,13 @@ function App() {
           <div className="package"><div><small>ALICI</small><strong>{run.draft.employer} · {run.draft.jobTitle}</strong><code>{run.draft.recipientOrigin}</code></div><div><small>YÜKLENECEK CV</small><strong>synthetic-resume.txt</strong><code title={run.draft.resumeHash}>SHA-256: {run.draft.resumeHash.slice(0, 24)}…</code></div></div>
           {run.error && <p className="error" role="alert">{errorLabels[run.error] || run.error}</p>}
           {status === 'ReadyForDataSharing' && <div className="approval"><p>Ad, e-posta, maaş beklentisi, deneyim cevabı ve bu CV yalnız yukarıdaki yerel test sitesiyle paylaşılacak.</p><button disabled={busy} onClick={() => void act('/api/approve-share')}>Veri paylaşımını onayla ve formu doldur</button></div>}
-          {status === 'AwaitingSubmissionApproval' && <div className="approval"><p>Tarayıcı formu doldurdu ve CV’yi seçti. Paketi inceledikten sonra gönderimi ayrıca onaylayın.</p><button disabled={busy} onClick={() => void act('/api/approve-submit')}>Bu sentetik başvuruyu gönder</button></div>}
+          {status === 'AwaitingSubmissionApproval' && <div className="approval">
+            {run.hostReviewRequested ? run.submissionApproved ?
+              <p role="status">Gönderim izni verildi. Codex oturumunuza dönüp işlemi devam ettirin.</p> : <>
+                <p>Codex bu paketin incelemesini istedi. Tarayıcı formu doldurdu ve CV’yi seçti. Aşağıdaki izin yalnız bu paket için 10 dakika geçerlidir; Codex devam ettiğinde gönderilir.</p>
+                <button disabled={busy} onClick={() => void act('/api/approve-host-submit/' + run.draft.id)}>Codex’in bu sentetik başvuruyu göndermesine izin ver</button>
+              </> : <><p>Tarayıcı formu doldurdu ve CV’yi seçti. Paketi inceledikten sonra gönderimi ayrıca onaylayın.</p><button disabled={busy} onClick={() => void act('/api/approve-submit')}>Bu sentetik başvuruyu gönder</button></>}
+          </div>}
           {confirmed && run.evidence && <div className="receipt"><div className="receipt-check" aria-hidden="true">✓</div><div><h4>Test sunucusu başvuruyu aldı.</h4><p>Başvuru kimliği ve yüklenen CV’nin özeti sunucu yanıtıyla eşleşti.</p><code data-testid="receipt-id">{run.evidence.receiptId}</code><p className="quiet">{new Date(run.evidence.verifiedAt).toLocaleString('tr-TR')} · Yerel sentetik sonuç</p></div></div>}
           {canCancel && <button className="secondary" onClick={() => void act('/api/cancel')}>İşlemi iptal et</button>}
         </section>}

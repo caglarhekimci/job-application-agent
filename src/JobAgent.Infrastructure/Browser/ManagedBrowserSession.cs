@@ -14,6 +14,7 @@ public sealed record ResumeDocument(string Reference, string FileName, byte[] By
 
 public sealed class ManagedBrowserSession(Uri allowedOrigin) : IAsyncDisposable
 {
+    private const string ManualTakeoverSelector = "iframe[title*='captcha' i], iframe[src*='captcha' i], [data-sitekey], input[autocomplete='one-time-code'], input[name*='otp' i], input[name*='mfa' i], input[name*='verificationcode' i], input[name*='verification-code' i]";
     public Uri AllowedOrigin { get; } = allowedOrigin;
     private IPlaywright? playwright;
     private IBrowser? browser;
@@ -103,8 +104,8 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IAsyncDisposable
         ValidateTarget(draft);
         ApprovalPolicy.Validate(draft, approval, ApprovalPurpose.Submit, DateTimeOffset.UtcNow);
         if (submitted) throw new PolicyException("SubmissionAlreadyAttempted");
-        if (page is null || preparedHash != draft.PayloadHash()) throw new PolicyException("PackageChanged");
-        await ValidateFormAsync(ct);
+        await EnsureReadyForSubmissionAsync(draft, ct);
+        var preparedPage = page ?? throw new PolicyException("PackageChanged");
         var fields = new Dictionary<string, string>
         {
             ["name"] = draft.Answers["contact.name"],
@@ -113,21 +114,16 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IAsyncDisposable
             ["years"] = draft.Answers["experience.professional.csharp.years"],
             ["applicationKey"] = draft.Id.ToString()
         };
-        foreach (var field in fields)
-        {
-            Guard(ct);
-            if (await page.Locator($"input[name='{field.Key}']").InputValueAsync() != field.Value)
-                throw new PolicyException("FormChanged");
-        }
         Guard(ct);
+        await EnsureNoManualTakeoverAsync(ct);
         // Persisted submission claim is made by the workflow before this method. Never retry this click.
         submitted = true;
         Interlocked.Exchange(ref submissionRequestAllowance, 1);
         try
         {
             IResponse? response = null;
-            await Act(async () => response = await page.RunAndWaitForResponseAsync(
-                () => page.GetByRole(AriaRole.Button, new() { Name = "Submit synthetic application", Exact = true }).ClickAsync(),
+            await Act(async () => response = await preparedPage.RunAndWaitForResponseAsync(
+                () => preparedPage.GetByRole(AriaRole.Button, new() { Name = "Submit synthetic application", Exact = true }).ClickAsync(),
                 r => r.Url == draft.RecipientOrigin + "/api/applications" && r.Request.Method == "POST",
                 new() { Timeout = 10000 }), ct);
             if (response is null || !response.Ok) return null;
@@ -146,6 +142,32 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IAsyncDisposable
         catch (Exception e) when (e is PlaywrightException or System.TimeoutException or JsonException or OperationCanceledException)
         { return null; }
         finally { Interlocked.Exchange(ref submissionRequestAllowance, 0); }
+    }
+
+    public async Task EnsureReadyForSubmissionAsync(ApplicationDraft draft, CancellationToken ct = default)
+    {
+        Guard(ct);
+        ValidateTarget(draft);
+        if (page is null || preparedHash != draft.PayloadHash()) throw new PolicyException("PackageChanged");
+        await EnsureNoManualTakeoverAsync(ct);
+        await ValidateFormAsync(ct);
+        var fields = new Dictionary<string, string>
+        {
+            ["name"] = draft.Answers["contact.name"],
+            ["email"] = draft.Answers["contact.email"],
+            ["salary"] = draft.Answers["salary.expected.monthly.net.TRY"],
+            ["years"] = draft.Answers["experience.professional.csharp.years"],
+            ["applicationKey"] = draft.Id.ToString()
+        };
+        foreach (var field in fields)
+        {
+            Guard(ct);
+            await EnsureNoManualTakeoverAsync(ct);
+            if (await page.Locator($"input[name='{field.Key}']").InputValueAsync() != field.Value)
+                throw new PolicyException("FormChanged");
+        }
+        // Keep this check adjacent to the caller's durable submission claim.
+        await EnsureNoManualTakeoverAsync(ct);
     }
 
     private static string? ReceiptString(JsonElement receipt, string key) =>
@@ -201,6 +223,7 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IAsyncDisposable
     private async Task ValidateFormAsync(CancellationToken ct)
     {
         Guard(ct);
+        await EnsureNoManualTakeoverAsync(ct);
         if (page is null || await page.Locator("input").CountAsync() != 7
             || await page.Locator("input[name=synthetic]").InputValueAsync() != "true"
             || await page.GetByRole(AriaRole.Heading, new() { Name = "SYNTHETIC TEST SITE", Exact = true }).CountAsync() != 1)
@@ -212,11 +235,23 @@ public sealed class ManagedBrowserSession(Uri allowedOrigin) : IAsyncDisposable
     private async Task Act(Func<Task> action, CancellationToken ct)
     {
         Guard(ct);
+        await EnsureNoManualTakeoverAsync(ct);
         if (++actionCount > 40 || activeTime > TimeSpan.FromMinutes(15)) throw new PolicyException("BudgetExceeded");
         var clock = Stopwatch.StartNew();
         try { await action(); }
         finally { activeTime += clock.Elapsed; }
         Guard(ct);
+        await EnsureNoManualTakeoverAsync(ct);
+    }
+    private async Task EnsureNoManualTakeoverAsync(CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        if (page is null) return;
+        var candidates = page.Locator(ManualTakeoverSelector);
+        var count = await candidates.CountAsync();
+        for (var index = 0; index < count; index++)
+            if (await candidates.Nth(index).IsVisibleAsync())
+                throw new PolicyException("ManualTakeoverRequired");
     }
     private void Guard(CancellationToken ct)
     {

@@ -37,11 +37,16 @@ model API calls. [Installation and reset instructions](docs/guides/INSTALL.md).
   paste/review job requirements, preview answers, export and delete local data.
 - A synthetic-only managed browser, exact file/answer checks, one-shot submission
   request, durable attempt claim, and explicit uncertain outcomes without retry.
-- Three read-only STDIO MCP tools tested through an actual subprocess transport;
-  an actual Codex model host also invoked the capability tool successfully.
+- Three read-only STDIO MCP tools by default, plus three opt-in synthetic workflow
+  commands. A real browser UI approves the package; model tools cannot grant consent.
+- Reviewed answer memory with application/company/global scope, language, expiry,
+  revision checks and revocation; schema-checked model suggestions stay unapproved.
+- A reproducible fixture evaluation covering 12 profiles, 240 question outcomes
+  and 60 job outcomes. See the [dataset card](evals/EXPANDED_DATASET_CARD.md).
+- CAPTCHA/MFA fixture detection stops the managed browser for manual attention.
 
-This is **not a completed general job-application product**. Full benchmark datasets,
-model-driven application execution and authorized live adapters remain unfinished. LinkedIn automation is
+This is **not a completed general job-application product**. General form adapters,
+broader host services and authorized live adapters remain unfinished. LinkedIn automation is
 blocked without platform authorization. The [capability matrix](docs/CAPABILITY_MATRIX.md)
 and [verification ledger](docs/VERIFICATION.md) distinguish tested slices from gaps.
 Fixture tests are not language-model accuracy or live-site success measurements.
@@ -59,7 +64,9 @@ The application journal currently accepts only synthetic applications.
 - [Contributor guide](CONTRIBUTING.md) and [security reporting status](SECURITY.md)
 - [Codex for OSS readiness](docs/grant/READINESS.md)
 
-There is no independent adoption or grant award yet. Real applications and paid
+The [first prerelease](https://github.com/caglarhekimci/job-application-agent/releases/tag/v0.1.0-alpha.1)
+is public. The Codex for OSS application was submitted and its confirmation observed;
+selection and any benefit remain unknown. There is no independent adoption or grant award yet. Real applications and paid
 calls require separate user approval. No paid API is required for local workflows.
 Original project code and synthetic fixtures use the [MIT license](LICENSE).
 Dependency notices are tracked separately in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

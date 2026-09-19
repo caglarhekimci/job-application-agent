@@ -1,0 +1,271 @@
+{
+  "schemaVersion": "1.0",
+  "generatedAt": "2026-09-19T21:51:21.7341270+00:00",
+  "mode": "Live",
+  "synthetic": true,
+  "pilotId": "codex-comparison-pilot-v1",
+  "pilotScope": "Frozen 24-question stratified pilot: two cases from each of 12 synthetic profile families. It measures these cases only and is not 240-case model coverage.",
+  "datasetId": "expanded-synthetic-benchmark-v1",
+  "datasetSha256": "17EDD99D9DCC17C9074EA782F5457957BDD40AF6AE71D84C0AAD55BADA82D7E0",
+  "pilotSha256": "7EECF1FD78D8147C157845479848985B5D4976398519B776A5C8455EBCAF6E25",
+  "outputSchemaSha256": "23978AA2F73AF8F29369B70327CB5F0D96A6033B4E3F71C37D8421DB1499F257",
+  "promptSha256": {
+    "B1": "56AAAFE5384A7F84AAC00F333DC8EFB7C5F20175996A68952D18DD587C8E0571",
+    "B2": "02F3E04E993AC764406FB849466A50C3A4D7583694FDCD8CC1165C3B55390C1A"
+  },
+  "profileCount": 12,
+  "caseCount": 24,
+  "repetitionsPerStrategy": 3,
+  "cli": {
+    "invoked": true,
+    "executable": "%LOCALAPPDATA%\\JobApplicationAgent\\tools\\codex-0.155.0\\node_modules\\@openai\\codex-win32-x64\\vendor\\x86_64-pc-windows-msvc\\bin\\codex.exe",
+    "executablePathRedacted": true,
+    "version": "codex-cli 0.155.0",
+    "authentication": "Existing ChatGPT login; forced_login_method=chatgpt",
+    "requestedModel": "gpt-6-astra",
+    "servedModel": "NotExposedByJsonl",
+    "apiCredentialEnvironmentRemoved": true,
+    "sandbox": "read-only",
+    "tools": "shell/apps/plugins/multi-agent/web disabled; no MCP configured"
+  },
+  "strategies": {
+    "B1": {
+      "runCount": 3,
+      "completedRuns": 0,
+      "failedRuns": 3,
+      "strict": {
+        "numerator": 0.0,
+        "denominator": 72.0
+      },
+      "answerable": {
+        "numerator": 0.0,
+        "denominator": 27.0
+      },
+      "abstention": {
+        "numerator": 0.0,
+        "denominator": 45.0
+      },
+      "badClaims": 0.0,
+      "unsupportedEvidenceCitations": 0.0,
+      "ungroundedResolvedAnswers": 0.0,
+      "usage": {
+        "inputTokens": 0.0,
+        "cachedInputTokens": 0.0,
+        "outputTokens": 0.0
+      }
+    },
+    "B2": {
+      "runCount": 3,
+      "completedRuns": 0,
+      "failedRuns": 3,
+      "strict": {
+        "numerator": 0.0,
+        "denominator": 72.0
+      },
+      "answerable": {
+        "numerator": 0.0,
+        "denominator": 27.0
+      },
+      "abstention": {
+        "numerator": 0.0,
+        "denominator": 45.0
+      },
+      "badClaims": 0.0,
+      "unsupportedEvidenceCitations": 0.0,
+      "ungroundedResolvedAnswers": 0.0,
+      "usage": {
+        "inputTokens": 0.0,
+        "cachedInputTokens": 0.0,
+        "outputTokens": 0.0
+      }
+    }
+  },
+  "runs": [
+    {
+      "strategy": "B1",
+      "repetition": 1,
+      "startedAt": "2026-09-19T21:51:03.8101811+00:00",
+      "finishedAt": "2026-09-19T21:51:07.0528485+00:00",
+      "completed": false,
+      "failure": "Codex exited 1.",
+      "strictCorrect": 0,
+      "denominator": 24,
+      "answerableCorrect": 0,
+      "answerableDenominator": 9,
+      "appropriateAbstention": 0,
+      "abstentionDenominator": 15,
+      "badClaims": 0,
+      "unsupportedEvidenceCitations": 0,
+      "ungroundedResolvedAnswers": 0,
+      "usage": {
+        "inputTokens": 0,
+        "cachedInputTokens": 0,
+        "outputTokens": 0
+      },
+      "eventTypes": [
+        "thread.started",
+        "turn.started",
+        "error",
+        "turn.failed"
+      ],
+      "eventsSha256": "67DA4CCBE57113394A96B9FEA84CD9BFAD1D7FB3B97898E27C11033CA7D8D1AB",
+      "outputSha256": "",
+      "cases": []
+    },
+    {
+      "strategy": "B1",
+      "repetition": 2,
+      "startedAt": "2026-09-19T21:51:07.1420962+00:00",
+      "finishedAt": "2026-09-19T21:51:09.5163838+00:00",
+      "completed": false,
+      "failure": "Codex exited 1.",
+      "strictCorrect": 0,
+      "denominator": 24,
+      "answerableCorrect": 0,
+      "answerableDenominator": 9,
+      "appropriateAbstention": 0,
+      "abstentionDenominator": 15,
+      "badClaims": 0,
+      "unsupportedEvidenceCitations": 0,
+      "ungroundedResolvedAnswers": 0,
+      "usage": {
+        "inputTokens": 0,
+        "cachedInputTokens": 0,
+        "outputTokens": 0
+      },
+      "eventTypes": [
+        "thread.started",
+        "turn.started",
+        "error",
+        "turn.failed"
+      ],
+      "eventsSha256": "602DA4852CAA53F7F5659D18774EB20DCF3CB56647CCF491D15EBD8B64463779",
+      "outputSha256": "",
+      "cases": []
+    },
+    {
+      "strategy": "B1",
+      "repetition": 3,
+      "startedAt": "2026-09-19T21:51:09.5420108+00:00",
+      "finishedAt": "2026-09-19T21:51:12.1126740+00:00",
+      "completed": false,
+      "failure": "Codex exited 1.",
+      "strictCorrect": 0,
+      "denominator": 24,
+      "answerableCorrect": 0,
+      "answerableDenominator": 9,
+      "appropriateAbstention": 0,
+      "abstentionDenominator": 15,
+      "badClaims": 0,
+      "unsupportedEvidenceCitations": 0,
+      "ungroundedResolvedAnswers": 0,
+      "usage": {
+        "inputTokens": 0,
+        "cachedInputTokens": 0,
+        "outputTokens": 0
+      },
+      "eventTypes": [
+        "thread.started",
+        "turn.started",
+        "error",
+        "turn.failed"
+      ],
+      "eventsSha256": "BAE3F34AEC25882730CC7AD65381B90B41CA04663B2936428B8A18F5F8096E4B",
+      "outputSha256": "",
+      "cases": []
+    },
+    {
+      "strategy": "B2",
+      "repetition": 1,
+      "startedAt": "2026-09-19T21:51:12.1376606+00:00",
+      "finishedAt": "2026-09-19T21:51:16.4577297+00:00",
+      "completed": false,
+      "failure": "Codex exited 1.",
+      "strictCorrect": 0,
+      "denominator": 24,
+      "answerableCorrect": 0,
+      "answerableDenominator": 9,
+      "appropriateAbstention": 0,
+      "abstentionDenominator": 15,
+      "badClaims": 0,
+      "unsupportedEvidenceCitations": 0,
+      "ungroundedResolvedAnswers": 0,
+      "usage": {
+        "inputTokens": 0,
+        "cachedInputTokens": 0,
+        "outputTokens": 0
+      },
+      "eventTypes": [
+        "thread.started",
+        "turn.started",
+        "error",
+        "turn.failed"
+      ],
+      "eventsSha256": "6B808AA94EFD96C5630DB5C24F8695E5F62078A56837F047EAC0E73631E1130B",
+      "outputSha256": "",
+      "cases": []
+    },
+    {
+      "strategy": "B2",
+      "repetition": 2,
+      "startedAt": "2026-09-19T21:51:16.5013327+00:00",
+      "finishedAt": "2026-09-19T21:51:19.1479133+00:00",
+      "completed": false,
+      "failure": "Codex exited 1.",
+      "strictCorrect": 0,
+      "denominator": 24,
+      "answerableCorrect": 0,
+      "answerableDenominator": 9,
+      "appropriateAbstention": 0,
+      "abstentionDenominator": 15,
+      "badClaims": 0,
+      "unsupportedEvidenceCitations": 0,
+      "ungroundedResolvedAnswers": 0,
+      "usage": {
+        "inputTokens": 0,
+        "cachedInputTokens": 0,
+        "outputTokens": 0
+      },
+      "eventTypes": [
+        "thread.started",
+        "turn.started",
+        "error",
+        "turn.failed"
+      ],
+      "eventsSha256": "5D6452152D62AEBEBD0AA072A3BAF0630C1BEA28DA2761E507C04E5D1F30507E",
+      "outputSha256": "",
+      "cases": []
+    },
+    {
+      "strategy": "B2",
+      "repetition": 3,
+      "startedAt": "2026-09-19T21:51:19.1732105+00:00",
+      "finishedAt": "2026-09-19T21:51:21.7108663+00:00",
+      "completed": false,
+      "failure": "Codex exited 1.",
+      "strictCorrect": 0,
+      "denominator": 24,
+      "answerableCorrect": 0,
+      "answerableDenominator": 9,
+      "appropriateAbstention": 0,
+      "abstentionDenominator": 15,
+      "badClaims": 0,
+      "unsupportedEvidenceCitations": 0,
+      "ungroundedResolvedAnswers": 0,
+      "usage": {
+        "inputTokens": 0,
+        "cachedInputTokens": 0,
+        "outputTokens": 0
+      },
+      "eventTypes": [
+        "thread.started",
+        "turn.started",
+        "error",
+        "turn.failed"
+      ],
+      "eventsSha256": "C1FABB8653FA328BDFF04556EB93F1DABAD7F087D67A21BB82D70236AC408B8E",
+      "outputSha256": "",
+      "cases": []
+    }
+  ]
+}

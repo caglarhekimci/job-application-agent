@@ -14,6 +14,11 @@ uydurma aday ve yerel test sitesiyle çalışan ayrı bir başvuru denemesidir.
    Yazılan URL otomatik açılmaz.
 5. Soruya verilecek cevabı ve çekimserlik gerekçesini inceleyin. Kişisel alan
    şu sürümde işverene bağlanmaz ve gerçek başvuru göndermez.
+6. Yeni bir cevap için soru, dil, kapsam ve gerekiyorsa geçerlilik tarihini seçin.
+   Başvuru/şirket kapsamı seçili ilanla bağlıdır. Kaynak kanıtını ve metni inceleyip
+   ayrıca doğrulayın. İlan değişirse önceki doğrulama geçersiz olur.
+   Kaydedilen cevabı geri çekmek sonraki yanıtlarda kullanılmasını engeller;
+   eski sürüm geçmişini silmek için çalışma alanının tümünü silmeniz gerekir.
 
 Veri Windows kullanıcı hesabına bağlı DPAPI ile korunarak proje dışında tutulur.
 Varsayılan yer `%LOCALAPPDATA%/JobApplicationAgent/demo/personal/workspace.db`.

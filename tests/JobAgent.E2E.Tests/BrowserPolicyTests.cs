@@ -77,6 +77,41 @@ public sealed class BrowserPolicyTests
         Assert.Equal(0, site.Services.GetRequiredService<ReceiptStore>().Requests);
     }
 
+    [Theory]
+    [InlineData(ManualChallengeKind.Captcha)]
+    [InlineData(ManualChallengeKind.Mfa)]
+    public async Task ManualChallenge_PausesBeforeAnySubmission(ManualChallengeKind challenge)
+    {
+        await using var site = FakeCareerHost.Build("http://127.0.0.1:0", new(ManualChallenge: challenge));
+        await site.StartAsync();
+        var draft = Draft(site.Urls.Single());
+        await using var browser = new ManagedBrowserSession(new(site.Urls.Single()));
+
+        var denied = await Assert.ThrowsAsync<PolicyException>(() => browser.PrepareAsync(draft,
+            Approve(draft, ApprovalPurpose.ShareData), Resume));
+
+        Assert.Equal("ManualTakeoverRequired", denied.Code);
+        Assert.Equal(0, site.Services.GetRequiredService<ReceiptStore>().SubmissionPosts);
+    }
+
+    [Fact]
+    public async Task ChallengeAppearingAfterPreparation_IsCaughtImmediatelyBeforeSubmit()
+    {
+        await using var site = FakeCareerHost.Build("http://127.0.0.1:0",
+            new(ManualChallenge: ManualChallengeKind.Mfa, ManualChallengeAfterResumeMilliseconds: 750));
+        await site.StartAsync();
+        var draft = Draft(site.Urls.Single());
+        await using var browser = new ManagedBrowserSession(new(site.Urls.Single()));
+        await browser.PrepareAsync(draft, Approve(draft, ApprovalPurpose.ShareData), Resume);
+        await Task.Delay(1000);
+
+        var denied = await Assert.ThrowsAsync<PolicyException>(() => browser.SubmitAsync(draft,
+            Approve(draft, ApprovalPurpose.Submit)));
+
+        Assert.Equal("ManualTakeoverRequired", denied.Code);
+        Assert.Equal(0, site.Services.GetRequiredService<ReceiptStore>().SubmissionPosts);
+    }
+
     [Fact]
     public async Task ManagedForm_RequiresSeparateSubmissionApproval_ThenVerifiesReceipt()
     {

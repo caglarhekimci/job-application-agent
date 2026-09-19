@@ -2,8 +2,7 @@
 
 Prepared 2026-09-19 UTC. Public source exists at
 https://github.com/caglarhekimci/job-application-agent, maintained by caglarhekimci.
-The final form is populated. Submission is authorized by the user; the separate
-browser action-time program-terms confirmation is pending. It has not been submitted.
+The final form is populated. The user explicitly accepted the program terms at action time. The form was submitted and the OpenAI success message was observed. The receipt is stored privately; selection remains unknown.
 
 Names, ChatGPT account email and required Organization ID were supplied/verified
 privately and are intentionally absent from public files. The role is primary

@@ -21,6 +21,10 @@ the fixture screen retains its authored synthetic data.
 No persistent browser profile, trace or screenshot is captured by the runtime.
 E2E tests deliberately capture synthetic UI screenshots under ignored artifacts.
 CSRF and authentication material are excluded from state responses and MCP.
+The opt-in synthetic command bridge stores its separate credential with DPAPI
+outside the repository. Personal workspace documents and answer memory are not
+exposed by its model-callable tools. Opt-in host and model tests send only authored
+synthetic data through the existing ChatGPT account and use included quota.
 Private salary minimums are excluded from answers, fixture state and MCP summaries.
 The authenticated personal profile editor displays them so users can review/delete
 their own data. Personal exports include them and the original CV.

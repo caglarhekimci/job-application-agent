@@ -9,6 +9,47 @@ namespace JobAgent.E2E.Tests;
 public sealed class AdversarialFormTests
 {
     [Fact]
+    public async Task ManualChallenge_PersistsPausedStateAcrossRestart()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "jobagent-manual-takeover-" + Guid.NewGuid());
+        Directory.CreateDirectory(root);
+        try
+        {
+            await using var site = FakeCareerHost.Build("http://127.0.0.1:0",
+                new(ManualChallenge: ManualChallengeKind.Captcha, ManualChallengeAfterResumeMilliseconds: 750));
+            await site.StartAsync();
+            await using (var workflow = new DemoWorkflow(root, site.Urls.Single(), HappyPathTests.FindRepo()))
+            {
+                await workflow.LoadFixtureAsync(); await workflow.ConfirmProfileFromUiAsync();
+                await workflow.CreateDraftAsync(); await workflow.ShareAndFillFromUiAsync("synthetic-session");
+                await Task.Delay(1000);
+                await workflow.SubmitFromUiAsync("synthetic-session");
+                var journal = new ApplicationJournal(Path.Combine(root, "synthetic-applications.db"));
+                var paused = Assert.Single(await journal.ListAsync());
+                Assert.Equal(ApplicationStatus.NeedsInput, paused.Draft.Status);
+                Assert.Equal("ManualTakeoverRequired", paused.Error);
+                Assert.NotNull(paused.Sharing?.UsedAt);
+                Assert.Null(paused.Submission);
+                await Assert.ThrowsAsync<PolicyException>(() => workflow.SubmitFromUiAsync("synthetic-session"));
+            }
+            await using (var restarted = new DemoWorkflow(root, site.Urls.Single(), HappyPathTests.FindRepo()))
+            {
+                await restarted.GetStateAsync();
+                var journal = new ApplicationJournal(Path.Combine(root, "synthetic-applications.db"));
+                var paused = Assert.Single(await journal.ListAsync());
+                Assert.Equal(ApplicationStatus.NeedsInput, paused.Draft.Status);
+                Assert.Equal("ManualTakeoverRequired", paused.Error);
+            }
+            Assert.Equal(0, site.Services.GetRequiredService<ReceiptStore>().SubmissionPosts);
+        }
+        finally
+        {
+            Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+            Directory.Delete(root, true);
+        }
+    }
+
+    [Fact]
     public async Task WebSocketEgress_IsBlockedBeforeHandshake()
     {
         await using var trap = FakeCareerHost.Build("http://127.0.0.1:0");

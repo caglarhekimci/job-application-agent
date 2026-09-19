@@ -13,8 +13,10 @@ public static class Program
         var builder = Host.CreateApplicationBuilder(args);
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole(options => options.LogToStandardErrorThreshold = LogLevel.Trace);
-        builder.Services.AddSingleton(RuntimeStore.FromProcessConfiguration());
-        builder.Services.AddMcpServer()
+        var store = RuntimeStore.FromProcessConfiguration();
+        builder.Services.AddSingleton(store);
+        builder.Services.AddSingleton<LocalHostBridgeClient>();
+        var mcp = builder.Services.AddMcpServer()
             .WithStdioServerTransport()
             .WithRequestFilters(filters =>
             {
@@ -25,6 +27,8 @@ public static class Program
                         "runtime_get_capabilities" => Array.Empty<string>(),
                         "profile_get_summary" => ["profileRef"],
                         "application_get_status" => ["applicationRef"],
+                        "application_create_draft" => [],
+                        "application_prepare_review" or "application_execute_approved" => ["applicationRef"],
                         _ => null
                     };
                     if (allowed is not null && context.Params?.Arguments is { } arguments &&
@@ -40,6 +44,7 @@ public static class Program
                 });
             })
             .WithTools<ReadOnlyTools>();
+        if (store.SyntheticCommandsEnabled) mcp.WithTools<SyntheticCommandTools>();
         await builder.Build().RunAsync();
     }
 }

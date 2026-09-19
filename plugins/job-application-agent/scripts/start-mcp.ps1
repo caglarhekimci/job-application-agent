@@ -12,7 +12,7 @@ try {
     }
     $dotnetPath = Join-Path $env:LOCALAPPDATA 'JobApplicationAgent/tools/dotnet/dotnet.exe'
     if (-not (Test-Path -LiteralPath $dotnetPath -PathType Leaf)) {
-        $dotnet = Get-Command dotnet -CommandType Application -ErrorAction SilentlyContinue
+        $dotnet = Get-Command dotnet -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
         if (-not $dotnet) { throw 'The .NET 10 runtime is required. Follow the project installation guide before enabling this plugin.' }
         $dotnetPath = $dotnet.Source
     }
@@ -22,6 +22,9 @@ try {
     if (-not $env:JOBAGENT_RUNTIME_DIR) {
         $env:JOBAGENT_RUNTIME_DIR = Join-Path $env:LOCALAPPDATA 'JobApplicationAgent/demo'
     }
+    # The distributed Local Inspector always honors its read-only manifest.
+    # Direct MCP workflow setup is a separate explicit opt-in path.
+    $env:JOBAGENT_ENABLE_SYNTHETIC_COMMANDS = '0'
     # Inherit the STDIO handles; never mix launcher messages into MCP stdout.
     & $dotnetPath (Join-Path $runtimeRoot 'JobAgent.Mcp.dll')
     exit $LASTEXITCODE

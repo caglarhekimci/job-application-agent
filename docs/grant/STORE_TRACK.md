@@ -11,8 +11,9 @@ unauthorized. These are separate outcomes; publication does not award Pro access
 a supported Codex compatibility manifest, matching local STDIO declarations,
 contained launcher, package builder, privacy disclosure, and reviewer scenarios.
 The package identifies itself as **Job Application Agent — Local Inspector**.
-It exposes the existing three read-only tools; it does not add approval, browser,
-submission or live-platform tools. No skills-only substitute for the application
+By default it exposes three read-only tools. The companion/MCP runtime also has
+three explicitly opt-in synthetic commands, with approval restricted to the UI;
+the packaged inspector's default permissions remain read-only. No skills-only substitute for the application
 has been presented as completion of the requested product.
 
 The package builder produces a ZIP with runtime binaries from reviewed MCP output,
@@ -22,10 +23,11 @@ capability call, invalid-path rejection and empty-runtime check. Missing runtime
 and forbidden private-file input fail closed. See
 [package evidence](../evidence/plugin-package.md).
 
-No marketplace entry was installed into the user's configuration. The plugin has
-not been installed through the host or submitted to the public directory. The
-separate [Codex host evidence](../evidence/codex-host.md) proves a direct capability
-tool call, not plugin installation or all reviewer prompts.
+The plugin was installed and tested through an isolated Codex CLI marketplace,
+without changing the user's ordinary configuration. The eight actual scenarios
+scored 7/8 on the first reviewed run; a guidance correction passed a targeted
+rerun of the remaining scenario on plugin 0.1.1. See [installed-host evidence](../evidence/plugin-host.md).
+It has not been submitted to the public directory or installed in ChatGPT web.
 
 ## Current public submission rules
 
@@ -39,8 +41,9 @@ directory publication. [Packaging documentation](https://developers.openai.com/p
 The portal also requires Apps Management write access, a verified publisher
 identity, public support/privacy/terms material, and five positive plus three
 negative review cases. Submission, approval and publication are distinct steps.
-These requirements were checked on 2026-09-19; actual account eligibility has not
-been inspected. [Submission requirements](https://developers.openai.com/plugins/deploy/submission).
+These requirements were checked on 2026-09-19. The authenticated Platform page
+showed publisher identity verification as not started; Apps Management write access
+has not been established. [Submission requirements](https://developers.openai.com/plugins/deploy/submission).
 
 The published-plugin quality policy excludes trial/demo products. The initial
 fixture inspector is therefore not labeled ready for public review.
@@ -51,12 +54,12 @@ fixture inspector is therefore not labeled ready for public review.
 | Gate | State | Concrete next requirement |
 |---|---|---|
 | Local distribution package | VerifiedLocal | Built/tested from publish output `20260919T210019Z`; rebuild if release inputs change |
-| Plugin host installation | NotRun | Install/test the prepared package when the parent task schedules that step |
-| Public source and release | Repository created; release pending | Publish reviewed source and supported release; see project ledger |
+| Plugin host installation | VerifiedIsolatedCodex | Actual isolated CLI installation and scenarios; see host evidence |
+| Public source and release | Published | Public main and v0.1.0-alpha.1 app/plugin ZIPs; see project ledger |
 | Public MCP access route | BlockedExternal | Approved production HTTPS architecture or OpenAI local-MCP support; no tunnel or hosted service was enabled |
-| Publisher identity and portal permission | Unknown | User-controlled Platform identity verification and Apps Management access |
+| Publisher identity and portal permission | BlockedExternal | Platform showed verification not started; user-controlled verification and Apps Management access required |
 | Public listing material | Incomplete | Publish matching support, privacy and terms URLs plus production branding |
-| Reviewer scenarios | Specified, not all run | Execute the eight actual host workflows using synthetic fixtures |
+| Reviewer scenarios | Executed with documented correction | Eight actual host turns plus targeted N2 rerun; general product review still broader |
 | Product completeness | InProgress | Complete the intended useful application and required security/installation gates |
 | Policy attestations | Not completed | Review the actual final package and current portal statements |
 | Review submission | Not submitted | Satisfy the above gates and submit the actual package |
