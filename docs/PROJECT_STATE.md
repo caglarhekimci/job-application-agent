@@ -1,8 +1,9 @@
 # Project state
 
 Updated: 2026-09-19 UTC (2026-09-20 Istanbul). Public repository was created at
-https://github.com/caglarhekimci/job-application-agent. Initial source push, public CI
-and release are being finalized. The user authorized public push and OSS application
+https://github.com/caglarhekimci/job-application-agent. Source is public on main at
+da84c258362402e6feed898cfd5f02224af9b7c3; clean-checkout verification and public CI
+passed. A tagged release is being prepared. The user authorized public push and OSS application
 submission and normal included Codex quota for required tests. Extra paid spending
 is not authorized. Real job submissions still need a concrete selected package.
 
@@ -16,9 +17,9 @@ is not authorized. Real job submissions still need a concrete selected package.
 | W09 | VerifiedLocal, partial | 12 STDIO tests plus one actual Codex capability call; complete host-mediated application remains |
 | W10 | InProgress | 11-case fixture runner; broader benchmark and model-quality comparison remain |
 | W11 | VerifiedLocal, partial | Negative browser/request/parser/storage tests; final scope in threat model |
-| W12 | InProgress | 137 integrated tests, launcher, package/hash and PDF/DOCX smoke passed; fresh checkout and public CI pending |
+| W12 | VerifiedLocal and CI | 137 tests also passed in a clean checkout; GitHub Actions run 35469458955 succeeded; packaged PDF/DOCX smoke passed |
 | W13 | BlockedExternal | No user-reviewed real CV, selected live target or platform permission; personal-use screen exists |
-| W14 | Authorized, InProgress | Public repo created; code push/release pending |
+| W14 | Public source verified | main pushed; private vulnerability reporting enabled; tagged release pending |
 | W15 | External evidence pending | 0 independent users; no fabricated adoption |
 | W16 | Authorized, InProgress | Private applicant fields obtained, Pro/Codex-only form being prepared; final terms confirmation and receipt pending |
 | W17 | Local package verified | Portable/Codex manifest and relocated STDIO smoke; store publication blocked on documented publisher/hosting/review gates |
@@ -42,7 +43,7 @@ No API key, purchase, billing change, real employer application or store accepta
 has occurred. LinkedIn remains blocked. Program benefit is discretionary.
 
 Resume from this file, `VERIFICATION.md`, `CAPABILITY_MATRIX.md` and
-`evidence/remaining-deliverables.md`. Complete exact-commit packaging/clean checkout,
-public push/CI/release, then the prepared OSS form's action-time terms gate. Expand
+`evidence/remaining-deliverables.md`. Complete exact-commit release packaging and
+the prepared OSS form's action-time terms gate. Expand
 the incomplete local W05/W07/W09/W10 slices afterward; do not mark them complete
 merely because the initial public prototype is published.

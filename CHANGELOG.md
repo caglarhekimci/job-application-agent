@@ -11,4 +11,8 @@
 - Added a read-only STDIO MCP server with real subprocess protocol tests.
 - Added setup, verification, source/history scan and local packaging scripts.
 
-No public release, live adapter or real model-host execution is claimed.
+- Added protected personal CV/profile/job review, PDF/DOCX worker imports and export/deletion.
+- Verified one actual read-only Codex capability call and a relocated local plugin package.
+- Published source with passing Windows CI and a clean-checkout 137-test result.
+
+No live adapter, model-quality benchmark, independent adoption or store approval is claimed.

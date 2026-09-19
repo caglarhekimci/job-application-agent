@@ -24,7 +24,7 @@ try {
         throw 'Launcher static assets are missing. Run scripts/bootstrap.ps1.'
     }
     Write-Host "SDK $sdk | Node $node | npm $npm | Playwright Chromium 1234 present"
-    Write-Host 'Mode: Fixture only. API spend: 0. LinkedIn: blocked. Real model/host: not verified.'
+    Write-Host 'Local fixture workflows require no paid API. LinkedIn: blocked. Doctor does not run or verify a model host.'
     Write-Host 'Windows profiles use current-user DPAPI; application journal contains synthetic data only.'
     Write-Host 'Full browser launch, storage and workflow validation: scripts/verify.ps1.'
 } finally { Pop-Location }

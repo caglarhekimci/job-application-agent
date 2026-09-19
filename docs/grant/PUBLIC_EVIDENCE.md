@@ -1,35 +1,21 @@
 # Public evidence map
 
-**Snapshot:** 2026-09-18
-**Publication state:** Local prototype; no remote, public repository URL, or published release.
+Snapshot: 2026-09-19 UTC. Source is public; tagged release pending.
 
-This file separates evidence that exists locally from claims that require future public or independent confirmation.
+| Claim | Evidence | Limit |
+|---|---|---|
+| Open source | [Public source and MIT license](https://github.com/caglarhekimci/job-application-agent/tree/da84c258362402e6feed898cfd5f02224af9b7c3) | New project; not an adoption claim |
+| Tested source | [Successful Windows CI](https://github.com/caglarhekimci/job-application-agent/actions/runs/35469458955), [137-test local/clean-checkout ledger](../VERIFICATION.md) | Synthetic/local scope, current-user caches in local clean checkout |
+| Evidence-grounded answers | [Core rules/tests](../../tests/JobAgent.Core.Tests), [workspace evidence](../evidence/personal-workspace.md) | Deterministic rules; not broad model quality |
+| Approval-bound browser | [E2E tests](../../tests/JobAgent.E2E.Tests), [threat model](../THREAT_MODEL.md) | Managed loopback fixture; not native host control or live employer validation |
+| MCP and host | [Actual Codex call](../evidence/codex-host.md) | One read-only capability call; full host flow incomplete |
+| Distribution | [Plugin package test](../evidence/plugin-package.md) and packaged PDF/DOCX smoke in ledger | Local ZIP; no public store approval |
+| Maintenance | Public commits, tests and documented real fixes | No manufactured issues/PRs or long maintenance history |
+| Independent users/reuse | 0 observed independent users; no downstream reuse verified | Maintainer tests are excluded |
+| LinkedIn | BlockedExternal | No platform authorization |
+| OSS program | Form prepared with public evidence | Not submitted; acceptance and benefit unknown |
 
-| Potential claim | Current factual evidence | Current limitation | Public proof required before claiming |
-|---|---|---|---|
-| A working local prototype exists | Project state, verification ledger, synthetic browser/MCP evidence | Security fixes and final verification are still in progress | Final dated verification report for the exact published commit |
-| Answers are evidence-grounded | Typed profile/answer contracts and local tests | Only synthetic/local evidence is suitable for publication today | Public tests and documentation for the released version |
-| Browser actions require approval | Separate sharing/submission UI path and negative-test work | Adversarial request-boundary fixes are still being completed | Passing final security regressions linked from verification |
-| Local MCP exists | STDIO implementation/evidence in the working tree | Host integration and final verification are not complete | Tested setup guide and final host verification status |
-| The project is open source | No evidence yet | No remote or public URL | Public repository, license, visible history, and accessible source |
-| A release exists | **0 published releases** | No tag or release URL | Verified release page and notes for a tested commit |
-| Independent users use it | **0 independent users** | Maintainer runs and synthetic tests are not adoption | Consented independent installation/use records |
-| The project is actively maintained publicly | No public issue/PR/release history yet | Local development activity is not a public maintenance record | Real issue triage, fixes, reviews, releases, and dates |
-| Other projects reuse components | No external reuse verified | Reusability by design is not adoption evidence | Public integration/reference from an independent project |
-| LinkedIn automation is authorized | No authorization | User consent does not create platform permission | Separate written/platform authorization and a permitted test |
-| Codex for OSS application/benefit exists | Not submitted; no benefit | Preparation is not submission or selection | Private submission confirmation, then an actual OpenAI decision |
-
-## Evidence links
-
-- [Project state](../PROJECT_STATE.md)
-- [Verification ledger](../VERIFICATION.md)
-- [Capability matrix](../CAPABILITY_MATRIX.md)
-- [Official-source verification](../research/verified-sources.md)
-- [Adoption record](../community/ADOPTION.md)
-- [Maintenance record](../community/MAINTENANCE.md)
-- [Contribution evidence](../community/CONTRIBUTION_EVIDENCE.md)
-- [Publication and application gates](../community/PUBLICATION_GATES.md)
-
-## Publication rule
-
-Before publication, update links to immutable commit, test-report, release, issue, and pull-request URLs. Leave a claim absent when evidence is absent. Do not publish private emails, Organization IDs, CV data, credentials, browser sessions, private application details, or unredacted user feedback.
+Private email, Organization ID, CV, account state and application receipt are never
+published. Preserve dates, exact commit and sample sizes when updating claims.
+[Adoption](../community/ADOPTION.md), [maintenance](../community/MAINTENANCE.md),
+[capabilities](../CAPABILITY_MATRIX.md), [gates](../community/PUBLICATION_GATES.md).

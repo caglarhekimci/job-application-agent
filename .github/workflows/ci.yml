@@ -25,5 +25,5 @@ jobs:
       - name: Inspect local prerequisites
         shell: pwsh
         run: ./scripts/doctor.ps1
-# This workflow has not run on GitHub. No secrets, real CVs, API calls or artifacts
+# No secrets, real CVs, API calls or artifacts
 # are uploaded. Local logs contain paths and require review before publication.

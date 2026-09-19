@@ -1,54 +1,31 @@
 # Codex for Open Source readiness
 
-**Status date:** 2026-09-18
-**Decision:** **Not ready to apply.** This is a new, unpublished local prototype. This file records preparation; it is not an eligibility, selection, funding, or benefit claim.
+Status: 2026-09-19 UTC. **Prepared; awaiting action-time terms confirmation.**
+Submission is authorized. No submission, selection, credit, security access or
+Pro benefit is claimed yet. Public plugin listing and this program are separate.
 
-## Current facts
+| Item | Verified state |
+|---|---|
+| Repository | Public [job-application-agent](https://github.com/caglarhekimci/job-application-agent), main da84c25 |
+| Maintainer | caglarhekimci owns/administers the repository; primary maintainer |
+| Verification | 137 tests passed locally and in a clean checkout; public CI succeeded |
+| Installation/package | Source setup, manifest, packaged PDF/DOCX imports and relocated plugin STDIO passed |
+| Security/community | Source/history scan passed; MIT/dependency notices, contribution files and private vulnerability reporting present |
+| Independent users | 0; maintainer runs and CI are excluded |
+| Tagged releases | Pending; application narrative does not claim one |
+| Private fields | User provided contact fields; Organization ID read from authenticated Platform, stored only outside repo |
+| Optional support | No API credits and no Codex Security; Pro/Codex only |
+| Final fields | Counted and populated; see exact public draft |
+| Program terms | Read and shown; final browser action-time confirmation pending |
+| Submission receipt | Not yet obtained |
+| Selection/benefit | Unknown; no guarantee |
 
-| Item | Status | Required before application |
-|---|---|---|
-| GitHub account | `caglarhekimci` authenticated through the available connector | Reconfirm control on submission day |
-| Repository lookup | `job-application-agent` was absent or inaccessible | Create/publish only after explicit user approval; verify the resulting public URL |
-| Git remote/public URL | No remote created; no public URL exists | Record the real public repository URL |
-| Project stage | Local pre-publication prototype | Complete release gates and publish an evidence-backed scope |
-| Independent users | **0** | Record only consented, independently verifiable use if it occurs |
-| Published releases | **0** | Publish and verify a real tagged release if approved |
-| Maintainer role | Not yet evidenced on a public repository | Verify actual primary/core maintainer role and repository control |
-| Final test result | Pending security fixes and final verification | Cite [the verification ledger](../VERIFICATION.md); do not copy a stale total |
-| ChatGPT account email | Unknown; must not be guessed or published | User supplies it privately and confirms the target account |
-| OpenAI Organization ID | Unknown; must not be guessed or published | User supplies it privately if the live form requires it |
-| Codex Security interest | No selection made | Select only for a real authorized repository need |
-| API credit interest | No selection made | Select only with an accurate maintenance/evaluation plan |
-| Program submission | Not submitted | Show final fields and terms, then obtain separate submission approval |
+The form's Organization ID and API-use explanation remain required even without
+selecting API credits. The explanation explicitly requests no API support. No
+payment method, API key, purchase or paid service was created.
 
-## Readiness gates
-
-- [x] Official program page, form, and terms checked on 2026-09-18.
-- [x] Current unpublished status and zero independent adoption recorded.
-- [x] Three short-field drafts counted against the current 500-character limits.
-- [ ] Final security findings closed and final verification ledger complete.
-- [ ] License, notices, community health files, installation path, and clean-room verification reviewed.
-- [ ] Full git history and release artifacts checked for secrets and personal data.
-- [ ] User approves repository owner, name, visibility, initial push contents, and license.
-- [ ] Public repository URL exists and opens without authentication.
-- [ ] Actual maintainer role and repository control verified.
-- [ ] Published release exists if the application narrative mentions one.
-- [ ] Any usage, adoption, maintenance, or reuse statement is linked to real evidence.
-- [ ] Live form fields and conditional Organization ID/API-credit requirements rechecked on submission day.
-- [ ] ChatGPT email and any Organization ID privately supplied by the user.
-- [ ] Final form values and current terms shown to the user; separate submission approval obtained.
-- [ ] Submission confirmation stored privately. Acceptance remains unknown until OpenAI communicates it.
-
-Draft fields: [Codex for OSS draft](CODEX_FOR_OSS_DRAFT.md)
-Evidence map: [Public evidence](PUBLIC_EVIDENCE.md)
-Official-source record: [Verified sources](../research/verified-sources.md)
-
-## Primary sources
-
-Verified 2026-09-18:
-
-- [Application form](https://openai.com/form/codex-for-oss/)
-- [Program overview](https://developers.openai.com/community/codex-for-oss)
-- [Program terms](https://learn.chatgpt.com/docs/codex-for-oss-terms)
-
-The sources say applications are reviewed at OpenAI's discretion and that submission does not guarantee selection, funding, or access. Reverify all three immediately before any application.
+[Exact public fields](CODEX_FOR_OSS_DRAFT.md), [evidence](PUBLIC_EVIDENCE.md),
+[verification](../VERIFICATION.md), [store track](STORE_TRACK.md).
+Official [form](https://openai.com/form/codex-for-oss/),
+[overview](https://developers.openai.com/community/codex-for-oss), and
+[terms](https://learn.chatgpt.com/docs/codex-for-oss-terms) checked 2026-09-19.

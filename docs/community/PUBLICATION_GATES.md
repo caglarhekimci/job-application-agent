@@ -1,66 +1,24 @@
-# Publication, adoption, grant, and store gates
+# Publication, adoption, grant and store gates
 
-**Tracked from:** 2026-09-18
-**Overall state:** Closed. No publication or external submission is authorized by this document.
+Updated 2026-09-19 UTC. User authorized public publication and OSS submission.
+Paid spending, live applications and binding program terms remain separately scoped.
 
-## G1 — Final local verification
+| Gate | Actual state | Remaining |
+|---|---|---|
+| Local verification | Passed: 137 tests, build/format/scanner/launcher/package imports | Verify future code changes before release |
+| Public repository | Public main da84c25; owner verified; private vulnerability reporting enabled | None for initial source publication |
+| CI/clean checkout | GitHub run 35469458955 succeeded; separate clone setup/137 tests passed | Fresh Windows user test is not claimed |
+| First tagged release | In progress | Exact-commit package, published assets and release URL |
+| Independent adoption | 0 independent users | Actual voluntary users and consented feedback, no synthetic substitutes |
+| Maintenance | Real implementation and regression fixes in public history | Sustained future maintenance cannot be pre-created |
+| OSS form | Prepared; final terms confirmation requested | Submit after confirmation, verify private receipt; selection external |
+| Plugin directory | Local package verified, host test in progress | Publisher verification, supported public MCP route and production-quality review |
 
-- [ ] Integrated security fixes complete.
-- [ ] Final clean restore/build/test/verify run recorded in [VERIFICATION.md](../VERIFICATION.md).
-- [ ] Exact published-commit evidence contains no stale test total.
-- [ ] Capability matrix matches the verified behavior and limitations.
+Source: https://github.com/caglarhekimci/job-application-agent
+CI: https://github.com/caglarhekimci/job-application-agent/actions/runs/35469458955
 
-## G2 — Public repository approval
-
-- [ ] License and third-party notices reviewed.
-- [ ] README, install guide, security policy, contribution guide, code of conduct, and issue/PR templates reviewed.
-- [ ] Complete git history and artifacts scanned for secrets and personal data.
-- [ ] Synthetic demo labels and platform-permission limits are visible.
-- [ ] User approves owner (`caglarhekimci`), repository name, visibility, license, and exact push contents.
-- [ ] Remote is created only after that approval.
-- [ ] Public URL opens without authentication and is recorded here: **not available**.
-
-## G3 — First release
-
-- [ ] Clean-environment installation succeeds for the public commit.
-- [ ] Tag and release notes describe only verified features.
-- [ ] Release assets pass the same privacy/secret review.
-- [ ] Release URL is recorded here: **not available**.
-- [ ] Published release count updated from the current value of **0**.
-
-## G4 — Independent adoption and maintenance
-
-- [ ] Pilot invitation and target communities approved before posting.
-- [ ] Independent installations and failures recorded using [ADOPTION.md](ADOPTION.md).
-- [ ] Real issue/fix/release work recorded using [MAINTENANCE.md](MAINTENANCE.md).
-- [ ] Contributions/reuse recorded using [CONTRIBUTION_EVIDENCE.md](CONTRIBUTION_EVIDENCE.md).
-- [ ] Metrics retain sample size, method, exclusions, and consent limits.
-
-Current independent users: **0**. This is not a promise to reach a particular threshold, and the program publishes no fixed acceptance threshold.
-
-## G5 — Codex for Open Source application
-
-- [ ] G2 complete; public repository and maintainer role verified.
-- [ ] Official form, overview, and terms reverified on the actual submission date.
-- [ ] [Readiness](../grant/READINESS.md) has no unresolved blocking item.
-- [ ] [Draft fields](../grant/CODEX_FOR_OSS_DRAFT.md) updated from real public evidence and recounted.
-- [ ] ChatGPT account email and any required Organization ID supplied privately.
-- [ ] Final form and current terms shown to the user.
-- [ ] Separate explicit approval to submit obtained.
-- [ ] Private submission confirmation recorded.
-
-Current state: **Not submitted.** No selection or benefit is claimed.
-
-## G6 — Optional ChatGPT store track
-
-- [ ] A real distribution need and package architecture are approved.
-- [ ] Current store/plugin requirements and permissions are reverified.
-- [ ] Hosting, privacy, retention, deletion, support, and cost responsibilities are approved.
-- [ ] Local-companion and unsupported-integration limits are disclosed.
-- [ ] Final package receives separate publication/submission approval.
-
-Current state: **Not started.** See [STORE_TRACK.md](../grant/STORE_TRACK.md). Store review and Codex for OSS are separate decisions.
-
-## Source dates
-
-Codex for OSS primary sources were last verified on 2026-09-18: [form](https://openai.com/form/codex-for-oss/), [overview](https://developers.openai.com/community/codex-for-oss), and [terms](https://learn.chatgpt.com/docs/codex-for-oss-terms). Reverify before application because fields, terms, and availability can change.
+No unsolicited community/email messages are authorized merely by public repository
+publication. Pilot invitation material remains a draft until a specific destination
+and sending action are authorized. No user/download/star targets are represented
+as results. See [readiness](../grant/READINESS.md), [store track](../grant/STORE_TRACK.md),
+[adoption](ADOPTION.md), [maintenance](MAINTENANCE.md) and [verification](../VERIFICATION.md).

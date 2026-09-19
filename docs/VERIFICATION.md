@@ -1,5 +1,22 @@
 # Verification ledger
 
+## Public source and independent checkout — 2026-09-19 UTC
+
+Public main is commit `da84c258362402e6feed898cfd5f02224af9b7c3`.
+Unauthenticated GitHub REST confirmed public visibility and main; push exited 0.
+[GitHub Actions run 35469458955](https://github.com/caglarhekimci/job-application-agent/actions/runs/35469458955)
+completed with conclusion **success** for that exact commit.
+Private vulnerability reporting was enabled and its saved setting verified.
+
+A separate clone at `%TEMP%/jobagent-clean-da84c25` ran the README path:
+`scripts/bootstrap.ps1`, `scripts/verify.ps1`, `scripts/doctor.ps1`; all exited 0.
+The clone stayed clean. Verification reports:
+`artifacts/verification/20260919T210809Z/` in that clone.
+**137 passed, 0 failed, 0 skipped**, 0 build warnings/errors; launcher, fixture
+evaluation, source scanner regressions and 197-file/4-commit history scan passed.
+This used the current Windows user's dependency/browser caches; it is not a fresh
+Windows account test or an independent user's adoption.
+
 ## Integrated local release candidate — 2026-09-19 UTC
 
 `scripts/verify.ps1` exited **0**, reports `artifacts/verification/20260919T205804Z/`.
@@ -27,7 +44,7 @@ and scope limitations. Full W00-W18 completion is not claimed.
 
 All entries distinguish environment checks, expected failing tests, passing tests
 and external actions. Early pending notes are historical; later integrated results
-supersede them. GitHub CI/live/model-quality evaluation: NotRun.
+supersede them. Live/model-quality evaluation: NotRun. Public CI passed as above.
 
 ## W00 — environment (2026-09-18)
 - Parent: not a git repository (`git rev-parse --show-toplevel`, exit 128).

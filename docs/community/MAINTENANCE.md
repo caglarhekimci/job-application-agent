@@ -1,9 +1,9 @@
 # Maintenance evidence
 
-**Snapshot:** 2026-09-18
-**Current public maintenance history:** None. The repository is not published, and there are no public issues, pull requests, or releases to cite.
+**Snapshot:** 2026-09-19 UTC
+**Current public maintenance history:** Initial source and regression fixes are public in [da84c25](https://github.com/caglarhekimci/job-application-agent/commit/da84c258362402e6feed898cfd5f02224af9b7c3). There is no established independent issue/PR history or sustained maintenance record yet.
 
-Local development and test work can support a future release, but it must not be described as an established public maintenance burden.
+Initial implementation and regression work is real, but is not an established public maintenance burden. Actual fixes include the Release document-worker test configuration and personal-form state preservation; see the verification ledger and personal-workspace evidence.
 
 ## Maintenance-entry template
 

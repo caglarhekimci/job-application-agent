@@ -13,7 +13,7 @@
 | Real model | CapabilitySmokeOnly | Actual Codex call verified; quality evaluation and complete host workflow NotRun |
 | LinkedIn search/autofill/submit | BlockedExternal | No verified platform permission |
 | Authorized live career site | BlockedExternal | No selected/authorized live target |
-| GitHub publication | Authorized, InProgress | Public repo created, owner/admin verified; code push/release being finalized |
-| CI | NotRun | Local checks will be recorded separately |
+| GitHub publication | PublicSourceVerified | main commit da84c25 public; private vulnerability reporting enabled; release pending |
+| CI | Passed | GitHub Actions run 35469458955 on da84c25; clean local checkout also passed all 137 tests |
 | OSS grant | Prepared, NotSubmitted | Private fields obtained; Pro/Codex-only request; final terms gate pending; no award guarantee |
 | Local plugin package | VerifiedLocal | Portable/Codex manifests and relocated STDIO smoke; store publication remains externally gated |

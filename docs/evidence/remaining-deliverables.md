@@ -1,4 +1,6 @@
-# Remaining deliverables before publication and application
+# Pre-publication audit (historical snapshot)
+
+> Superseded for publication facts by ../PROJECT_STATE.md and ../VERIFICATION.md. Source da84c25 is now public, 137 tests passed in a clean checkout and GitHub CI, packaged PDF/DOCX and plugin checks passed. The partial W05/W07/W09/W10 scope below remains useful; this snapshot is not the current publication ledger.
 
 **Audit date:** 2026-09-19
 **Scope:** read-only comparison of the current working tree with W00-W18 in the accepted master plan. No build, test, package, push, release, live application, or private-data operation was performed for this audit. Other agents were still integrating and testing the workspace, so the final verification ledger is authoritative when it is updated.
