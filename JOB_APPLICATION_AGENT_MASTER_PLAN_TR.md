@@ -1,10 +1,10 @@
 # Job Application Agent — Ana Tasarım, Uygulama ve Codex for OSS Başvuru Planı
 
-**Belge sürümü:** 1.0  
-**Araştırma ve doğrulama tarihi:** 18 Eylül 2026  
-**Proje sahibi / hedef GitHub hesabı:** `caglarhekimci`  
-**Önerilen depo adı:** `job-application-agent`  
-**Hedef depo:** `caglarhekimci/job-application-agent` — öneridir; bu belge hazırlanırken oluşturulmadı.  
+**Belge sürümü:** 1.0
+**Araştırma ve doğrulama tarihi:** 18 Eylül 2026
+**Proje sahibi / hedef GitHub hesabı:** `caglarhekimci`
+**Önerilen depo adı:** `job-application-agent`
+**Hedef depo:** `caglarhekimci/job-application-agent` — öneridir; bu belge hazırlanırken oluşturulmadı.
 **Belge durumu:** Uygulanacak tasarım ve iş planı. Ürünün geliştirilmiş, testlerinin geçmiş, LinkedIn izninin alınmış veya program başvurusunun yapılmış olduğu anlamına gelmez.
 
 > **Uygulayıcı yapay zekâ için:** Bu belge hem ürün şartnamesini hem aşamalı uygulama planını içerir. Önce tamamını oku. Ortamda mevcutsa ilgili geliştirme becerilerini kullan; uygulamayı test güdümlü ve doğrulanabilir iş paketleriyle yürüt. Tasarımın kendisini yeniden üretmekle yetinme. Haricî izinleri, gerçek kullanıcıları ve program kabulünü kod yazarak elde edilmiş sayma.
@@ -806,7 +806,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W00 — Ortam, hesap ve kaynak doğrulaması
 
-**Bağımlılık:** Yok.  
+**Bağımlılık:** Yok.
 **Dosyalar:** `AGENTS.md`, `docs/PROJECT_STATE.md`, `docs/DECISIONS.md`, `docs/research/verified-sources.md`, `docs/CAPABILITY_MATRIX.md`.
 
 - [ ] Çalışma dizini, git durumu, branch ve mevcut dosyaları oku; kirli çalışma ağacını silme.
@@ -821,7 +821,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W01 — Çalıştırılabilir iskelet ve ilk test sitesi
 
-**Bağımlılık:** W00.  
+**Bağımlılık:** W00.
 **Dosyalar:** `JobAgent.slnx`, `global.json`, merkezi paket ayarları, `src/JobAgent.Core/`, `src/JobAgent.Web/`, `sandbox/JobAgent.FakeCareerSite/`, `tests/JobAgent.E2E.Tests/SmokeTests.cs`.
 
 - [ ] Test edilmiş SDK/bağımlılık sürümlerini sabitle; fake site ve uygulama `/health` kontrolü ekle.
@@ -834,7 +834,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W02 — Tipli profil ve sürümlü özel kayıt
 
-**Bağımlılık:** W01.  
+**Bağımlılık:** W01.
 **Dosyalar:** `src/JobAgent.Core/Profiles/`, `src/JobAgent.Infrastructure/Storage/`, `tests/JobAgent.Core.Tests/ProfileVersionTests.cs`, `tests/JobAgent.Infrastructure.Tests/ProfilePersistenceTests.cs`.
 
 **Üretilecek tipler:** Bölüm 5'teki `CandidateProfile`, `EvidenceFact`, `ExperiencePeriod`, `SalaryPreference`, `AnswerMemory`, `ConsentPolicy`, `ProfilePatch`; `ProfilePatchResult` içinde yeni sürüm veya somut çakışma/hata bulunur.
@@ -849,7 +849,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W03 — CV içeri aktarma ve kanıt doğrulama
 
-**Bağımlılık:** W02.  
+**Bağımlılık:** W02.
 **Dosyalar:** `src/JobAgent.Infrastructure/Documents/`, `web/src/profile/`, `tests/JobAgent.Infrastructure.Tests/ResumeImportTests.cs`, `samples/`.
 
 - [ ] `PlainTextResume_ProducesReviewableFacts`, `CorruptDocument_IsRejected`, `OversizedDocument_IsRejected`, `PersonalProject_IsNotEmployment` testlerini yaz.
@@ -862,7 +862,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W04 — İlan içeri aktarma, yetki kaydı ve uygunluk
 
-**Bağımlılık:** W02.  
+**Bağımlılık:** W02.
 **Dosyalar:** `src/JobAgent.Core/Jobs/`, `src/JobAgent.Core/Permissions/`, `tests/JobAgent.Core.Tests/JobEvaluationTests.cs`, `tests/JobAgent.Core.Tests/SourcePermissionTests.cs`.
 
 **Üretilecek tipler:** `JobPosting`, `JobRequirement`, `JobEvaluation`, `RequirementAssessment`, `SourcePermission`.
@@ -877,7 +877,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W05 — Cevap hafızası ve doğru alan çözümleme
 
-**Bağımlılık:** W02–W04.  
+**Bağımlılık:** W02–W04.
 **Dosyalar:** `src/JobAgent.Core/Answers/`, `tests/JobAgent.Core.Tests/SalaryAnswerTests.cs`, `tests/JobAgent.Core.Tests/AnswerScopeTests.cs`.
 
 **Üretilecek tipler:** `FormQuestion` alan etiketi/türü/seçenek/sınır taşır. `AnswerContext` profil/iş/kapsam/veri iznini taşır. `AnswerResolution` durum/cevap/kanıt/açıklama taşır.
@@ -892,7 +892,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W06 — Durum makinesi, onay ve idempotency
 
-**Bağımlılık:** W04–W05.  
+**Bağımlılık:** W04–W05.
 **Dosyalar:** `src/JobAgent.Core/Applications/`, `src/JobAgent.Core/Permissions/ApprovalPolicy.cs`, `tests/JobAgent.Core.Tests/ApprovalTests.cs`, `tests/JobAgent.Infrastructure.Tests/ApplicationConcurrencyTests.cs`.
 
 **Üretilecek tipler:** `ApplicationDraft`, `ApplicationStatus`, `AnswerPackage`, `ApprovalReceipt`, `SubmissionAttempt`, `SubmissionEvidence`.
@@ -907,7 +907,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W07 — Denetimli tarayıcı ve dosya yükleme
 
-**Bağımlılık:** W06.  
+**Bağımlılık:** W06.
 **Dosyalar:** `src/JobAgent.Infrastructure/Browser/`, `tests/JobAgent.E2E.Tests/BrowserPolicyTests.cs`, `tests/JobAgent.E2E.Tests/FileUploadTests.cs`.
 
 - [ ] `DisallowedOrigin_IsNeverNavigated`, `RedirectToNewRecipient_Stops`, `UploadUsesApprovedFileHash`, `CancelStopsNextAction` testlerini yaz.
@@ -921,7 +921,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W08 — Kullanıcı arayüzü ve ilk tam dikey dilim
 
-**Bağımlılık:** W03–W07.  
+**Bağımlılık:** W03–W07.
 **Dosyalar:** `web/src/jobs/`, `web/src/review/`, `web/src/history/`, `src/JobAgent.Web/`, `tests/JobAgent.E2E.Tests/HappyPathTests.cs`.
 
 - [ ] `SyntheticCandidate_ToVerifiedReceipt` E2E testini yaz: profil doğrula → ilan seç → soruları çöz → veri paylaşımı/onay → yükle → gönder → receipt.
@@ -935,7 +935,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W09 — Yerel MCP ve gerçek model host'u
 
-**Bağımlılık:** W08.  
+**Bağımlılık:** W08.
 **Dosyalar:** `src/JobAgent.Mcp/`, `tests/JobAgent.Mcp.Tests/ToolContractTests.cs`, `tests/JobAgent.Mcp.Tests/ApprovalBoundaryTests.cs`, `docs/guides/CODEX_SETUP.md`.
 
 - [ ] Bölüm 11'deki araçları ortak uygulama hizmetlerine bağla.
@@ -949,7 +949,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W10 — Değerlendirme runner'ı ve model karşılaştırması
 
-**Bağımlılık:** W05–W09.  
+**Bağımlılık:** W05–W09.
 **Dosyalar:** `evals/datasets/`, `evals/prompts/`, `evals/runners/`, `evals/DATASET_CARD.md`, `src/JobAgent.Cli/`.
 
 - [ ] Bölüm 14 test setini ve beklenen sonuçlarını üret; sentetik etiketi ve veri lisansını ekle.
@@ -963,7 +963,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W11 — Güvenlik, gizlilik ve kötü durum takımı
 
-**Bağımlılık:** W08–W10.  
+**Bağımlılık:** W08–W10.
 **Dosyalar:** `tests/JobAgent.Core.Tests/SecurityBoundaryTests.cs`, `tests/JobAgent.E2E.Tests/AdversarialFormTests.cs`, `docs/THREAT_MODEL.md`, `docs/DATA_FLOW.md`, `docs/PRIVACY.md`.
 
 - [ ] Bölüm 14.4 vakalarının her biri için gerçek regresyon testi ekle.
@@ -977,7 +977,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W12 — Kurulum, paketleme ve CI
 
-**Bağımlılık:** W11.  
+**Bağımlılık:** W11.
 **Dosyalar:** `scripts/`, `.github/workflows/ci.yml`, `README.md`, `README.tr.md`, `docs/guides/INSTALL.md`, `docs/guides/TROUBLESHOOTING.md`.
 
 - [ ] Bölüm 19 script sözleşmelerini gerçek dosya içerikleriyle uygula.
@@ -991,7 +991,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W13 — Kendi kullanımın ve izinli canlı adaptör
 
-**Bağımlılık:** G2–G3 ve ilgili hedef izni.  
+**Bağımlılık:** G2–G3 ve ilgili hedef izni.
 **Dosyalar:** `docs/CAPABILITY_MATRIX.md`, `docs/guides/PERSONAL_USE.md`; özel test kayıtları repo dışında.
 
 - [ ] Çağlar gerçek CV'sini yerel arayüzde içeri aktarır; güncel deneyim ve maaşı kendisi doğrular.
@@ -1005,7 +1005,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W14 — Public repo ve ilk release
 
-**Bağımlılık:** W12; G4 varsa belgelenir, yoksa sınırlar açık yazılır.  
+**Bağımlılık:** W12; G4 varsa belgelenir, yoksa sınırlar açık yazılır.
 **Dosyalar:** Lisans/topluluk dosyaları, `.github/` şablonları, `CHANGELOG.md`, `docs/evidence/`.
 
 - [ ] Bölüm 21 public yayın checklist'ini tamamla.
@@ -1019,7 +1019,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W15 — Gerçek kullanıcı, düzeltme ve bakım kanıtı
 
-**Bağımlılık:** W14.  
+**Bağımlılık:** W14.
 **Dosyalar:** `docs/evidence/ADOPTION.md`, `docs/evidence/MAINTENANCE.md`, `docs/evidence/METRICS.md`.
 
 - [ ] Küçük bağımsız pilot için açık davet metni hazırla; paylaşımı kullanıcı onaylasın.
@@ -1033,7 +1033,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W16 — Codex for OSS başvuru paketi
 
-**Bağımlılık:** W14; W15 kanıtları adaylığı güçlendiren iç hedef, zorunlu resmî eşik değildir.  
+**Bağımlılık:** W14; W15 kanıtları adaylığı güçlendiren iç hedef, zorunlu resmî eşik değildir.
 **Dosyalar:** `docs/grant/READINESS.md`, `docs/grant/PUBLIC_EVIDENCE.md`; özel başvuru taslağı kullanıcının özel alanında.
 
 - [ ] Programın açık olduğunu, form alanlarını ve koşulları başvuru günü yeniden doğrula.
@@ -1047,7 +1047,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W17 — İsteğe bağlı ChatGPT mağaza paketi
 
-**Bağımlılık:** G3–G5, güncel platform uyumluluğu ve seçilen mimariye göre barındırma onayı.  
+**Bağımlılık:** G3–G5, güncel platform uyumluluğu ve seçilen mimariye göre barındırma onayı.
 **Dosyalar:** `plugins/job-application-agent/`, `docs/guides/CHATGPT_PLUGIN.md`, `docs/grant/STORE_TRACK.md`.
 
 - [ ] Bölüm 25 karar ağacına göre skills-only / MCP / karma paketi seç.
@@ -1060,7 +1060,7 @@ Bu bölümdeki görevler gerçek kod, test ve doküman üretmek içindir. Uygula
 
 ### W18 — İsteğe bağlı tam masaüstü / fine-tuning genişlemesi
 
-**Bağımlılık:** Bölüm 12.3 veya 13.4'teki gerekçe kapısı.  
+**Bağımlılık:** Bölüm 12.3 veya 13.4'teki gerekçe kapısı.
 **Dosyalar:** Ayrı ADR, ayrı plan, ayrı test raporu.
 
 - [ ] Hangi ölçülmüş sorunu çözeceğini tanımla.
@@ -1379,7 +1379,7 @@ Kabul edilmezse veya cevap gelmezse bunu mühendislik başarısızlığıyla eş
 
 ### 25.1 İki farklı başvuru
 
-**Codex for OSS:** Bakımcı desteği için başvuru.  
+**Codex for OSS:** Bakımcı desteği için başvuru.
 **ChatGPT plugin mağazası:** Ürünün dağıtımı ve incelemesi.
 
 Birinin kabul edilmesi diğerinin kabulünü veya üyelik ödülünü otomatik sağlamaz. Mağaza yolunu ancak daha çok kullanıcının ürüne gerçekten ulaşmasına yardım edecekse yürüt.
@@ -1509,10 +1509,10 @@ Bu işler için kullanıcı/üçüncü taraf katılımı gerekir. Uygulayıcı g
 
 ### 28.4 Oturum sonunda rapor formatı
 
-**Tamamlanan:** Dosyalar, özellikler ve kanıtları.  
-**Çalıştırılan:** Gerçek komutlar ve sonuçlar.  
-**Eksik/engelli:** Sebep, gereken kullanıcı/haricî eylem, kalan risk.  
-**Sonraki görev:** Tek bir belirli iş paketi ve mevcut dosya yolları.  
+**Tamamlanan:** Dosyalar, özellikler ve kanıtları.
+**Çalıştırılan:** Gerçek komutlar ve sonuçlar.
+**Eksik/engelli:** Sebep, gereken kullanıcı/haricî eylem, kalan risk.
+**Sonraki görev:** Tek bir belirli iş paketi ve mevcut dosya yolları.
 **Dış etkiler:** Repo push, form gönderimi, ücretli çağrı veya gerçek başvuru yapıldıysa kimin hangi onayıyla yapıldığı; yapılmadıysa açık ifade.
 
 Bu projenin nihai başarı cümlesi “AI büyük bir repo yazdı” değildir: **Kullanıcı doğru bilgilerle başvuru yapabiliyor; başka geliştiriciler ürünü kurup doğrulayabiliyor; bakımcı gerçek bakım yapıyor; destek başvurusu bu gerçeği doğru anlatıyor.**

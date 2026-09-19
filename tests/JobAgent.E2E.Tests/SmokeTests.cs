@@ -40,7 +40,8 @@ public sealed class SmokeTests
         await page.GetByLabel("Professional C# years").FillAsync("3");
         await page.GetByLabel("Resume").SetInputFilesAsync(new FilePayload
         {
-            Name = "synthetic-resume.txt", MimeType = "text/plain",
+            Name = "synthetic-resume.txt",
+            MimeType = "text/plain",
             Buffer = System.Text.Encoding.UTF8.GetBytes("SYNTHETIC CV\nSynthetic Candidate\n")
         });
         await page.GetByRole(AriaRole.Button, new() { Name = "Submit synthetic application" }).ClickAsync();

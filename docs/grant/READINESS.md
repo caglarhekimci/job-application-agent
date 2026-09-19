@@ -1,27 +1,54 @@
-# Codex for Open Source — başvuru hazırlık durumu
+# Codex for Open Source readiness
 
-**Durum tarihi:** 18 Eylül 2026  
-**Genel durum:** **Başvuruya hazır değil.** Proje yeni/yerel aşamada ve bu çalışma sırasında public olarak yayımlanmış bir repo veya gerçek benimsenme kanıtı doğrulanmadı.
+**Status date:** 2026-09-18
+**Decision:** **Not ready to apply.** This is a new, unpublished local prototype. This file records preparation; it is not an eligibility, selection, funding, or benefit claim.
 
-| Gereksinim / form alanı | Mevcut durum | Başvuru öncesi gereken kanıt |
+## Current facts
+
+| Item | Status | Required before application |
 |---|---|---|
-| Ad ve soyad | Kullanıcı tarafından final formda doğrulanmalı | ChatGPT hesabıyla uyumlu gerçek beyan |
-| ChatGPT hesap e-postası | **Bilinmiyor**; tahmin edilmeyecek | Kullanıcının özel olarak verdiği hesap e-postası |
-| GitHub kullanıcı adı | Ana planda `caglarhekimci` olarak belirtilmiş; canlı hesap kontrolü yapılmadı | Public profilin kullanıcı tarafından doğrulanması |
-| Public repo URL'si | **Yok/doğrulanmadı; proje henüz yayımlanmamış** | Gerçekten public yapılmış repo URL'si |
-| Primary/core maintainer rolü | Henüz public repo/bakım geçmişiyle doğrulanmadı | Gerçek repo yetkisi ve yapılan bakım işi |
-| Proje uygunluk açıklaması | Nihai başvuru metni hazır değil | Çalışan özellikler, önem ve varsa gerçek kullanım kanıtı; en çok 500 karakter |
-| Codex Security ilgisi | Karar verilmedi | Gerçek güvenlik ihtiyacı ve yetkili olunan repo |
-| API kredisi ilgisi/kullanımı | Karar verilmedi | Somut bakım/eval iş akışı ve en çok 500 karakterlik açıklama |
-| OpenAI Organization ID | **Bilinmiyor**; tahmin edilmeyecek | Kullanıcının API dashboard'dan doğruladığı kimlik, gerekiyorsa |
-| Ek not | Taslak yok | Yeni proje durumunu ve sınırları dürüstçe açıklayan en çok 500 karakter |
-| Kullanım/benimsenme kanıtı | **Henüz yok/doğrulanmadı** | Uydurulmamış kullanıcı geri bildirimi veya yeniden üretilebilir kullanım ölçümü |
-| Aktif bakım kanıtı | **Henüz yok/doğrulanmadı** | Gerçek issue/PR/release ve bakım geçmişi |
+| GitHub account | `caglarhekimci` authenticated through the available connector | Reconfirm control on submission day |
+| Repository lookup | `job-application-agent` was absent or inaccessible | Create/publish only after explicit user approval; verify the resulting public URL |
+| Git remote/public URL | No remote created; no public URL exists | Record the real public repository URL |
+| Project stage | Local pre-publication prototype | Complete release gates and publish an evidence-backed scope |
+| Independent users | **0** | Record only consented, independently verifiable use if it occurs |
+| Published releases | **0** | Publish and verify a real tagged release if approved |
+| Maintainer role | Not yet evidenced on a public repository | Verify actual primary/core maintainer role and repository control |
+| Final test result | Pending security fixes and final verification | Cite [the verification ledger](../VERIFICATION.md); do not copy a stale total |
+| ChatGPT account email | Unknown; must not be guessed or published | User supplies it privately and confirms the target account |
+| OpenAI Organization ID | Unknown; must not be guessed or published | User supplies it privately if the live form requires it |
+| Codex Security interest | No selection made | Select only for a real authorized repository need |
+| API credit interest | No selection made | Select only with an accurate maintenance/evaluation plan |
+| Program submission | Not submitted | Show final fields and terms, then obtain separate submission approval |
 
-## Başvuru kapısı
+## Readiness gates
 
-Başvuru ancak public repo ve rol doğrulandıktan, form cevapları mevcut kanıta göre yazılıp karakter sınırları kontrol edildikten, bilinmeyen e-posta/Organization ID kullanıcı tarafından sağlandıktan ve final alanlar kullanıcıya gösterildikten sonra gönderime hazır sayılabilir. Formu göndermek ayrıca açık kullanıcı onayı gerektirir.
+- [x] Official program page, form, and terms checked on 2026-09-18.
+- [x] Current unpublished status and zero independent adoption recorded.
+- [x] Three short-field drafts counted against the current 500-character limits.
+- [ ] Final security findings closed and final verification ledger complete.
+- [ ] License, notices, community health files, installation path, and clean-room verification reviewed.
+- [ ] Full git history and release artifacts checked for secrets and personal data.
+- [ ] User approves repository owner, name, visibility, initial push contents, and license.
+- [ ] Public repository URL exists and opens without authentication.
+- [ ] Actual maintainer role and repository control verified.
+- [ ] Published release exists if the application narrative mentions one.
+- [ ] Any usage, adoption, maintenance, or reuse statement is linked to real evidence.
+- [ ] Live form fields and conditional Organization ID/API-credit requirements rechecked on submission day.
+- [ ] ChatGPT email and any Organization ID privately supplied by the user.
+- [ ] Final form values and current terms shown to the user; separate submission approval obtained.
+- [ ] Submission confirmation stored privately. Acceptance remains unknown until OpenAI communicates it.
 
-OpenAI'nin yayımladığı koşullar seçim veya fayda garantisi vermez. Bu dosya uygunluk, kabul, API kredisi ya da Codex Security erişimi iddia etmez.
+Draft fields: [Codex for OSS draft](CODEX_FOR_OSS_DRAFT.md)
+Evidence map: [Public evidence](PUBLIC_EVIDENCE.md)
+Official-source record: [Verified sources](../research/verified-sources.md)
 
-Kaynak özeti: [resmî kaynak doğrulaması](../research/verified-sources.md)
+## Primary sources
+
+Verified 2026-09-18:
+
+- [Application form](https://openai.com/form/codex-for-oss/)
+- [Program overview](https://developers.openai.com/community/codex-for-oss)
+- [Program terms](https://learn.chatgpt.com/docs/codex-for-oss-terms)
+
+The sources say applications are reviewed at OpenAI's discretion and that submission does not guarantee selection, funding, or access. Reverify all three immediately before any application.

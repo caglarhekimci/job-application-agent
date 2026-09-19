@@ -1,0 +1,7 @@
+SYNTHETIC CV
+Synthetic Candidate
+candidate@example.invalid
+Professional Experience: C# - 3 years (2023-01-01 to 2026-01-01)
+Personal Project: Java puzzle game
+
+This file contains no real candidate data.

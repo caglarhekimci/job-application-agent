@@ -3,11 +3,20 @@
     <Project Path="sandbox/JobAgent.FakeCareerSite/JobAgent.FakeCareerSite.csproj" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/JobAgent.DocumentWorker/JobAgent.DocumentWorker.csproj" />
+    <Project Path="src/JobAgent.Cli/JobAgent.Cli.csproj" />
+    <Project Path="src/JobAgent.Mcp/JobAgent.Mcp.csproj" />
     <Project Path="src/JobAgent.Core/JobAgent.Core.csproj" />
     <Project Path="src/JobAgent.Infrastructure/JobAgent.Infrastructure.csproj" />
     <Project Path="src/JobAgent.Web/JobAgent.Web.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/JobAgent.Document.Tests/Fixtures/HangingWorker/HangingWorker.csproj" />
+    <Project Path="tests/JobAgent.Document.Tests/JobAgent.Document.Tests.csproj" />
+    <Project Path="tests/JobAgent.Workspace.Tests/JobAgent.Workspace.Tests.csproj" />
+    <Project Path="tests/JobAgent.Mcp.Tests/JobAgent.Mcp.Tests.csproj" />
+    <Project Path="tests/JobAgent.Core.Tests/JobAgent.Core.Tests.csproj" />
     <Project Path="tests/JobAgent.E2E.Tests/JobAgent.E2E.Tests.csproj" />
+    <Project Path="tests/JobAgent.Infrastructure.Tests/JobAgent.Infrastructure.Tests.csproj" />
   </Folder>
 </Solution>

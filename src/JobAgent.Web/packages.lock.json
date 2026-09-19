@@ -93,10 +93,17 @@
       "jobagent.core": {
         "type": "Project"
       },
+      "jobagent.documentworker": {
+        "type": "Project",
+        "dependencies": {
+          "PdfPig": "[0.1.16, )"
+        }
+      },
       "jobagent.infrastructure": {
         "type": "Project",
         "dependencies": {
           "JobAgent.Core": "[1.0.0, )",
+          "JobAgent.DocumentWorker": "[1.0.0, )",
           "Microsoft.EntityFrameworkCore.Sqlite": "[10.0.12, )",
           "Microsoft.Playwright": "[1.62.0, )",
           "System.Security.Cryptography.ProtectedData": "[10.0.12, )"
@@ -123,6 +130,12 @@
           "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
           "System.ComponentModel.Annotations": "5.0.0"
         }
+      },
+      "PdfPig": {
+        "type": "CentralTransitive",
+        "requested": "[0.1.16, )",
+        "resolved": "0.1.16",
+        "contentHash": "qQcbsNMYVY+K5ELptax2S8thNMk0+rSQq3H/KdYj3LLcko8yTCz8y5KIvsKxIyAuTN0ZYNnfsZkM+0EvxTwHVA=="
       },
       "System.Security.Cryptography.ProtectedData": {
         "type": "CentralTransitive",

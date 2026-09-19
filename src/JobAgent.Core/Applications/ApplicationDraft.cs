@@ -28,9 +28,21 @@ public sealed record ApplicationDraft
     public bool Synthetic { get; init; }
 
     public string PayloadHash() => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(
-        JsonSerializer.Serialize(new { Id, ProfileId, ProfileVersion, JobKey, JobTitle, Employer,
-            RecipientOrigin, TargetPath, ResumeRef, ResumeHash,
-            Answers = Answers.OrderBy(p => p.Key, StringComparer.Ordinal).ToArray(), Synthetic }))));
+        JsonSerializer.Serialize(new
+        {
+            Id,
+            ProfileId,
+            ProfileVersion,
+            JobKey,
+            JobTitle,
+            Employer,
+            RecipientOrigin,
+            TargetPath,
+            ResumeRef,
+            ResumeHash,
+            Answers = Answers.OrderBy(p => p.Key, StringComparer.Ordinal).ToArray(),
+            Synthetic
+        }))));
 }
 
 public enum ApprovalPurpose { ShareData, Submit }
@@ -41,7 +53,7 @@ public sealed record ApprovalReceipt(Guid Id, Guid ApplicationId, string Payload
     DateTimeOffset? UsedAt = null);
 
 public sealed record SubmissionEvidence(string ReceiptId, string ApplicationKey,
-    string ResumeHash, DateTimeOffset VerifiedAt);
+    string ResumeHash, DateTimeOffset VerifiedAt, string PayloadHash = "");
 
 public sealed class PolicyException(string code) : Exception(code)
 {

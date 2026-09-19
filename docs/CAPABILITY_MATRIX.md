@@ -2,14 +2,18 @@
 
 | Capability | Status | Boundary |
 |---|---|---|
-| Local synthetic workflow | Planned | No employer receives fixture data |
-| Verified candidate memory | Planned | Real profiles not yet supported |
-| Answer/approval engines | Planned | No model can mint consent |
-| Managed Playwright browser | Planned | Test launch pending |
-| MCP STDIO | Planned | Host verification separate |
-| Real model | NotRun | Fixture does not measure a language model |
+| Local synthetic workflow | VerifiedLocal | Actual UI + Chromium + receipt; no employer receives data |
+| Verified candidate memory | VerifiedLocal, partial | DPAPI/versioned SQLite, migrations, atomic deletion and personal source-review UI tested |
+| Answer/approval engines | VerifiedLocal, partial | Deterministic fields; separate UI-only consent; model extraction pending |
+| Managed Playwright browser | VerifiedLocal, partial | Fixed synthetic loopback origin; adverse request tests pass |
+| MCP STDIO | VerifiedLocal, partial | 12 tests including official-client subprocess; one actual Codex capability call verified |
+| Fixture evaluation | VerifiedLocal, partial | 11 cases, real numerators/denominators; not model quality or independent holdout |
+| TXT/PDF/DOCX import | VerifiedLocal | 15 parser tests and packaged PDF/DOCX smoke; OCR absent |
+| Personal profile/job UI | VerifiedLocal, partial | Protected CV, explicit source review, pasted job, preview, export/delete; no employer connection |
+| Real model | CapabilitySmokeOnly | Actual Codex call verified; quality evaluation and complete host workflow NotRun |
 | LinkedIn search/autofill/submit | BlockedExternal | No verified platform permission |
 | Authorized live career site | BlockedExternal | No selected/authorized live target |
-| GitHub publication | NotPublished | User approval required |
+| GitHub publication | Authorized, InProgress | Public repo created, owner/admin verified; code push/release being finalized |
 | CI | NotRun | Local checks will be recorded separately |
-| OSS grant | NotSubmitted | No award or eligibility guarantee |
+| OSS grant | Prepared, NotSubmitted | Private fields obtained; Pro/Codex-only request; final terms gate pending; no award guarantee |
+| Local plugin package | VerifiedLocal | Portable/Codex manifests and relocated STDIO smoke; store publication remains externally gated |

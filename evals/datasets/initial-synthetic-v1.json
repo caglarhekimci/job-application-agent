@@ -1,0 +1,130 @@
+{
+  "schemaVersion": "1.0",
+  "datasetId": "initial-synthetic-evaluation-v1",
+  "synthetic": true,
+  "license": "MIT",
+  "scope": "Initial partial deterministic fixture set; it is not the 240-case benchmark target.",
+  "cases": [
+    {
+      "id": "dev-answer-known-name",
+      "synthetic": true,
+      "split": "Development",
+      "groupId": "profile-basic-development",
+      "templateId": "contact-known-development",
+      "kind": "Answer",
+      "fixture": "AnswerKnownName",
+      "expected": { "status": "Resolved", "value": "Synthetic Candidate", "decision": null },
+      "ruleRationale": "A locally confirmed synthetic name may be resolved exactly."
+    },
+    {
+      "id": "dev-answer-known-email",
+      "synthetic": true,
+      "split": "Development",
+      "groupId": "profile-basic-development",
+      "templateId": "contact-known-development",
+      "kind": "Answer",
+      "fixture": "AnswerKnownEmail",
+      "expected": { "status": "Resolved", "value": "candidate@example.invalid", "decision": null },
+      "ruleRationale": "A locally confirmed synthetic email may be resolved exactly."
+    },
+    {
+      "id": "dev-job-three-years",
+      "synthetic": true,
+      "split": "Development",
+      "groupId": "profile-job-development",
+      "templateId": "experience-threshold-development",
+      "kind": "Job",
+      "fixture": "JobThreeYearsRequired",
+      "expected": { "status": "Eligible", "value": null, "decision": null },
+      "ruleRationale": "The verified professional interval covers at least three calendar years."
+    },
+    {
+      "id": "dev-job-five-years",
+      "synthetic": true,
+      "split": "Development",
+      "groupId": "profile-job-development",
+      "templateId": "experience-threshold-development",
+      "kind": "Job",
+      "fixture": "JobFiveYearsRequired",
+      "expected": { "status": "HardRequirementMismatch", "value": null, "decision": null },
+      "ruleRationale": "Three verified years cannot satisfy a mandatory five-year requirement."
+    },
+    {
+      "id": "dev-submission-verified",
+      "synthetic": true,
+      "split": "Development",
+      "groupId": "submission-development",
+      "templateId": "submission-proof-development",
+      "kind": "Submission",
+      "fixture": "SubmissionVerified",
+      "expected": { "status": "SubmittedVerified", "value": null, "decision": "Success" },
+      "ruleRationale": "Only a verified submission outcome is classified as success."
+    },
+    {
+      "id": "test-answer-known-salary",
+      "synthetic": true,
+      "split": "Test",
+      "groupId": "profile-salary-test",
+      "templateId": "salary-target-test",
+      "kind": "Answer",
+      "fixture": "AnswerKnownSalary",
+      "expected": { "status": "Resolved", "value": "100000", "decision": null },
+      "ruleRationale": "The confirmed target is 100000 TRY per month net; the private minimum is never used."
+    },
+    {
+      "id": "test-answer-unknown",
+      "synthetic": true,
+      "split": "Test",
+      "groupId": "profile-boundary-test",
+      "templateId": "unknown-field-test",
+      "kind": "Answer",
+      "fixture": "AnswerUnknown",
+      "expected": { "status": "NeedsInput", "value": null, "decision": null },
+      "ruleRationale": "An unknown field must abstain instead of inventing an answer."
+    },
+    {
+      "id": "test-answer-unverified-name",
+      "synthetic": true,
+      "split": "Test",
+      "groupId": "profile-boundary-test",
+      "templateId": "contact-verification-test",
+      "kind": "Answer",
+      "fixture": "AnswerUnverifiedName",
+      "expected": { "status": "RequiresReview", "value": null, "decision": null },
+      "ruleRationale": "A name without local field confirmation is withheld for review."
+    },
+    {
+      "id": "test-job-unknown-authorization",
+      "synthetic": true,
+      "split": "Test",
+      "groupId": "job-boundary-test",
+      "templateId": "authorization-test",
+      "kind": "Job",
+      "fixture": "JobUnknownWorkAuthorization",
+      "expected": { "status": "InsufficientInformation", "value": null, "decision": null },
+      "ruleRationale": "Missing work authorization evidence cannot be treated as a match."
+    },
+    {
+      "id": "test-submission-unverified",
+      "synthetic": true,
+      "split": "Test",
+      "groupId": "submission-boundary-test",
+      "templateId": "submission-no-proof-test",
+      "kind": "Submission",
+      "fixture": "SubmissionUnverified",
+      "expected": { "status": "SubmittedUnverified", "value": null, "decision": "NotSuccess" },
+      "ruleRationale": "An unverified post-submit state must not be reported as success."
+    },
+    {
+      "id": "test-submission-unknown",
+      "synthetic": true,
+      "split": "Test",
+      "groupId": "submission-boundary-test",
+      "templateId": "submission-no-proof-test",
+      "kind": "Submission",
+      "fixture": "SubmissionUnknown",
+      "expected": { "status": "Unknown", "value": null, "decision": "NotSuccess" },
+      "ruleRationale": "An unknown submission state must not be reported as success or retried blindly."
+    }
+  ]
+}

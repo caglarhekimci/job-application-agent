@@ -18,8 +18,11 @@ public sealed class ApplicationPersistenceTests : IDisposable
     {
         var draft = new ApplicationDraft
         {
-            JobKey = "synthetic:one", Synthetic = true, ResumeHash = "abc",
-            RecipientOrigin = "http://127.0.0.1:5179", ProfileVersion = 1,
+            JobKey = "synthetic:one",
+            Synthetic = true,
+            ResumeHash = "abc",
+            RecipientOrigin = "http://127.0.0.1:5179",
+            ProfileVersion = 1,
             Status = ApplicationStatus.AwaitingSubmissionApproval
         };
         return new(draft, Submission: ApprovalPolicy.GrantFromUserInterface(draft,
@@ -72,6 +75,9 @@ public sealed class ApplicationPersistenceTests : IDisposable
         var recovered = await restarted.GetAsync(record.Draft.Id);
         Assert.NotNull(recovered);
         Assert.Equal(ApplicationStatus.SubmittedUnverified, recovered.Draft.Status);
+        Assert.NotNull(recovered.Submission);
+        Assert.Equal(record.Submission!.Id, recovered.Submission.Id);
+        Assert.NotNull(recovered.Submission.UsedAt);
         Assert.False(await restarted.ClaimSubmissionAsync(record.Draft.Id, Now));
     }
 

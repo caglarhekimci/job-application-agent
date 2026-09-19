@@ -1,0 +1,39 @@
+{
+  "version": "0.1.0",
+  "author": {
+    "url": "https://github.com/caglarhekimci",
+    "name": "caglarhekimci"
+  },
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "defaultPrompt": [
+          "Check the capabilities of my local Job Application Agent.",
+          "Show verified skill names for the profile reference I provide.",
+          "Check the status of the synthetic application reference I provide."
+        ],
+        "capabilities": [
+          "Read"
+        ],
+        "developerName": "caglarhekimci",
+        "category": "Productivity",
+        "shortDescription": "Inspect local fixture capabilities and application status.",
+        "longDescription": "Windows companion for a separately prepared local Job Application Agent runtime. Reads capabilities, confirmed professional skill names and versions, and synthetic application status by fixed references. It cannot approve, fill, submit, browse, or fetch jobs. No hosted service or paid API is required by this package.",
+        "brandColor": "#176B52",
+        "websiteURL": "https://github.com/caglarhekimci/job-application-agent",
+        "displayName": "Job Application Agent — Local Inspector"
+      }
+    }
+  },
+  "license": "MIT",
+  "keywords": [
+    "local",
+    "job-applications",
+    "read-only",
+    "mcp"
+  ],
+  "name": "job-application-agent",
+  "repository": "https://github.com/caglarhekimci/job-application-agent",
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "description": "Read local Job Application Agent fixture capabilities, confirmed skill summaries, and synthetic application status."
+}

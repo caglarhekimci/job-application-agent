@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../JobAgent.Web/JobAgent.Web.csproj" />
+    <ProjectReference Include="../../sandbox/JobAgent.FakeCareerSite/JobAgent.FakeCareerSite.csproj" />
+    <Content Include="../../web/dist/**" Link="wwwroot/%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

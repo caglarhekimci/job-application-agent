@@ -1,0 +1,29 @@
+name: Synthetic verification
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Install pinned local dependencies
+        shell: pwsh
+        run: ./scripts/bootstrap.ps1
+      - name: Verify fixture workflow and boundaries
+        shell: pwsh
+        run: ./scripts/verify.ps1
+      - name: Inspect local prerequisites
+        shell: pwsh
+        run: ./scripts/doctor.ps1
+# This workflow has not run on GitHub. No secrets, real CVs, API calls or artifacts
+# are uploaded. Local logs contain paths and require review before publication.

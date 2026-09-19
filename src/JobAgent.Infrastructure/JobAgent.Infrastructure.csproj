@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <EmbeddedResource Include="../../samples/synthetic-resume.txt" LogicalName="JobAgent.SyntheticResume.txt" />
     <ProjectReference Include="../JobAgent.Core/JobAgent.Core.csproj" />
+    <ProjectReference Include="../JobAgent.DocumentWorker/JobAgent.DocumentWorker.csproj" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
     <PackageReference Include="Microsoft.Playwright" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" />

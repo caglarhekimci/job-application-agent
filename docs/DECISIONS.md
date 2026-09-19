@@ -1,5 +1,14 @@
 # Decisions
 
+## ADR-009 — Personal review workspace and cost constraint
+The user authorizes required real Codex tests using the existing subscription's
+included quota. No extra credit purchase or paid API is authorized. The local UI
+adds a separate protected personal workspace with atomic document/profile/history
+payloads and expected-revision updates. This initial single-row SQLite workspace
+does not replace the existing profile repository migration chain or synthetic-only
+application journal. It has no external target adapter. Plugin packaging remains
+local; publisher verification/HTTPS or local-MCP approval is an external store gate.
+
 ## ADR-001 — Accepted architecture
 The supplied master plan is the approved architecture. Keep .NET 10, C#, ASP.NET
 Core, EF Core/SQLite, React/TypeScript, Playwright .NET and official C# MCP SDK.
@@ -28,3 +37,22 @@ separate purposes. Uncertain post-submit outcomes cannot be blindly retried.
 Use the master plan's W00-W18 as execution order. Implement the earliest end-to-end
 slice and expand packages honestly; a partial package is not marked complete.
 Persist test logs under ignored artifacts/ and publish only synthetic summaries.
+
+## ADR-006 — Request transport boundary
+Validate exact multipart answers/file bytes before the one permitted POST; fetch
+with redirect/retry disabled. Durable claims and receipt checks do not guarantee
+exactly-once delivery to arbitrary employers. Trust installed same-user code, not
+page scripts. No OS-level firewall or control of native host tools is claimed.
+
+## ADR-007 — Evidence and packaging scope
+Small fixture evaluations use honest numerators/denominators and distinguish
+scenario time from actual run time. Shared fixtures are not independent holdout.
+Framework-dependent local packages omit browser caches, SDKs and personal data.
+A clean checkout using current caches is not a fresh Windows user/OS validation.
+
+## ADR-008 — Expanded authorization on 2026-09-19
+The user now explicitly requests all master-plan work including public GitHub
+push and Codex for OSS submission. Proceed toward those actions without asking
+for the same generic permission again. Required unknown personal fields, actual
+terms at submission time, platform permissions and independent adoption cannot be
+invented. Continue local implementation while those external inputs are pending.

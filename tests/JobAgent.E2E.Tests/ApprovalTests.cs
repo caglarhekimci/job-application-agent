@@ -7,9 +7,14 @@ public sealed class ApprovalTests
     private static readonly DateTimeOffset Now = DateTimeOffset.Parse("2026-09-18T00:00:00Z");
     private static ApplicationDraft Draft() => new()
     {
-        ProfileId = Guid.NewGuid(), ProfileVersion = 1, JobKey = "sandbox:dotnet",
-        Employer = "Synthetic Labs", RecipientOrigin = "http://127.0.0.1:5179",
-        ResumeHash = "HASH-A", ResumeRef = "fixture", Synthetic = true,
+        ProfileId = Guid.NewGuid(),
+        ProfileVersion = 1,
+        JobKey = "sandbox:dotnet",
+        Employer = "Synthetic Labs",
+        RecipientOrigin = "http://127.0.0.1:5179",
+        ResumeHash = "HASH-A",
+        ResumeRef = "fixture",
+        Synthetic = true,
         Answers = new() { ["salary"] = "100000" }
     };
 

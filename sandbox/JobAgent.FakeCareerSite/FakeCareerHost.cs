@@ -2,27 +2,45 @@ namespace JobAgent.FakeCareerSite;
 
 public static class FakeCareerHost
 {
-    public static WebApplication Build(string url)
+    public static WebApplication Build(string url, FakeCareerOptions? options = null)
     {
+        options ??= new();
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseUrls(url);
         builder.Logging.ClearProviders();
         builder.Services.AddSingleton<ReceiptStore>();
         builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o => o.MultipartBodyLengthLimit = 2_100_000);
         var app = builder.Build();
+        app.UseWebSockets();
         app.Use(async (context, next) =>
         {
+            context.RequestServices.GetRequiredService<ReceiptStore>().RecordRequest();
             if (context.Request.Host.Host != "127.0.0.1")
             { context.Response.StatusCode = 403; return; }
             context.Response.Headers["X-Content-Type-Options"] = "nosniff";
             await next();
         });
         app.MapGet("/health", () => Results.Ok(new { status = "healthy", synthetic = true }));
-        app.MapGet("/jobs/synthetic-dotnet", () => Results.Content(FormHtml, "text/html; charset=utf-8"));
+        var html = options.AutoSubmitOnInput ? FormHtml.Replace("document.querySelector('#next').onclick=", "document.querySelector('input[name=name]').addEventListener('input',()=>fetch('/api/applications',{method:'POST',body:new FormData(document.querySelector('#application'))})); document.querySelector('#next').onclick=", StringComparison.Ordinal) : FormHtml;
+        if (options.WebSocketTarget is { } socketTarget)
+            html = html.Replace("</script>", "new WebSocket(" + System.Text.Json.JsonSerializer.Serialize(socketTarget) + ");</script>", StringComparison.Ordinal);
+        if (options.TamperSalaryOnSubmit)
+            html = html.Replace("body:new FormData(e.target)", "body:(()=>{const f=new FormData(e.target);f.set('salary','1');return f;})()", StringComparison.Ordinal);
+        app.MapGet("/socket", async (HttpContext context) =>
+        {
+            if (context.WebSockets.IsWebSocketRequest)
+            { using var socket = await context.WebSockets.AcceptWebSocketAsync(); }
+        });
+        app.MapGet("/jobs/synthetic-dotnet", () => options.RedirectTarget is { } target
+            ? Results.Redirect(target)
+            : Results.Content(options.AddRequiredQuestion ? html.Replace("<fieldset id=\"questions\" hidden>",
+                "<fieldset id=\"questions\" hidden><label>New required question<input name=\"newQuestion\" required></label>", StringComparison.Ordinal)
+                : html, "text/html; charset=utf-8"));
         app.MapGet("/api/receipts/{key}", (string key, ReceiptStore store) =>
             store.Find(key) is { } receipt ? Results.Ok(receipt) : Results.NotFound());
         app.MapPost("/api/applications", async (HttpRequest request, ReceiptStore store) =>
         {
+            store.RecordSubmission();
             if (!request.HasFormContentType) return Results.BadRequest(new { error = "FormRequired" });
             var form = await request.ReadFormAsync();
             var file = form.Files.GetFile("resume");
@@ -42,7 +60,12 @@ public static class FakeCareerHost
             var receipt = new SyntheticReceipt("SYN-" + Guid.NewGuid().ToString("N"),
                 form["applicationKey"].ToString(), form["salary"].ToString(), form["years"].ToString(),
                 Path.GetFileName(file.FileName), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)));
-            return Results.Ok(store.Add(receipt));
+            var saved = store.Add(receipt);
+            if (options.DropSubmissionResponse)
+            { request.HttpContext.Abort(); return Results.Empty; }
+            if (options.MalformedReceipt is { } malformed)
+                return Results.Content(malformed, "application/json");
+            return Results.Ok(saved);
         });
         return app;
     }

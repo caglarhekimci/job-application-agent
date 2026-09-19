@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "job_agent": {
+      "type": "stdio",
+      "command": "pwsh",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-File",
+        "./scripts/start-mcp.ps1"
+      ],
+      "cwd": "./"
+    }
+  },
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json"
+}

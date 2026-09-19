@@ -1,6 +1,6 @@
 # W00 resmi kaynak doğrulaması
 
-**Doğrulama tarihi:** 18 Eylül 2026  
+**Doğrulama tarihi:** 18 Eylül 2026
 **Kapsam:** Salt okunur resmî kaynak araştırması. Form gönderilmedi, hesap verisi okunmadı ve haricî sistem değiştirilmedi.
 
 ## Doğrulanan bulgular
@@ -57,4 +57,3 @@ Kaynak: [Microsoft — .NET support policy](https://dotnet.microsoft.com/en-us/p
 - Bu makinedeki exact .NET SDK sürümü, browser eklentisinin kurulu/etkin oluşu ve MCP host bağlantısı bu kaynak taramasının kapsamı dışındaydı.
 - LinkedIn'den bu proje için ayrı yazılı otomasyon izni veya resmî başvuru API yetkisi doğrulanmadı.
 - Başvuru yapılmadı; uygunluk, seçim, API kredisi, Codex Security erişimi veya kabul iddiası yoktur.
-

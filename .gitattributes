@@ -1,0 +1,4 @@
+* text=auto eol=lf
+third-party-notices/* -whitespace
+*.png binary
+*.zip binary

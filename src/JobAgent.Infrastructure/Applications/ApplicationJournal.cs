@@ -24,8 +24,11 @@ public sealed class ApplicationJournal(string databasePath)
         await using var db = Open();
         db.Applications.Add(new JournalRow
         {
-            Id = record.Draft.Id, JobIdentity = record.Draft.ProfileId + ":" + record.Draft.JobKey,
-            State = record.Draft.Status, Body = JsonSerializer.Serialize(record), Revision = 1
+            Id = record.Draft.Id,
+            JobIdentity = record.Draft.ProfileId + ":" + record.Draft.JobKey,
+            State = record.Draft.Status,
+            Body = JsonSerializer.Serialize(record),
+            Revision = 1
         });
         try { await db.SaveChangesAsync(); }
         catch (DbUpdateException e) when (e.InnerException is Microsoft.Data.Sqlite.SqliteException { SqliteErrorCode: 19 })
@@ -42,7 +45,7 @@ public sealed class ApplicationJournal(string databasePath)
         await using var db = Open();
         return (await db.Applications.AsNoTracking().ToListAsync()).Select(Decode).ToArray();
     }
-    public async Task UpdateAsync(Guid id, ApplicationStatus expected, Func<WorkflowRecord, WorkflowRecord> update)
+    internal async Task UpdateAsync(Guid id, ApplicationStatus expected, Func<WorkflowRecord, WorkflowRecord> update)
     {
         await using var db = Open();
         var row = await db.Applications.AsNoTracking().SingleOrDefaultAsync(x => x.Id == id)
@@ -81,9 +84,11 @@ public sealed class ApplicationJournal(string databasePath)
             if (state is not (ApplicationStatus.Submitting or ApplicationStatus.Filling or ApplicationStatus.AwaitingSubmissionApproval)) continue;
             await UpdateAsync(record.Draft.Id, state, current => current with
             {
-                Draft = current.Draft with { Status = state == ApplicationStatus.Submitting
-                    ? ApplicationStatus.SubmittedUnverified : ApplicationStatus.FailedBeforeSubmission },
-                Submission = null, Sharing = null,
+                Draft = current.Draft with
+                {
+                    Status = state == ApplicationStatus.Submitting
+                    ? ApplicationStatus.SubmittedUnverified : ApplicationStatus.ReadyForDataSharing
+                },
                 Error = state == ApplicationStatus.Submitting ? "SubmissionOutcomeUnknown" : "BrowserSessionLost"
             });
         }
