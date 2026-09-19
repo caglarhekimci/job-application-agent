@@ -17,7 +17,7 @@ is not authorized. Real job submissions still need a concrete selected package.
 | W09 | VerifiedLocalAndCodex, partial | Default 3 read-only tools + 3 opt-in synthetic commands; actual UI+STDIO and three-turn Codex synthetic workflow passed; general service surface remains |
 | W10 | VerifiedLocalAndModelPilot | Initial11 + expanded12 profiles/240 questions/60 jobs; B0 passes; real six-turn24-question pilot B1 69/72 vs B2 57/72 strict; B2 did not improve |
 | W11 | VerifiedLocal, partial | Negative browser/request/parser/storage tests; final scope in threat model |
-| W12 | VerifiedLocal and earlier CI | Latest local188 tests pass; first137 also passed clean checkout/publicCI; new exact-commit CI/package evidence pending |
+| W12 | VerifiedLocalAndCI, package update pending | Latest188 passed locally, clean checkout and exact-commit public CI at ac53072; next app/plugin package pending |
 | W13 | BlockedExternal | No user-reviewed real CV, selected live target or platform permission; personal-use screen exists |
 | W14 | Public source verified | main pushed; private vulnerability reporting enabled; v0.1.0-alpha.1 published with app/plugin ZIPs |
 | W15 | External evidence pending | 0 independent users; no fabricated adoption |
@@ -32,6 +32,19 @@ Build: 0 warnings/errors. Launcher, fixture evaluation, four scanner regressions
 source/history scan and whitespace check passed. Evidence distinguishes actual
 model-host invocation from fixture quality; no paid model API is used.
 
+The same 188 tests passed from a separate clean checkout of
+`ac530725c7653f7980acc10e90c213092afc6418`; reports in that clone:
+`artifacts/verification/20260919T220948Z/`. Offline model replay also passed
+12 assertions; this replay is not a fresh model run. Exact-commit public CI
+[35472502796](https://github.com/caglarhekimci/job-application-agent/actions/runs/35472502796)
+completed successfully. The checkout reused the current user's dependency/browser
+caches; a fresh interactive Windows user setup is not claimed.
+
+README now provides English followed by Turkish quick-start instructions, explicit
+prerequisites and the fact that Chrome/desktop-control extensions are unnecessary.
+Installation commands were checked against the actual scripts and clean-checkout
+verification. Optional Codex integration is separate from the free local workflow.
+
 The new personal workspace is separate from the synthetic submission journal.
 It stores protected resume/profile/version/job state in `personal/workspace.db`
 outside the checkout. It never fetches the pasted URL or submits to an employer.
@@ -44,8 +57,9 @@ has occurred. LinkedIn remains blocked. Program benefit is discretionary.
 
 Resume from this file, `VERIFICATION.md`, `CAPABILITY_MATRIX.md` and current
 `evidence/w09-bridge.md`, `evidence/codex-workflow.md`, `evidence/w10-expanded-fixtures.md`.
-Publish the verified next checkpoint and
-package, then complete W07 reusable controls/conditional forms and the remaining
-general host-service surface. Earlier remaining-deliverables.md is a historical
+W07 reusable controls/conditional forms are in progress. The current
+[local acceptance audit](evidence/local-acceptance-audit.md) records the remaining
+resumable-question, common host-service and durable migration/audit work.
+Publish the verified next package after integration. Earlier remaining-deliverables.md is a historical
 audit, not the current state. Do not mark all long-term packages complete because
 the public prototype and grant submission exist.

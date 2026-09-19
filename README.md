@@ -1,72 +1,110 @@
 # Job Application Agent
 
-[Türkçe](README.tr.md) · **Early local prototype · synthetic browser submissions only**
+**A free, local application assistant for Windows. Early prototype.**
 
-A local application assistant that keeps answers tied to verified profile facts
-and separates permission to share data from permission to submit an application.
-The first working flow uses a fictional CV and a local career site. A real Chromium
-browser fills the two-step form, uploads the approved file and verifies the server
-receipt. No employer receives this demo.
+[English](#english) · [Türkçe](#türkçe) · [Releases](https://github.com/caglarhekimci/job-application-agent/releases) · [Project status](docs/PROJECT_STATE.md)
 
-## Try the local demo
+## English
 
-Windows x64, PowerShell 7, Git and Node.js/npm are prerequisites. The exact SDK and
-dependency versions are pinned. From this repository in PowerShell 7:
+Review your CV, check a job's requirements and prepare answers from facts you have
+confirmed. A separate demo fills a fictional application in a real browser,
+uploads a synthetic CV and checks the receipt after your approval.
+
+### What you need
+
+- **Windows x64**, **PowerShell 7**, **Git**, and **Node.js 22 with npm** (the CI-tested version).
+- Internet for the first setup. The installer downloads the required .NET SDK,
+  dependencies and its own Chromium browser into your user account.
+- **No Chrome extension, computer-control plugin, administrator access, API key
+  or ChatGPT subscription is needed for the local app and demo.**
+
+### Install and start
+
+Open **PowerShell 7**, then run:
 
 ```powershell
+git clone https://github.com/caglarhekimci/job-application-agent.git
+cd job-application-agent
 ./scripts/bootstrap.ps1
 ./scripts/doctor.ps1
-./scripts/verify.ps1
 ./scripts/run-demo.ps1
 ```
 
-Open the private session link printed by the launcher. Import the synthetic CV,
-confirm the profile, review the job and answers, approve data sharing, then approve
-the synthetic submission. Ctrl+C stops both local hosts. Setup downloads the .NET
-SDK when absent, dependencies and Chromium; the workflow itself makes no paid or
-model API calls. [Installation and reset instructions](docs/guides/INSTALL.md).
+Open the private session link shown in the terminal; keep that link private.
+The current interface is in Turkish:
 
-## What works now
+- **“Kendi CV ve ilanım”**: import TXT/PDF/DOCX, confirm profile facts, review a
+  pasted job and preview answers. Your data stays in the local workspace.
+- **Synthetic demo**: import the fictional CV, review the answers, approve sharing,
+  then separately approve submission. Only the local test site receives the form.
 
-- Versioned profile storage with current-user Windows DPAPI-protected payloads;
-  proposed facts require confirmation, and edits do not inherit verification.
-- Bounded TXT/PDF/DOCX import, typed job requirements, deterministic answer rules and
-  scoped answer memory. Private salary minimums are excluded from answers.
-- A Turkish React dashboard with separate sharing and final submission approvals.
-- A separate personal workspace: upload a CV, review source-backed experience,
-  paste/review job requirements, preview answers, export and delete local data.
-- A synthetic-only managed browser, exact file/answer checks, one-shot submission
-  request, durable attempt claim, and explicit uncertain outcomes without retry.
-- Three read-only STDIO MCP tools by default, plus three opt-in synthetic workflow
-  commands. A real browser UI approves the package; model tools cannot grant consent.
-- Reviewed answer memory with application/company/global scope, language, expiry,
-  revision checks and revocation; schema-checked model suggestions stay unapproved.
-- A reproducible fixture evaluation covering 12 profiles, 240 question outcomes
-  and 60 job outcomes. See the [dataset card](evals/EXPANDED_DATASET_CARD.md).
-- CAPTCHA/MFA fixture detection stops the managed browser for manual attention.
+Press **Ctrl+C** in the terminal to stop. To run the automated checks:
+`./scripts/verify.ps1`.
 
-This is **not a completed general job-application product**. General form adapters,
-broader host services and authorized live adapters remain unfinished. LinkedIn automation is
-blocked without platform authorization. The [capability matrix](docs/CAPABILITY_MATRIX.md)
-and [verification ledger](docs/VERIFICATION.md) distinguish tested slices from gaps.
-Fixture tests are not language-model accuracy or live-site success measurements.
+### Limits and optional Codex integration
 
-## Design and evidence
+This prototype does not submit to real employers. LinkedIn automation is disabled
+without platform authorization. Windows is the currently verified platform.
+Local workflows make no paid model/API calls. Optional Codex use requires your own
+Codex access and uses its normal usage allowance; it is not required to run the app.
+The packaged Codex plugin provides read-only inspection tools.
 
-The solution uses .NET 10, ASP.NET Core, EF Core/SQLite, React/TypeScript,
-Playwright .NET and the official C# MCP SDK. Runtime data lives outside the checkout.
-The application journal currently accepts only synthetic applications.
+[Installation / reset](docs/guides/INSTALL.md) · [Troubleshooting](docs/guides/TROUBLESHOOTING.md) ·
+[Optional Codex setup](docs/guides/CODEX_SETUP.md) · [Privacy](docs/PRIVACY.md) ·
+[Test evidence](docs/VERIFICATION.md)
 
-- [Architecture and data flow](docs/DATA_FLOW.md)
-- [Threat model](docs/THREAT_MODEL.md) and [privacy](docs/PRIVACY.md)
-- [MCP setup and host verification boundary](docs/guides/CODEX_SETUP.md)
-- [Project state and next work](docs/PROJECT_STATE.md)
-- [Contributor guide](CONTRIBUTING.md) and [security reporting status](SECURITY.md)
-- [Codex for OSS readiness](docs/grant/READINESS.md)
+## Türkçe
 
-The [first prerelease](https://github.com/caglarhekimci/job-application-agent/releases/tag/v0.1.0-alpha.1)
-is public. The Codex for OSS application was submitted and its confirmation observed;
-selection and any benefit remain unknown. There is no independent adoption or grant award yet. Real applications and paid
-calls require separate user approval. No paid API is required for local workflows.
-Original project code and synthetic fixtures use the [MIT license](LICENSE).
-Dependency notices are tracked separately in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+**Windows'ta çalışan, ücretsiz ve yerel bir başvuru yardımcısıdır. Erken prototiptir.**
+
+CV'nizi inceleyin, ilan koşullarını değerlendirin ve doğruladığınız bilgilerden
+cevap hazırlayın. Ayrı demo, gerçek tarayıcıda kurgusal başvuru formunu doldurur,
+sentetik CV yükler ve onayınızdan sonra gönderim sonucunu kontrol eder.
+
+### Gerekenler
+
+- **Windows x64**, **PowerShell 7**, **Git** ve **npm içeren Node.js 22** (CI'da test edilen sürüm).
+- İlk kurulum için internet. Kurulum betiği gerekli .NET SDK'sını, bağımlılıkları
+  ve kendi Chromium tarayıcısını kullanıcı hesabınıza indirir.
+- **Yerel uygulama ve demo için Chrome eklentisi, bilgisayar yönetimi eklentisi,
+  yönetici yetkisi, API anahtarı veya ChatGPT aboneliği gerekmez.**
+
+### Kurulum ve çalıştırma
+
+**PowerShell 7** açıp çalıştırın:
+
+```powershell
+git clone https://github.com/caglarhekimci/job-application-agent.git
+cd job-application-agent
+./scripts/bootstrap.ps1
+./scripts/doctor.ps1
+./scripts/run-demo.ps1
+```
+
+Terminalde gösterilen özel oturum bağlantısını açın; bu bağlantıyı paylaşmayın.
+Mevcut arayüz Türkçedir:
+
+- **“Kendi CV ve ilanım”**: TXT/PDF/DOCX aktarın, profil bilgilerini doğrulayın,
+  yapıştırdığınız ilanı inceleyin ve cevapları görün. Veriler yerel çalışma alanında kalır.
+- **Sentetik demo**: kurgusal CV'yi aktarın, cevapları inceleyin, önce paylaşımı,
+  ardından ayrıca gönderimi onaylayın. Form yalnız yerel test sitesine gider.
+
+Durdurmak için terminalde **Ctrl+C** kullanın. Otomatik kontrolleri çalıştırmak için:
+`./scripts/verify.ps1`.
+
+### Sınırlar ve isteğe bağlı Codex bağlantısı
+
+Bu prototip gerçek işverenlere başvuru göndermez. LinkedIn otomasyonu platform izni
+olmadan kapalıdır. Şu anda doğrulanan işletim sistemi Windows'tur.
+Yerel akışlar ücretli model/API çağrısı yapmaz. İsteğe bağlı Codex kullanımı için
+kendi Codex erişiminiz gerekir ve normal kullanım kotanız tüketilir; uygulamayı
+çalıştırmak için gerekli değildir. Paketlenmiş Codex eklentisi salt okunur inceleme araçları sunar.
+
+[Kurulum / sıfırlama](docs/guides/INSTALL.md) · [Sorun giderme](docs/guides/TROUBLESHOOTING.md) ·
+[İsteğe bağlı Codex kurulumu](docs/guides/CODEX_SETUP.md) · [Gizlilik](docs/PRIVACY.md) ·
+[Test kayıtları](docs/VERIFICATION.md) · [Proje durumu](docs/PROJECT_STATE.md)
+
+---
+
+[MIT license / lisans](LICENSE) · [Contributing / katkıda bulunma](CONTRIBUTING.md) ·
+[Security / güvenlik](SECURITY.md) · [Dependency notices / bağımlılık bildirimleri](THIRD_PARTY_NOTICES.md)

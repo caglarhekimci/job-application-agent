@@ -1,5 +1,23 @@
 # Verification ledger
 
+## Exact-commit checkout and CI — 2026-09-19 UTC / 2026-09-20 Istanbul
+
+Commit `ac530725c7653f7980acc10e90c213092afc6418` passed
+[public CI 35472502796](https://github.com/caglarhekimci/job-application-agent/actions/runs/35472502796)
+with conclusion `success`. A separate clean checkout at
+`%TEMP%/jobagent-clean-da84c25` also ran `scripts/verify.ps1`, exit **0**;
+reports: `artifacts/verification/20260919T220948Z/` in that checkout.
+**188 passed, 0 failed, 0 skipped**: Core58, Document15, E2E59,
+Infrastructure32, MCP14, Workspace10. Build: 0 warnings/errors.
+Launcher checks, initial/expanded fixture evaluation, offline replay (12 assertions),
+four source-scanner regressions and 296-file/6-commit source/history scan passed.
+The replay's B1/B2 results use authored captured fixtures and must not be presented
+as a new live model comparison. User caches were reused; no fresh user setup claimed.
+
+README English/Turkish quick-start and installation prerequisites were checked
+against bootstrap/run-demo/doctor scripts and the clean-checkout path. This is a
+documentation update, not a new functional or independent-adoption measurement.
+
 ## Expanded local workflow — 2026-09-19 UTC / 2026-09-20 Istanbul
 
 `scripts/verify.ps1` exited **0**, reports `artifacts/verification/20260919T215755Z/`.

@@ -59,7 +59,7 @@ codex mcp add `
   job-application-agent -- $dotnet $dll
 ```
 
-If either process lacks the opt-in, the command workflow is unavailable. The companion creates a current-user DPAPI-protected loopback registration only while enabled. It contains a separate 256-bit bridge token, a literal `127.0.0.1` origin and an expiry no later than eight hours. Normal shutdown removes the owned registration; the exclusive launcher also removes a crashed instance's stale registration before startup.
+If either process lacks the opt-in, the command workflow is unavailable. The companion creates a current-user DPAPI-protected loopback registration only while enabled. It contains a separate 256-bit bridge token, a literal `127.0.0.1` origin and an eight-hour default expiry (the store rejects lifetimes over twelve hours). Normal shutdown removes the owned registration; the exclusive launcher also removes a crashed instance's stale registration before startup.
 
 ## Approval and uncertain outcomes
 
