@@ -15,6 +15,9 @@ shows the close callback waits on a process also disposed by transport cleanup.
 
 The failed candidate's prepared archives are not approved for public release.
 The focused `AdversarialFormTests` run passed **10/10**, no skips; Release build
-and formatting checks passed. Report: `artifacts/test-results/ci-websocket-cleanup/green.trx`.
-A new exact-source CI run and rebuilt archives remain the publication gates.
+passed. The formatter initially requested a catch-body line break; its correction
+and `git diff --check` then passed. Report: `artifacts/test-results/ci-websocket-cleanup/green.trx`.
+Exact-source [CI 35477129404](https://github.com/caglarhekimci/job-application-agent/actions/runs/35477129404)
+then passed all 293 tests, including 95 E2E tests, at 4d475bb. Rebuilt archives passed
+their package checks and were published in [alpha.2](release-alpha2.md).
 No model call was made for this correction.

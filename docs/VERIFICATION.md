@@ -1,5 +1,15 @@
 # Verification ledger
 
+## Published alpha.2 — 2026-09-20 Istanbul
+
+Release `4d475bbcb2bc43b42a7c4c82eb28ce48eff28464` passed the complete public
+[Windows CI 35477129404](https://github.com/caglarhekimci/job-application-agent/actions/runs/35477129404):
+**293 passed, 0 failed, 0 skipped**, build 0 warnings/errors. Core 83, Document 15,
+E2E 95, Infrastructure 41, MCP 22, Workspace 37. All verification/doctor steps passed.
+Both rebuilt archives passed package checks and their public digests match.
+See [release evidence and downloads](evidence/release-alpha2.md). Earlier failed
+candidate runs below remain part of the record. No new model call was made.
+
 ## Final alpha.2 integration — 2026-09-20 Istanbul
 
 The first public candidate `f3f38dd` failed CI on a separate already-denied

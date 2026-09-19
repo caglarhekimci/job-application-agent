@@ -59,9 +59,9 @@ fixture inspector is therefore not labeled ready for public review.
 
 | Gate | State | Concrete next requirement |
 |---|---|---|
-| Local distribution package | VerifiedLocal | Built/tested from publish output `20260919T210019Z`; rebuild if release inputs change |
+| Local distribution package | VerifiedLocal | Alpha.2 app/plugin packages checked from 4d475bb; see ../evidence/release-alpha2.md |
 | Plugin host installation | VerifiedIsolatedCodex | Actual isolated CLI installation and scenarios; see host evidence |
-| Public source and release | Published | Public main and v0.1.0-alpha.1 app/plugin ZIPs; see project ledger |
+| Public source and release | Published | Public main and v0.1.0-alpha.2 app/plugin ZIPs with matching hashes; see project ledger |
 | Public MCP access route | BlockedExternal | Approved production HTTPS architecture or OpenAI local-MCP support; no tunnel or hosted service was enabled |
 | Publisher identity and portal permission | BlockedExternal | Verification not started; observed flow requires a valid default payment method. No billing action authorized/performed; identity and Apps Management gates remain |
 | Public listing material | Incomplete | Publish matching support, privacy and terms URLs plus production branding |

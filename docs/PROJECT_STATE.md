@@ -3,7 +3,8 @@
 Updated: 2026-09-19 UTC (2026-09-20 Istanbul). Public repository was created at
 https://github.com/caglarhekimci/job-application-agent. First public source was
 da84c258362402e6feed898cfd5f02224af9b7c3; clean-checkout verification and public CI
-passed. Prerelease v0.1.0-alpha.1 is published at b068723; see evidence/release-alpha1.md. The user authorized public push and OSS application
+passed. Latest prerelease **v0.1.0-alpha.2** is published at 4d475bb; see
+[release evidence](evidence/release-alpha2.md). The user authorized public push and OSS application
 submission and normal included Codex quota for required tests. Extra paid spending
 is not authorized. Real job submissions still need a concrete selected package.
 
@@ -21,8 +22,10 @@ remaining suites passed. We did not rerun already-passing suites. See
 [final integration evidence](evidence/final-integration.md) for exact boundaries.
 The actual-model local-mode scenario separately passed two Codex turns and all
 twelve tools, with pending-only proposals and zero target requests. No additional
-model calls were made for the final UI correction. Alpha.2 packaging and its exact
-public CI result are recorded separately when completed.
+model calls were made for the final corrections. The final release at 4d475bb then
+passed all **293 tests in one complete public Windows CI run**, with zero failures,
+skips or build warnings/errors. Both app/plugin packages passed and are published;
+their public ZIP digests match the local archives. Later changes are documentation only.
 
 | Package | Status | Actual evidence / remaining work |
 |---|---|---|
@@ -34,9 +37,9 @@ public CI result are recorded separately when completed.
 | W09 | VerifiedLocalAndCodex | Default3 / synthetic6 / local12 modes; shared protected services; actual STDIO12 and two-turn real-model12 scenario passed; legacy synthetic model workflow passed |
 | W10 | VerifiedLocalAndModelPilot | Initial11 + expanded12 profiles/240 questions/60 jobs; B0 passes; real six-turn24-question pilot B1 69/72 vs B2 57/72 strict; B2 did not improve |
 | W11 | VerifiedLocal, partial | Negative browser/request/parser/storage tests and final outbound expiry checks; no independent audit |
-| W12 | VerifiedLocal, release check pending | Latest293 distinct tests pass across the clean-checkout sequence and focused fix; exact release CI/package tracked separately |
+| W12 | VerifiedLocalAndCI | Exact release 293/293 Windows CI; app/relocated-plugin package checks and public asset hashes passed |
 | W13 | BlockedExternal | No user-reviewed real CV, selected live target or platform permission; personal-use screen exists |
-| W14 | Public source verified | main pushed; private vulnerability reporting enabled; v0.1.0-alpha.1 published with app/plugin ZIPs |
+| W14 | PublicSourceAndRelease | main pushed; private vulnerability reporting enabled; alpha.2 app/plugin ZIPs and checksums published; alpha.1 retained |
 | W15 | External evidence pending | 0 independent users; no fabricated adoption |
 | W16 | SubmittedAwaitingDecision | Submitted and page-confirmed after explicit terms approval; Pro/Codex only; decision pending |
 | W17 | Local package and isolated host verified | Portable/Codex manifests; actual installed-plugin8 scenarios plus targeted follow-up; store publication blocked on documented publisher/hosting/review gates |

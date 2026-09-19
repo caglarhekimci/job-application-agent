@@ -2,8 +2,10 @@
 
 Local integration (2026-09-20): **293 distinct tests pass** across the final
 clean-checkout sequence and one targeted UI correction. The original failed run
-is retained; see [execution details](evidence/final-integration.md). Package/CI
-results are separate. The actual-model local12 scenario passed two turns and
+is retained; see [execution details](evidence/final-integration.md). The final
+alpha.2 source additionally passed all 293 tests in one complete Windows CI run;
+both packages and public hashes passed. See [release evidence](evidence/release-alpha2.md).
+The actual-model local12 scenario passed two turns and
 twelve tools with zero target requests on its recorded build.
 
 | Capability | Status | Boundary |
@@ -21,7 +23,7 @@ twelve tools with zero target requests on its recorded build.
 | Real model | VerifiedSyntheticPilot | Three-turn Codex workflow with simulated UI approval/one receipt; six-turn24-question comparison B1 69/72 vs B2 57/72; no B2 improvement or live-site claim |
 | LinkedIn search/autofill/submit | BlockedExternal | No verified platform permission |
 | Authorized live career site | BlockedExternal | No selected/authorized live target |
-| GitHub publication | PublicSourceAndRelease | First source da84c25, v0.1.0-alpha.1 at b068723; private vulnerability reporting enabled |
-| CI | Passed for historical checkpoint | GitHub Actions35475408596 passed at5b65ed7; exact alpha.2 result recorded in release evidence |
+| GitHub publication | PublicSourceAndRelease | Alpha.2 app/plugin ZIPs and checksums at 4d475bb; private vulnerability reporting enabled |
+| CI | Passed for exact release | GitHub Actions 35477129404 passed all 293 tests at 4d475bb |
 | OSS grant | SubmittedConfirmed | OpenAI success page observed; private receipt retained; selection/benefit unknown |
 | Local plugin package | VerifiedLocalAndIsolatedHost | Portable/Codex manifests, relocated STDIO and actual isolated host installation; store publication remains externally gated |
